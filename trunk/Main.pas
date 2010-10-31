@@ -75,7 +75,7 @@ implementation
 
 uses
   Camera, Data, Light, Animation, VBO, Sprites, Textures,
-  dfMath,
+  dfMath, dfHInput,
   Classes;
 
 var
@@ -97,6 +97,7 @@ var
 function MyWindowProc(hWnd: HWND; Msg: UINT; wParam: WPARAM; lParam: LPARAM): LRESULT; stdcall;
 var
   x, y: Integer;
+  d: SmallInt;
 begin
   case Msg of
     WM_QUIT:
@@ -147,7 +148,13 @@ begin
     begin
       dX := 0;
       dY := 0;
+    end;
+    WM_MOUSEWHEEL:
+    begin
+      d := HIWORD(wParam);
+      dfInput.KeyboardNotifyWheelMoved(d);
     end
+
   else
     Result := DefWindowProc(hWnd, Msg, wParam, lParam);
   end;
@@ -441,7 +448,7 @@ begin
                    lConstAtten, lLinearAtten, lQuadroAtten);
     VBO.VBOInit();
     Sprites.SpriteInit();
-    texID1 := Textures.renderTexLoad('Data\tile.bmp');
+    //texID1 := Textures.renderTexLoad('Data\tile.bmp');
     texID2 := Textures.renderTexLoad('Data\sphere.bmp');
     QueryPerformanceFrequency(Freq);
     renderReady := True;
@@ -452,6 +459,27 @@ begin
 end;
 
 function renderStep(): Integer; stdcall;
+
+procedure DrawAxes();
+begin
+  //Draw axes
+  glDisable(GL_LIGHTING);
+  glBegin(GL_LINES);
+    glColor3ub(255, 0, 0);
+    glVertex3f(0, 0, 0);
+    glVertex3f(10, 0, 0);
+
+    glColor3ub(0, 255, 0);
+    glVertex3f(0, 0, 0);
+    glVertex3f(0, 10, 0);
+
+    glColor3ub(0, 0, 255);
+    glVertex3f(0, 0, 0);
+    glVertex3f(0, 0, 10);
+  glEnd();
+  glEnable(GL_LIGHTING);
+end;
+
 begin
   Result := 0;
   try
@@ -460,14 +488,22 @@ begin
     glPushMatrix();
       if Camera.CameraStep(dt) = -1 then
         raise Exception.CreateRes(1);
+      DrawAxes();
       if Data.DataStep(dt) = -1 then
         raise Exception.CreateRes(2);
-      Textures.renderTexBind(texID1);
-      VBO.VBOStep(dt);
+      //Textures.renderTexBind(texID1);
+      //VBO.VBOStep(dt);
       Textures.renderTexBind(texID2);
       Sprites.SpriteStep(dt);
       Textures.renderTexUnbind;
       Light.LightStep(dt);
+
+//      if dfInput.IsKeyDown(VK_MOUSEWHEELUP) then
+//      begin
+//        Camera.CameraRotate(1, dfVec3f(0, 1, 0));
+//      end;
+
+
     glPopMatrix();
     Windows.SwapBuffers(FDC);
   except
@@ -496,7 +532,7 @@ begin
     VBO.VBODeInit();
     Sprites.SpriteDeInit();
     Textures.TexDeInit();
-    Textures.renderTexDel(texID1);
+    //Textures.renderTexDel(texID1);
     Textures.renderTexDel(texID2);
     ReleaseDC(WHandle, FDC);
     wglMakeCurrent(FDC, 0);

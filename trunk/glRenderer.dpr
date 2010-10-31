@@ -1,6 +1,7 @@
 {
   LD - Last Developed - Над чем работал в последний раз в этот день
 
+  2010-10-31 - LD Sprites - Добалвена функция экспорта файла вида I X Y Z ...
   2010-09-28 - LD Camera, Main - Поборол камеру. Метод SetCamera переработан.
                                  В соответствие с ним необходимо выстроить
                                  другие методы модуля.
@@ -172,6 +173,8 @@ exports
   renderLightSetPos,  renderLightSetPosMove,
   renderLightSetAmb, renderLightSetAmbMove,
   renderLightSetDif, renderLightSetDifMove,
-  renderLightSetSpec, renderLightSetSpecMove;
+  renderLightSetSpec, renderLightSetSpecMove,
+
+  renderSpritesAddFromFile;
 begin
 end.

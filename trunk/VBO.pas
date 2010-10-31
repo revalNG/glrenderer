@@ -162,23 +162,6 @@ end;
 
 function VBOStep(deltaTime: Single): Integer;
 begin
-  //Draw axes
-  glDisable(GL_LIGHTING);
-  glBegin(GL_LINES);
-    glColor3ub(255, 0, 0);
-    glVertex3f(0, 0, 0);
-    glVertex3f(10, 0, 0);
-
-    glColor3ub(0, 255, 0);
-    glVertex3f(0, 0, 0);
-    glVertex3f(0, 10, 0);
-
-    glColor3ub(0, 0, 255);
-    glVertex3f(0, 0, 0);
-    glVertex3f(0, 0, 10);
-  glEnd();
-  glEnable(GL_LIGHTING);
-
   glColor3f(1, 1, 1);
 
 

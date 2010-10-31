@@ -24,7 +24,9 @@ type
     vLastWheelDelta : TdfInteger;
   public
     function IsKeyDown(const vk: TdfInteger): Boolean; overload;
-    function IsKeyDown(const c: Char): Boolean; overload;        
+    function IsKeyDown(const c: Char): Boolean; overload;
+
+    procedure KeyboardNotifyWheelMoved(wheelDelta : Integer);
   end;
 
 const
@@ -65,6 +67,11 @@ begin
      Result := (GetAsyncKeyState(vk) < 0)
    else
      Result := False;
+end;
+
+procedure TdfInput.KeyboardNotifyWheelMoved(wheelDelta : Integer);
+begin
+   vLastWheelDelta := wheelDelta;
 end;
 
 end.
