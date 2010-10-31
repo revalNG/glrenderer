@@ -17,6 +17,7 @@ begin
   h := renderWindowGetHandle();
 //  renderDataAddFromFile('my.txt');
 //  renderCameraSetPosMove(0, -3, 10, 2, 0.001);
+  renderSpritesAddFromFile('inf.txt');
   repeat
     if PeekMessage(msg, 0, 0, 0, PM_NOREMOVE) then
     begin

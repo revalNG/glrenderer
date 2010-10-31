@@ -151,7 +151,7 @@ var
 begin
   try
     if FileExists(FileName) then
-      strData := TFileStream.Create(FileName, fmOpenRead)
+      strData := TFileStream.Create(FileName, $0000)
     else
       raise Exception.Create('No such a file');
 //    strData1 := TStringList.Create;

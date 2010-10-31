@@ -98,6 +98,9 @@ var
   renderLightSetSpec: function(R, G, B, A: Single): Integer; stdcall;
   renderLightSetSpecMove: function(R, G, B, A, MaxSpeed, Accel: Single): Integer; stdcall;
 
+
+  renderSpritesAddFromFile: function(FileName: PAnsiChar): Integer; stdcall;
+
   dllHandle: THandle;
 
 implementation
@@ -153,6 +156,8 @@ initialization
   renderLightSetDifMove := GetProcAddress(dllHandle, 'renderLightSetDifMove');
   renderLightSetSpec := GetProcAddress(dllHandle, 'renderLightSpecPos');
   renderLightSetSpecMove := GetProcAddress(dllHandle, 'renderLightSetSpecMove');
+
+  renderSpritesAddFromFile := GetProcAddress(dllHandle, 'renderSpritesAddFromFile');
 
 finalization
   FreeLibrary(dllHandle);
