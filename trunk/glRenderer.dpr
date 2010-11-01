@@ -1,6 +1,10 @@
 {
   LD - Last Developed - Над чем работал в последний раз в этот день
 
+  2010-11-01 - LD ----    - Рендерер переведен на GL-хидер a-la XProger
+                          - renderInit2 экспортируется как renderInit. Сама
+                            renderInit - deprecated.
+                            TODO: колесо мыши, общая чистка
   2010-10-31 - LD Sprites - Добалвена функция экспорта файла вида I X Y Z ...
   2010-09-28 - LD Camera, Main - Поборол камеру. Метод SetCamera переработан.
                                  В соответствие с ним необходимо выстроить
@@ -56,6 +60,8 @@
          6)   Result := -10; //Затычка
               Данная строка содержится во всех функциях, требующих внимания
          7) Добавление / Удаление объектов. Имена объектов.
+
+  -->>   8) Колесо мыши - зум.
 
 }
 
@@ -121,7 +127,6 @@ library glRenderer;
 
 uses
   Main in 'Main.pas',
-  dglOpenGL in 'dglOpenGL.pas',
   dfHInput in 'dfHInput.pas',
   dfMath in 'dfMath.pas',
   dfHEngine in 'dfHEngine.pas',
@@ -132,11 +137,11 @@ uses
   VBO in 'VBO.pas',
   Sprites in 'Sprites.pas',
   Log in 'Log.pas',
-  Textures in 'Textures.pas';
+  Textures in 'Textures.pas',
+  dfHGL in 'dfHGL.pas';
 
 exports
   renderInit,
-  renderInit2,
   renderStep,
   renderDeInit,
 

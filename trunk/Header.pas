@@ -14,8 +14,7 @@ const
 var
   //Œ—ÕŒ¬Õ€≈ ‘”Õ ÷»»
 
-  renderInit: function (Width, Height, X,Y: Integer; FOV, ZNear, ZFar: Single): Integer; stdcall;
-  renderInit2: function(FileName: PAnsiChar): Integer; stdcall;
+  renderInit: function(FileName: PAnsiChar): Integer; stdcall;
   renderStep: function: Integer; stdcall;
   renderDeInit: function: Integer; stdcall;
 
@@ -108,7 +107,7 @@ implementation
 initialization
   dllHandle := LoadLibrary(dllname);
   renderInit := GetProcAddress(dllHandle, 'renderInit');
-  renderInit2 := GetProcAddress(dllHandle, 'renderInit2');
+//  renderInit2 := GetProcAddress(dllHandle, 'renderInit2');
   renderStep := GetProcAddress(dllHandle, 'renderStep');
   renderDeInit := GetProcAddress(dllHandle, 'renderDeInit');
 

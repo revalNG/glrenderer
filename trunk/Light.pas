@@ -34,14 +34,13 @@ interface
 implementation
 
 uses
-  dglOpenGl, dfMath, dfHInput;
+  dfHGL, dfMath, dfHInput;
 
 var
   LightPos: TdfVec4f;
   Amb, Dif, Spec: TdfVec4f;
 
   //debug
-  f: PGLUQuadric;
   t: Single;
   stop: Boolean;
 
@@ -52,18 +51,18 @@ function renderLightSet(X, Y, Z,
                           SpecR, SpecG, SpecB, SpecA,
                           ConstAtten, LinAtten, QuadroAtten: Single): Integer; stdcall;
 begin
-  glEnable(GL_LIGHT0);
+  gl.Enable(GL_LIGHT0);
   LightPos := dfVec4f(X, Y, Z, 0);
-  glLightfv(GL_LIGHT0, GL_POSITION, @LightPos);
-  glLightfv(GL_LIGHT0, GL_CONSTANT_ATTENUATION, @ConstAtten);
-  glLightfv(GL_LIGHT0, GL_LINEAR_ATTENUATION, @LinAtten);
-  glLightfv(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, @QuadroAtten);
+  gl.Lightfv(GL_LIGHT0, GL_POSITION, @LightPos);
+  gl.Lightfv(GL_LIGHT0, GL_CONSTANT_ATTENUATION, @ConstAtten);
+  gl.Lightfv(GL_LIGHT0, GL_LINEAR_ATTENUATION, @LinAtten);
+  gl.Lightfv(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, @QuadroAtten);
   Amb  := dfVec4f(AmbR, AmbG, AmbB, AmbA);
   Dif  := dfVec4f(DifR, DifG, DifB, DifA);
   Spec := dfVec4f(SpecR, SpecG, SpecB, SpecA);
-  glLightfv(GL_LIGHT0, GL_AMBIENT, @Amb);
-  glLightfv(GL_LIGHT0, GL_DIFFUSE, @Dif);
-  glLightfv(GL_LIGHT0, GL_SPECULAR, @Spec);
+  gl.Lightfv(GL_LIGHT0, GL_AMBIENT, @Amb);
+  gl.Lightfv(GL_LIGHT0, GL_DIFFUSE, @Dif);
+  gl.Lightfv(GL_LIGHT0, GL_SPECULAR, @Spec);
   Result := 0;
 end;
 
@@ -71,7 +70,7 @@ end;
 function renderLightSetPos(X, Y, Z: Single): Integer; stdcall;
 begin
   LightPos := dfVec4f(X, Y, Z, 0);
-  glLightfv(GL_LIGHT0, GL_POSITION, @LightPos);
+  gl.Lightfv(GL_LIGHT0, GL_POSITION, @LightPos);
   Result := 0;
 end;
 
@@ -84,7 +83,7 @@ end;
 function renderLightSetAmb(R, G, B, A: Single): Integer; stdcall;
 begin
   Amb := dfVec4f(R, G, B, A);
-  glLightfv(GL_LIGHT0, GL_AMBIENT, @Amb);
+  gl.Lightfv(GL_LIGHT0, GL_AMBIENT, @Amb);
   Result := 0;
 end;
 
@@ -96,7 +95,7 @@ end;
 function renderLightSetDif(R, G, B, A: Single): Integer; stdcall;
 begin
   Dif := dfVec4f(R, G, B, A);
-  glLightfv(GL_LIGHT0, GL_DIFFUSE, @Dif);
+  gl.Lightfv(GL_LIGHT0, GL_DIFFUSE, @Dif);
   Result := 0;
 end;
 
@@ -108,7 +107,7 @@ end;
 function renderLightSetSpec(R, G, B, A: Single): Integer; stdcall;
 begin
   Spec := dfVec4f(R, G, B, A);
-  glLightfv(GL_LIGHT0, GL_SPECULAR, @Spec);
+  gl.Lightfv(GL_LIGHT0, GL_SPECULAR, @Spec);
   Result := 0;
 end;
 
@@ -122,11 +121,9 @@ end;
 function LightInit(): Integer;
 
 begin
-  glEnable(GL_LIGHT0);
+  gl.Enable(GL_LIGHT0);
 
-  f := gluNewQuadric();
   Result := 0;
-
   t := 0;
 end;
 
@@ -139,23 +136,21 @@ begin
   if not stop then
     t := t + deltaTime;
   LightPos := dfVec4f(5*sin(t), 3*sin(t), 5*cos(t), 0);
-  glLightfv(GL_LIGHT0, GL_POSITION, @LightPos);
+  gl.Lightfv(GL_LIGHT0, GL_POSITION, @LightPos);
 
-  glPushAttrib(GL_COLOR);
-  glColor3f(dif.x, dif.y, dif.z);
-  glPushMatrix();
-  glTranslatef(LightPos.x, LightPos.y, LightPos.z);
-  glDisable(GL_LIGHTING);
-  gluSphere(f, 0.1, 8, 8);
-  glEnable(GL_LIGHTING);
-  glPopMatrix();
-  glPopAttrib();
+  gl.PushAttrib(GL_COLOR);
+  gl.Color3f(dif.x, dif.y, dif.z);
+  gl.Disable(GL_LIGHTING);
+  gl.Beginp(GL_POINTS);
+    gl.Vertex3f(LightPos.x, LightPos.y, LightPos.z);
+  gl.Endp;
+  gl.Enable(GL_LIGHTING);
+  gl.PopAttrib();
 end;
 
 function LightDeInit(): Integer;
 begin
   Result := -10; //Затычка
-  gluDeleteQuadric(f);
 end;
 
 end.
