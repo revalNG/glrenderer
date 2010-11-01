@@ -10,13 +10,10 @@ function VBODeInit(): Integer;
 implementation
 
 uses
-  dglOpenGL, dfMath, Textures;
+  dfHGL, dfMath, Textures;
 
 var
-  bufID: GLUint;
-  indID: GLUint;
-  nID: GLUInt;
-  tID: GLUInt;
+  bufID, indID, nID, tID: LongInt;
   indices: array[0..35] of byte = (0, 1, 3, //back
                                    0, 3, 2,
 
@@ -134,58 +131,58 @@ begin
   tex[22] := dfVec2f(1, 0);
   tex[23] := dfVec2f(0, 0);
 
-  glGenBuffers(1, @bufID);
-  glBindBuffer(GL_ARRAY_BUFFER, bufID);
-  glBufferData(GL_ARRAY_BUFFER, SizeOf(TdfVec3f)*Length(vertices), @vertices[0], GL_STATIC_DRAW);
-  glBindBuffer(GL_ARRAY_BUFFER, 0);
+  gl.GenBuffers(1, @bufID);
+  gl.BindBuffer(GL_ARRAY_BUFFER, bufID);
+  gl.BufferData(GL_ARRAY_BUFFER, SizeOf(TdfVec3f)*Length(vertices), @vertices[0], GL_STATIC_DRAW);
+  gl.BindBuffer(GL_ARRAY_BUFFER, 0);
   SetLength(vertices, 0);
 
-  glGenBuffers(1, @nID);
-  glBindBuffer(GL_ARRAY_BUFFER, nID);
-  glBufferData(GL_ARRAY_BUFFER, SizeOf(TdfVec3f)*Length(normals), @normals[0], GL_STATIC_DRAW);
-  glBindBuffer(GL_ARRAY_BUFFER, 0);
+  gl.GenBuffers(1, @nID);
+  gl.BindBuffer(GL_ARRAY_BUFFER, nID);
+  gl.BufferData(GL_ARRAY_BUFFER, SizeOf(TdfVec3f)*Length(normals), @normals[0], GL_STATIC_DRAW);
+  gl.BindBuffer(GL_ARRAY_BUFFER, 0);
   SetLength(normals, 0);
 
-  glGenBuffers(1, @tID);
-  glBindBuffer(GL_ARRAY_BUFFER, tID);
-  glBufferData(GL_ARRAY_BUFFER, SizeOf(TdfVec2f)*Length(tex), @tex[0], GL_STATIC_DRAW);
-  glBindBuffer(GL_ARRAY_BUFFER, 0);
+  gl.GenBuffers(1, @tID);
+  gl.BindBuffer(GL_ARRAY_BUFFER, tID);
+  gl.BufferData(GL_ARRAY_BUFFER, SizeOf(TdfVec2f)*Length(tex), @tex[0], GL_STATIC_DRAW);
+  gl.BindBuffer(GL_ARRAY_BUFFER, 0);
   SetLength(tex, 0);
 
-  glGenBuffers(1, @IndID);
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IndID);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, SizeOf(GLUByte)*Length(indices), @indices[0], GL_STATIC_DRAW);
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+  gl.GenBuffers(1, @IndID);
+  gl.BindBuffer(GL_ELEMENT_ARRAY_BUFFER, IndID);
+  gl.BufferData(GL_ELEMENT_ARRAY_BUFFER, SizeOf(Byte)*Length(indices), @indices[0], GL_STATIC_DRAW);
+  gl.BindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
   Result := -10;
 end;
 
 function VBOStep(deltaTime: Single): Integer;
 begin
-  glColor3f(1, 1, 1);
+  gl.Color3f(1, 1, 1);
 
 
-  glEnableClientState(GL_VERTEX_ARRAY);
-  glBindBuffer(GL_ARRAY_BUFFER, bufID);
-  glVertexPointer(3, GL_FLOAT, 0, nil);
+  gl.EnableClientState(GL_VERTEX_ARRAY);
+  gl.BindBuffer(GL_ARRAY_BUFFER, bufID);
+  gl.VertexPointer(3, GL_FLOAT, 0, nil);
 
-  glEnableClientState(GL_NORMAL_ARRAY);
-  glBindBuffer(GL_ARRAY_BUFFER, nID);
-  glNormalPointer(GL_FLOAT, 0, nil);
+  gl.EnableClientState(GL_NORMAL_ARRAY);
+  gl.BindBuffer(GL_ARRAY_BUFFER, nID);
+  gl.NormalPointer(GL_FLOAT, 0, nil);
 
-  glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-  glBindBuffer(GL_ARRAY_BUFFER, tID);
-  glTexCoordPointer(2, GL_FLOAT, 0, nil);
+  gl.EnableClientState(GL_TEXTURE_COORD_ARRAY);
+  gl.BindBuffer(GL_ARRAY_BUFFER, tID);
+  gl.TexCoordPointer(2, GL_FLOAT, 0, nil);
 
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IndID);
+  gl.BindBuffer(GL_ELEMENT_ARRAY_BUFFER, IndID);
 
-  glDrawElements(GL_TRIANGLES, Length(indices), GL_UNSIGNED_BYTE, nil);
+  gl.DrawElements(GL_TRIANGLES, Length(indices), GL_UNSIGNED_BYTE, nil);
 
-  glDisableClientState(GL_VERTEX_ARRAY);
-  glDisableClientState(GL_NORMAL_ARRAY);
-  glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-  glBindBuffer(GL_ARRAY_BUFFER, 0);
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+  gl.DisableClientState(GL_VERTEX_ARRAY);
+  gl.DisableClientState(GL_NORMAL_ARRAY);
+  gl.DisableClientState(GL_TEXTURE_COORD_ARRAY);
+  gl.BindBuffer(GL_ARRAY_BUFFER, 0);
+  gl.BindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
   Result := -10;
 end;
@@ -193,10 +190,10 @@ end;
 
 function VBODeInit(): Integer;
 begin
-  glDeleteBuffers(1, @bufID);
-  glDeleteBuffers(1, @indID);
-  glDeleteBuffers(1, @nID);
-  glDeleteBuffers(1, @tID);
+  gl.DeleteBuffers(1, @bufID);
+  gl.DeleteBuffers(1, @indID);
+  gl.DeleteBuffers(1, @nID);
+  gl.DeleteBuffers(1, @tID);
 
   Result := -10;
 end;

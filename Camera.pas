@@ -11,7 +11,7 @@ unit Camera;
 interface
 
 uses
-  dfMath, dglOpenGL, dfHEngine, dfHInput;
+  dfMath, dfHGL, dfHEngine, dfHInput;
 
   //¬Õ≈ÿÕ»≈ › —œŒ–“»–”≈Ã€≈ ‘”Õ ÷»»
 
@@ -228,15 +228,15 @@ function CameraInit(x, y, w, h: Integer; FOV, ZNear, ZFar: Single): Integer;
 begin
   Result := 0;
   try
-    glViewport(x, y, w, h);
+    gl.Viewport(x, y, w, h);
     Proj.Identity;
     Proj.Perspective(FOV, w / h, ZNear, ZFar);
     ZeroMemory(@aPos, SizeOf(aPos));
     ZeroMemory(@aTarget, SizeOf(aTarget));
     ZeroMemory(@aUp, SizeOf(aUp));
-    glMatrixMode(GL_PROJECTION);
-    glLoadMatrixf(@Proj);
-    glClearColor(0.3, 0.3, 0.3, 1.0);
+    gl.MatrixMode(GL_PROJECTION);
+    gl.LoadMatrixf(Proj);
+    gl.ClearColor(0.3, 0.3, 0.3, 1.0);
   except
     Result := -1;
     Exit;
@@ -269,10 +269,10 @@ begin
   try
     if aPos.Enabled then
       SetPos();
-    glMatrixMode(GL_PROJECTION);
-    glLoadMatrixf(@Proj);
-    glMatrixMode(GL_MODELVIEW);
-    glMultMatrixf(@Model);
+    gl.MatrixMode(GL_PROJECTION);
+    gl.LoadMatrixf(Proj);
+    gl.MatrixMode(GL_MODELVIEW);
+    gl.MultMatrixf(Model);
   except
     Result := -1;
     Exit;

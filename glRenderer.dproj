@@ -45,7 +45,6 @@
 				<MainSource>MainSource</MainSource>
 			</DelphiCompile>
 			<DCCReference Include="Main.pas"/>
-			<DCCReference Include="dglOpenGL.pas"/>
 			<DCCReference Include="dfHInput.pas"/>
 			<DCCReference Include="dfMath.pas"/>
 			<DCCReference Include="dfHEngine.pas"/>
@@ -57,6 +56,7 @@
 			<DCCReference Include="Sprites.pas"/>
 			<DCCReference Include="Log.pas"/>
 			<DCCReference Include="Textures.pas"/>
+			<DCCReference Include="dfHGL.pas"/>
 			<BuildConfiguration Include="Base">
 				<Key>Base</Key>
 			</BuildConfiguration>

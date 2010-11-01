@@ -21,7 +21,7 @@ function TexDeInit(): Integer;
 implementation
 
 uses
-  dglOpenGL, TexLoad;
+  dfHGL, TexLoad;
 
 function renderTexLoad(FileName: PAnsiChar): Integer; stdcall;
 var
@@ -29,24 +29,24 @@ var
   Data: Pointer;
   W, H: Integer;
 begin
-  glGenTextures(1, @Result);
-  glBindTexture(GL_TEXTURE_2D, Result);
+  gl.GenTextures(1, @Result);
+  gl.BindTexture(GL_TEXTURE_2D, Result);
   New(Data);
   Data := TexLoad.LoadTexture(FileName, Format, W, H, False);
-  glTexImage2D(GL_TEXTURE_2D, 0, Format, W, H, 0, Format, GL_UNSIGNED_BYTE, Data);
-  glTexParameteri( GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER, GL_LINEAR );
-	glTexParameteri( GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER, GL_LINEAR );
-  glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-  glBindTexture(GL_TEXTURE_2D, 0);
+  gl.TexImage2D(GL_TEXTURE_2D, 0, TGLConst(Format), W, H, 0, TGLConst(Format), GL_UNSIGNED_BYTE, Data);
+  gl.TexParameteri( GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER, GL_LINEAR );
+	gl.TexParameteri( GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+  gl.TexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+  gl.BindTexture(GL_TEXTURE_2D, 0);
   Dispose(Data);
 end;
 
 function renderTexBind(ID: Integer): Integer;
 begin
-  if glIsTexture(ID) then
+  if gl.IsTexture(ID) then
   begin
-    glBindTexture(GL_TEXTURE_2D, 0);
-    glBindTexture(GL_TEXTURE_2D, ID);
+    gl.BindTexture(GL_TEXTURE_2D, 0);
+    gl.BindTexture(GL_TEXTURE_2D, ID);
     Result := 0;
   end
   else
@@ -55,13 +55,13 @@ end;
 
 function renderTexUnbind(): Integer;
 begin
-  glBindTexture(GL_TEXTURE_2D, 0);
+  gl.BindTexture(GL_TEXTURE_2D, 0);
   Result := 0;
 end;
 
 function renderTexDel(ID: Integer): Integer;
 begin
-  glDeleteTextures(1, @ID);
+  gl.DeleteTextures(1, @ID);
   Result := -10;
 end;
 

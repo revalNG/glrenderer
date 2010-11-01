@@ -10,7 +10,7 @@ unit Data;
 interface
 
 uses
-  dglOpengl;
+  dfHGL;
 
 const
   cCurrentVersion = 1;
@@ -84,7 +84,7 @@ type
     Visible: Boolean;
   end;
 var
-  f: PGLUQuadric;
+//  f: PGLUQuadric;
   aRenderData: array of TrenderObject;
 
 //Загрузка данных для рендера из внешнего файла.
@@ -414,8 +414,8 @@ end;
 
 function DataInit(): Integer;
 begin
-  f := gluNewQuadric;
-  glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
+//  f := gluNewQuadric;
+//  glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
   SetLength(aRenderData, 0);
   Result := -10; //Затычка
 end;
@@ -424,18 +424,18 @@ function DataStep(deltaTime: Single): Integer;
 var
   i: Integer;
 begin
-  glMatrixMode(GL_MODELVIEW);
+  gl.MatrixMode(GL_MODELVIEW);
 
   for i := 0 to High(aRenderData) do
     with aRenderData[i] do
     begin
-      glPushMatrix();
-      glMultMatrixf(@Model);
-      glColor4f(Color.x, color.y, color.z, color.w);
+      gl.PushMatrix();
+      gl.MultMatrixf(Model);
+      gl.Color4f(Color.x, color.y, color.z, color.w);
       case Prim of
         rSphere:
         begin
-          gluSphere(f, p1, 16, 16);
+          //gluSphere(f, p1, 16, 16);
         end;
         rCube:
         begin
@@ -443,14 +443,14 @@ begin
         end;
         rCylinder:
         begin
-          gluCylinder(f, p2, p2, p1, 16, 16);
-          gluDisk(f, 0, p2, 16, 16);
-          glRotatef(180, 0, 1, 0);
-          glTranslatef(0, 0, -p1);
-          gluDisk(f, 0, p2, 16, 16);
+          //gluCylinder(f, p2, p2, p1, 16, 16);
+          //gluDisk(f, 0, p2, 16, 16);
+          //glRotatef(180, 0, 1, 0);
+          //glTranslatef(0, 0, -p1);
+          //gluDisk(f, 0, p2, 16, 16);
         end;
       end;
-      glPopMatrix();
+      gl.PopMatrix();
     end;
 
   Result := -10; //Затычка
@@ -458,7 +458,7 @@ end;
 
 function DataDeInit(): Integer;
 begin
-  gluDeleteQuadric(f);
+  //gluDeleteQuadric(f);
   SetLength(aRenderData, 0);
   Result := -10; //Затычка
 end;

@@ -14,7 +14,7 @@ unit Main;
 interface
 
 uses
-  Windows, Messages, SysUtils, dglOpenGL;
+  Windows, Messages, SysUtils, dfHGL;
 
 
 const
@@ -27,30 +27,8 @@ const
   cDefLinearAtten = 1;
   cDefQuadroAtten = 1;
 
-  {
-    !!!!!
-    Deprecated(устаревшая)-версия инициализации.
-    Рекомендуется использовать renderInit2.
-    Впоследствии, renderInit будет исключен из функционала.
-    !!!!!
-
-    Инициализация рендера.
-    Передача необходимых параметров:
-    Width, Height      - Размеры окна в оконных координатах
-    X,Y                - Позиция окна в оконных координатах
-    FOV(Field of View) - Угол обзора
-    ZNear              - Ближняя плоскость отсечения
-    ZFar               - Дальняя плоскость отсечения
-    Возвращаемое значение - код ошибки.
-     0 - Код удачного завершения
-    -1 - Неизвестная ошибка
-     1 - Ошибка создания окна, получен нулевой хэндл
-
-  }
-  function renderInit(Width, Height, X,Y: Integer;
-                      FOV, ZNear, ZFar: Single): Integer; stdcall;
-  //Инициализация рендера с использованием файла параметров
-  function renderInit2(FileName: PAnsiChar): Integer; stdcall;
+   //Инициализация рендера с использованием файла параметров
+  function renderInit(FileName: PAnsiChar): Integer; stdcall;
 
   {
     Шаг рендера.
@@ -160,72 +138,7 @@ begin
   end;
 end;
 
-function renderInit(Width, Height, X,Y: Integer; FOV, ZNear, ZFar: Single): Integer; stdcall;
-var
-  WC: TWndClass;
-  Style: Cardinal;
-begin
-  Result := -1;
-  Style := WS_OVERLAPPEDWINDOW or WS_CLIPSIBLINGS or WS_CLIPCHILDREN;
-  ZeroMemory(@WC, SizeOf(TWndClass));
-  with WC do
-  begin
-    style := CS_VREDRAW or CS_HREDRAW or CS_OWNDC;
-    hInstance := 0;
-    hIcon := LoadIcon(0, IDI_WINLOGO);
-    hCursor := LoadCursor(0, IDC_ARROW);
-    hbrBackground := GetStockObject (White_Brush);
-    lpfnWndProc := @MyWindowProc;
-    lpszClassName := 'TMyWindow';
-  end;
-  Windows.RegisterClass(WC);
-  WHandle := CreateWindow('TMyWindow', 'MyCaption', Style,
-                          X, Y, Width,
-                          Height, 0, 0, WC.hInstance, nil);
-  if WHandle = 0 then
-  begin
-    Result := 1;
-    Exit;
-  end;
-
-  FDC := GetDC(WHandle);
-  InitOpenGL();
-  FHGLRC := CreateRenderingContext(FDC, [opDoubleBuffered], 32, 16, 16, 16,16, 0);
-
-  ActivateRenderingContext(FDC, FHGLRC);
-
-  glEnable(GL_DEPTH_TEST);
-  glEnable(GL_LIGHTING);
-//  glEnable(GL_CULL_FACE);
-  glEnable(GL_COLOR_MATERIAL);
-//  glEnable(GL_FRONT_AND_BACK);
-
-  ShowWindow(WHandle, CmdShow);
-  UpdateWindow(WHandle);
-
-  cFOV := FOV;
-  cZNear := ZNear;
-  cZFar := ZFar;
-  Camera.CameraInit(0, 0, Width, Height, FOV, ZNear, ZFar);
-  //Задаем параметры камеры
-  renderCameraSet(1, 1, -10, 0, 0, 0, 0, 1, 0);
-  Data.DataInit();
-  //2010-05-03 - Добавлена инициализация анимации
-  Animation.AnimInit();
-  Light.LightInit();
-  //Задаем параметры источника света
-  renderLightSet(5, 5, 5,
-                 0.0, 0.0, 0.0, 1.0,
-                 0.8, 0.8, 0.8, 1.0,
-                 1.0, 1.0, 1.0, 1.0,
-                 1, 1, 1);
-
-  QueryPerformanceFrequency(Freq);
-  renderReady := True;
-  Result := 0;
-end;
-
-function renderInit2(FileName: PAnsiChar): Integer; stdcall;
+function renderInit(FileName: PAnsiChar): Integer; stdcall;
 var
   strData: TFileStream;
   par: TParser;
@@ -236,6 +149,9 @@ var
 
   WC: TWndClass;
   Style: Cardinal;
+
+  PFD: TPixelFormatDescriptor;
+  nPixelFormat: Integer;
 begin
 
   W := cDefWindowW;
@@ -416,18 +332,34 @@ begin
     end;
 
     FDC := GetDC(WHandle);
-    InitOpenGL();
-    FHGLRC := CreateRenderingContext(FDC, [opDoubleBuffered], 32, 16, 16, 16,16, 0);
+    Assert(FDC <> 0, 'Error while getting DC from handle, code 2');
 
-    ActivateRenderingContext(FDC, FHGLRC);
+    pfd.nSize := SizeOf(PIXELFORMATDESCRIPTOR);
+    pfd.nVersion := 1;
+    pfd.dwFlags  := PFD_DRAW_TO_WINDOW or PFD_SUPPORT_OPENGL or PFD_DOUBLEBUFFER;
+    pfd.iPixelType := PFD_TYPE_RGBA;
+    pfd.cColorBits := 32;
 
-    glEnable(GL_DEPTH_TEST);
-    glEnable(GL_LIGHTING);
-    glEnable(GL_CULL_FACE);
-    glEnable(GL_COLOR_MATERIAL);
-    glEnable(GL_TEXTURE_2D);
-    wglSwapIntervalExt(0);
-//    glEnable(GL_FRONT_AND_BACK);
+    nPixelFormat := ChoosePixelFormat(FDC, @pfd);
+    Assert(nPixelFormat <> 0, 'Error while getting PFD, code 3');
+    SetPixelFormat(FDC, nPixelFormat, @pfd);
+
+    FHGLRC := wglCreateContext(FDC);
+    Assert(FHGLRC <> 0, 'Error while getting OGL context, code 4');
+
+    wglMakeCurrent(FDC, FHGLRC);
+
+    //InitOpenGL();
+    //FHGLRC := CreateRenderingContext(FDC, [opDoubleBuffered], 32, 16, 16, 16,16, 0);
+    //ActivateRenderingContext(FDC, FHGLRC);
+
+    gl.Init;
+    gl.Enable(GL_DEPTH_TEST);
+    gl.Enable(GL_LIGHTING);
+    gl.Enable(GL_CULL_FACE);
+    gl.Enable(GL_COLOR_MATERIAL);
+    gl.Enable(GL_TEXTURE_2D);
+    gl.SwapInterval(0);
 
     ShowWindow(WHandle, CmdShow);
     UpdateWindow(WHandle);
@@ -463,29 +395,30 @@ function renderStep(): Integer; stdcall;
 procedure DrawAxes();
 begin
   //Draw axes
-  glDisable(GL_LIGHTING);
-  glBegin(GL_LINES);
-    glColor3ub(255, 0, 0);
-    glVertex3f(0, 0, 0);
-    glVertex3f(10, 0, 0);
+  gl.Disable(GL_LIGHTING);
+  gl.Beginp(GL_LINES);
+    gl.Color4ub(255, 0, 0, 255);
+    gl.Vertex3f(0, 0, 0);
+    gl.Vertex3f(10, 0, 0);
 
-    glColor3ub(0, 255, 0);
-    glVertex3f(0, 0, 0);
-    glVertex3f(0, 10, 0);
+    gl.Color4ub(0, 255, 0, 255);
+    gl.Vertex3f(0, 0, 0);
+    gl.Vertex3f(0, 10, 0);
 
-    glColor3ub(0, 0, 255);
-    glVertex3f(0, 0, 0);
-    glVertex3f(0, 0, 10);
-  glEnd();
-  glEnable(GL_LIGHTING);
+    gl.Color4ub(0, 0, 255, 255);
+    gl.Vertex3f(0, 0, 0);
+    gl.Vertex3f(0, 0, 10);
+  gl.Endp();
+  gl.Enable(GL_LIGHTING);
 end;
 
 begin
   Result := 0;
   try
-    glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT or GL_STENCIL_BUFFER_BIT);
-    glMatrixMode(GL_MODELVIEW);
-    glPushMatrix();
+    gl.Clear(GL_COLOR_BUFFER_BIT);
+    gl.Clear(GL_DEPTH_BUFFER_BIT);
+    gl.MatrixMode(GL_MODELVIEW);
+    gl.PushMatrix();
       if Camera.CameraStep(dt) = -1 then
         raise Exception.CreateRes(1);
       DrawAxes();
@@ -504,7 +437,7 @@ begin
 //      end;
 
 
-    glPopMatrix();
+    gl.PopMatrix();
     Windows.SwapBuffers(FDC);
   except
     on E: Exception do
@@ -534,9 +467,10 @@ begin
     Textures.TexDeInit();
     //Textures.renderTexDel(texID1);
     Textures.renderTexDel(texID2);
+    wglDeleteContext(FHGLRC);
     ReleaseDC(WHandle, FDC);
     wglMakeCurrent(FDC, 0);
-    DestroyRenderingContext(FHGLRC);
+//    DestroyRenderingContext(FHGLRC);
     FDC := 0;
     FHGLRC := 0;
     CloseWindow(WHandle);
