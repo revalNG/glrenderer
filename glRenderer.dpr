@@ -138,7 +138,8 @@ uses
   Sprites in 'Sprites.pas',
   Log in 'Log.pas',
   Textures in 'Textures.pas',
-  dfHGL in 'dfHGL.pas';
+  dfHGL in 'dfHGL.pas',
+  Shaders in 'Shaders.pas';
 
 exports
   renderInit,

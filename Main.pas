@@ -380,7 +380,7 @@ begin
                    lConstAtten, lLinearAtten, lQuadroAtten);
     VBO.VBOInit();
     Sprites.SpriteInit();
-    //texID1 := Textures.renderTexLoad('Data\tile.bmp');
+    texID1 := Textures.renderTexLoad('Data\tile.bmp');
     texID2 := Textures.renderTexLoad('Data\sphere.bmp');
     QueryPerformanceFrequency(Freq);
     renderReady := True;
@@ -424,8 +424,8 @@ begin
       DrawAxes();
       if Data.DataStep(dt) = -1 then
         raise Exception.CreateRes(2);
-      //Textures.renderTexBind(texID1);
-      //VBO.VBOStep(dt);
+      Textures.renderTexBind(texID1);
+      VBO.VBOStep(dt);
       Textures.renderTexBind(texID2);
       Sprites.SpriteStep(dt);
       Textures.renderTexUnbind;
@@ -465,7 +465,7 @@ begin
     VBO.VBODeInit();
     Sprites.SpriteDeInit();
     Textures.TexDeInit();
-    //Textures.renderTexDel(texID1);
+    Textures.renderTexDel(texID1);
     Textures.renderTexDel(texID2);
     wglDeleteContext(FHGLRC);
     ReleaseDC(WHandle, FDC);

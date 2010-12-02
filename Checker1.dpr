@@ -14,7 +14,7 @@ begin
   WriteLn(' ===== Press ESCAPE to EXIT ===== ');
   renderInit('settings.txt');
   h := renderWindowGetHandle();
-  renderSpritesAddFromFile('inf.txt');
+//  renderSpritesAddFromFile('inf.txt');
   repeat
     if PeekMessage(msg, 0, 0, 0, PM_NOREMOVE) then
     begin
@@ -26,7 +26,7 @@ begin
     end
     else
     begin
-      SendMessage(h, 15, 0, 0);
+      SendMessage(h, 15, 0, 0);  //WM_PAINT
     end;
   until GetAsyncKeyState(VK_ESCAPE) < 0;
   renderDeInit;
