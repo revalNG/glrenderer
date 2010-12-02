@@ -57,6 +57,7 @@
 			<DCCReference Include="Log.pas"/>
 			<DCCReference Include="Textures.pas"/>
 			<DCCReference Include="dfHGL.pas"/>
+			<DCCReference Include="Shaders.pas"/>
 			<BuildConfiguration Include="Base">
 				<Key>Base</Key>
 			</BuildConfiguration>
