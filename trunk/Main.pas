@@ -52,7 +52,7 @@ var
 implementation
 
 uses
-  Camera, Data, Light, Animation, VBO, Sprites, Textures,
+  Camera, Data, Light, Animation, VBO, Sprites, Textures, Shaders,
   dfMath, dfHInput,
   Classes;
 
@@ -68,6 +68,8 @@ var
   cFOV, cZNear, cZFar: Single;
 
   texID1, texID2: Integer;
+  vs, fs: Shaders.TShader;
+  prog: Shaders.TShaderProgram;
 
   dx, dy: Integer;
   spinVec1, spinVec2: TdfVec3f;
@@ -380,8 +382,19 @@ begin
                    lConstAtten, lLinearAtten, lQuadroAtten);
     VBO.VBOInit();
     Sprites.SpriteInit();
+    //
     texID1 := Textures.renderTexLoad('Data\tile.bmp');
     texID2 := Textures.renderTexLoad('Data\sphere.bmp');
+    vs := TShader.Create(TGLConst.GL_VERTEX_SHADER);
+    vs.LoadFromFile('Data\vs.txt');
+    fs := TShader.Create(TGLConst.GL_FRAGMENT_SHADER);
+    fs.LoadFromFile('Data\fs.txt');
+    prog := TShaderProgram.Create();
+    prog.AttachVertexShader(vs);
+    prog.AttachFragmentShader(fs);
+    prog.Link;
+
+    //
     QueryPerformanceFrequency(Freq);
     renderReady := True;
     Result := 0;
@@ -425,7 +438,9 @@ begin
       if Data.DataStep(dt) = -1 then
         raise Exception.CreateRes(2);
       Textures.renderTexBind(texID1);
+      prog.Use();
       VBO.VBOStep(dt);
+      prog.UseNull();
       Textures.renderTexBind(texID2);
       Sprites.SpriteStep(dt);
       Textures.renderTexUnbind;
@@ -465,8 +480,13 @@ begin
     VBO.VBODeInit();
     Sprites.SpriteDeInit();
     Textures.TexDeInit();
+    //
     Textures.renderTexDel(texID1);
     Textures.renderTexDel(texID2);
+    prog.Free;
+    vs.Free;
+    fs.Free;
+    //
     wglDeleteContext(FHGLRC);
     ReleaseDC(WHandle, FDC);
     wglMakeCurrent(FDC, 0);
