@@ -386,9 +386,9 @@ begin
     texID1 := Textures.renderTexLoad('Data\tile.bmp');
     texID2 := Textures.renderTexLoad('Data\sphere.bmp');
     vs := TShader.Create(TGLConst.GL_VERTEX_SHADER);
-    vs.LoadFromFile('Data\vs.txt');
+    vs.LoadFromFile('Data\vs_phong.txt');
     fs := TShader.Create(TGLConst.GL_FRAGMENT_SHADER);
-    fs.LoadFromFile('Data\fs.txt');
+    fs.LoadFromFile('Data\fs_phong.txt');
     prog := TShaderProgram.Create();
     prog.AttachVertexShader(vs);
     prog.AttachFragmentShader(fs);
@@ -438,13 +438,21 @@ begin
       if Data.DataStep(dt) = -1 then
         raise Exception.CreateRes(2);
       Textures.renderTexBind(texID1);
+      Light.LightStep(dt);
       prog.Use();
+      prog.SetUniforms('fSpecularPower', 5);
+      prog.SetUniforms('fvLightPosition', Light.LightGetPos);
+      prog.SetUniforms('fvEyePosition', Camera.CameraGetPos);
+      prog.SetUniforms('fvAmbient', dfVec4f(0.26, 0.26, 0.26, 1.0));
+      prog.SetUniforms('fvDiffuse', dfVec4f(0.88, 0.88, 0.88, 1.0));
+      prog.SetUniforms('fvSpecular', dfVec4f(0.2, 0.2, 0.2, 1.0));
+      prog.SetUniforms('baseMap', 0);
+
       VBO.VBOStep(dt);
       prog.UseNull();
       Textures.renderTexBind(texID2);
       Sprites.SpriteStep(dt);
       Textures.renderTexUnbind;
-      Light.LightStep(dt);
 
 //      if dfInput.IsKeyDown(VK_MOUSEWHEELUP) then
 //      begin
