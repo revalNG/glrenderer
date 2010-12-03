@@ -16,11 +16,11 @@ void main( void )
    vec3  fvLightDirection = normalize( LightDirection );
    vec3  fvNormal         = normalize( Normal );
    float fNDotL           = dot( fvNormal, fvLightDirection ); 
-   fNDotL           = max(0.0, fNDotL);
+//   fNDotL           = max(0.0, fNDotL);
    
    vec3  fvReflection     = normalize( ( ( 2.0 * fvNormal ) * fNDotL ) - fvLightDirection ); 
    vec3  fvViewDirection  = normalize( ViewDirection );
-   float fRDotV           = max( 0.0, dot( fvReflection, fvViewDirection ) );
+   float fRDotV           = max(0.01, dot( fvReflection, fvViewDirection ) );
    
    vec4  fvBaseColor      = texture2D( baseMap, Texcoord );
    
@@ -28,6 +28,6 @@ void main( void )
    vec4  fvTotalDiffuse   = fvDiffuse * fNDotL * fvBaseColor; 
    vec4  fvTotalSpecular  = fvSpecular * ( pow( fRDotV, fSpecularPower ) );
   
-   gl_FragColor = ( fvTotalAmbient + fvTotalDiffuse + fvTotalSpecular );
+   gl_FragColor = (fvTotalDiffuse + fvTotalAmbient + fvTotalSpecular);
        
 }
