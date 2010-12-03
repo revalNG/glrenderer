@@ -8,6 +8,9 @@ unit Light;
 
 interface
 
+uses
+  dfMath;
+
   //ВНЕШНИЕ ЭКСПОРТИРУЕМЫЕ ФУНКЦИИ
 
   //Установка всех параметров источника света
@@ -27,14 +30,17 @@ interface
   function renderLightSetSpec(R, G, B, A: Single): Integer; stdcall;
   function renderLightSetSpecMove(R, G, B, A, MaxSpeed, Accel: Single): Integer; stdcall;
 
+  function LightGetPos: TdfVec3f;
+
   function LightInit(): Integer;
   function LightStep(deltaTime: Single): Integer;
   function LightDeInit(): Integer;
 
+
 implementation
 
 uses
-  dfHGL, dfMath, dfHInput;
+  dfHGL, dfHInput;
 
 var
   LightPos: TdfVec4f;
@@ -114,6 +120,14 @@ end;
 function renderLightSetSpecMove(R, G, B, A, MaxSpeed, Accel: Single): Integer; stdcall;
 begin
   Result := -10; //Затычка
+end;
+
+
+function LightGetPos: TdfVec3f;
+begin
+  Result.x := LightPos.x;
+  Result.y := LightPos.y;
+  Result.z := LightPos.z;
 end;
 
 

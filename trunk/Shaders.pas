@@ -4,7 +4,7 @@ interface
 
 uses
   Classes,
-  dfHGL;
+  dfHGL, dfMath;
 
 type
 
@@ -17,6 +17,7 @@ type
     destructor Destroy();
 
     procedure LoadFromFile(FileName: PAnsiChar);
+
   end;
 
 //  TFragmentShader = class
@@ -31,20 +32,33 @@ type
   TShaderProgram = class
   private
     vs, fs: TShader;
-    prog: LongWord;
+    prog: Integer;
   public
     constructor Create();
     destructor Destroy();
 
     procedure AttachVertexShader(shader: TShader);
     procedure AttachFragmentShader(shader: TShader);
-    procedure DetachVertexShader();
-    procedure DetachFragmentShader();
 
     procedure Link();
 
     procedure Use();
     procedure UseNull();
+
+    function GetUniformLocation(const name: String): Integer;
+
+    procedure SetUniforms(const name: String; const value: single;    count: Integer = 1);overload;
+    procedure SetUniforms(const name: String; const value: TdfVec2f; count: Integer = 1);overload;
+    procedure SetUniforms(const name: String; const value: TdfVec3f; count: Integer = 1);overload;
+    procedure SetUniforms(const name: String; const value: TdfVec4f; count: Integer = 1);overload;
+    procedure SetUniforms(const name: String; const value: integer;   count: Integer = 1);overload;
+//    Procedure SetUniforms(const name : String; const value: TdfVec2i; count: Integer=1);overload;
+//    Procedure SetUniforms(const name : String; const value: TdfVec3i; count: Integer=1);overload;
+//    Procedure SetUniforms(const name : String; const value: TdfVec4i; count: Integer=1);overload;
+//    Procedure SetUniforms(const name : String; const value: TdfMat2f; count: Integer=1; transpose: boolean=false);overload;
+//    Procedure SetUniforms(const name : String; const value: TdfMat3f; count: Integer=1; transpose: boolean=false);overload;
+    procedure SetUniforms(const name: String; const value: TdfMat4f; count: Integer = 1; transpose: Boolean = False);overload;
+
   end;
 
 implementation
@@ -66,23 +80,29 @@ begin
   gl.DeleteShader(sh);
   for i := 0 to ShaderText.Count - 1 do
     ShaderText[i] := '';
-  ShaderText.Free;
   inherited;
 end;
 
 procedure TShader.LoadFromFile(FileName: PAnsiChar);
 var
-  v: Integer;
+  v, l: Integer;
+  pLog: PAnsiChar;
+  ptr: PAnsiChar;
 begin
-  ShaderText.LoadFromFile(FileName);
-  gl.ShaderSource(sh, 1, PChar(ShaderText.Text), nil);
+  ShaderText.LoadFromFile(FileName, TEncoding.ASCII);
+  ptr := PAnsiChar(AnsiString(ShaderText.Text));
+  gl.ShaderSource(sh, 1, @ptr, nil);
+  ShaderText.Free;
   gl.CompileShader(sh);
   gl.GetShaderiv(sh, GL_COMPILE_STATUS, @v);
   if v = Ord(GL_FALSE) then
   begin
-    raise Exception.Create('упс');
+    gl.GetShaderiv(sh, GL_INFO_LOG_LENGTH, @v);
+    getmem(pLog, v);
+    gl.GetShaderInfoLog(sh, v, l, pLog);
+    raise Exception.Create('упс' + #13#10 + pLog);
+    FreeMem(pLog, v);
   end;
-
 end;
 
 
@@ -115,16 +135,6 @@ begin
   fs := shader;
 end;
 
-procedure TShaderProgram.DetachVertexShader();
-begin
-
-end;
-
-procedure TShaderProgram.DetachFragmentShader();
-begin
-
-end;
-
 procedure TShaderProgram.Link;
 var
   v: Integer;
@@ -142,5 +152,43 @@ procedure TShaderProgram.UseNull();
 begin
   gl.UseProgram(0);
 end;
+
+function TShaderProgram.GetUniformLocation(const name: String): Integer;
+begin
+  Result := gl.GetUniformLocation(prog, PAnsiChar(AnsiString(name)));
+  if Result < 0 then
+    raise Exception.Create('Пиздос');
+end;
+
+procedure TShaderProgram.SetUniforms(const name: String; const value: single; count: Integer = 1);
+begin
+  gl.Uniform1fv(GetUniformLocation(name), count, @value);
+end;
+
+procedure TShaderProgram.SetUniforms(const name: String; const value: TdfVec2f; count: Integer = 1);
+begin
+  gl.Uniform2fv(GetUniformLocation(name), count, @value);
+end;
+
+procedure TShaderProgram.SetUniforms(const name: String; const value: TdfVec3f; count: Integer = 1);
+begin
+  gl.Uniform3fv(GetUniformLocation(name), count, @value);
+end;
+
+procedure TShaderProgram.SetUniforms(const name: String; const value: TdfVec4f; count: Integer = 1);
+begin
+  gl.Uniform4fv(GetUniformLocation(name), count, @value);
+end;
+
+procedure TShaderProgram.SetUniforms(const name: String; const value: integer; count: Integer = 1);
+begin
+  gl.Uniform1iv(GetUniformLocation(name), count, @value);
+end;
+
+procedure TShaderProgram.SetUniforms(const name: String; const value: TdfMat4f; count: Integer = 1; transpose: boolean=false);
+begin
+  gl.UniformMatrix4fv(GetUniformLocation(name), count, transpose, @value);
+end;
+
 
 end.
