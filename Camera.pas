@@ -318,7 +318,7 @@ end;
 function CameraGetPos(): TdfVec3f;
 begin
   with Model do
-    Result := dfVec3f(e30, e31, e32);
+    Result := Pos;
 end;
 
 end.

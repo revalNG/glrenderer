@@ -156,8 +156,8 @@ end;
 function TShaderProgram.GetUniformLocation(const name: String): Integer;
 begin
   Result := gl.GetUniformLocation(prog, PAnsiChar(AnsiString(name)));
-  if Result < 0 then
-    raise Exception.Create('Пиздос');
+//  if Result < 0 then
+//    raise Exception.Create('Пиздос ' + #13#10 + 'Нет такой юниформы: ' + name);
 end;
 
 procedure TShaderProgram.SetUniforms(const name: String; const value: single; count: Integer = 1);

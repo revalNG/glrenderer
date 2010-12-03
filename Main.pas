@@ -404,6 +404,8 @@ begin
 end;
 
 function renderStep(): Integer; stdcall;
+var
+  lp: TdfVec3f;
 
 procedure DrawAxes();
 begin
@@ -428,6 +430,7 @@ end;
 begin
   Result := 0;
   try
+    lp := Light.LightGetPos();
     gl.Clear(GL_COLOR_BUFFER_BIT);
     gl.Clear(GL_DEPTH_BUFFER_BIT);
     gl.MatrixMode(GL_MODELVIEW);
@@ -437,15 +440,15 @@ begin
       DrawAxes();
       if Data.DataStep(dt) = -1 then
         raise Exception.CreateRes(2);
-      Textures.renderTexBind(texID1);
       Light.LightStep(dt);
+      Textures.renderTexBind(texID1);
       prog.Use();
-      prog.SetUniforms('fSpecularPower', 5);
-      prog.SetUniforms('fvLightPosition', Light.LightGetPos);
-      prog.SetUniforms('fvEyePosition', Camera.CameraGetPos);
-      prog.SetUniforms('fvAmbient', dfVec4f(0.26, 0.26, 0.26, 1.0));
+      prog.SetUniforms('fSpecularPower', 25);
+      prog.SetUniforms('fvLightPosition', Light.LightGetPos());
+      prog.SetUniforms('fvEyePosition', Camera.CameraGetPos());
+      prog.SetUniforms('fvAmbient', dfVec4f(0.36, 0.36, 0.36, 1.0));
       prog.SetUniforms('fvDiffuse', dfVec4f(0.88, 0.88, 0.88, 1.0));
-      prog.SetUniforms('fvSpecular', dfVec4f(0.2, 0.2, 0.2, 1.0));
+      prog.SetUniforms('fvSpecular', dfVec4f(0.4, 0.4, 0.4, 1.0));
       prog.SetUniforms('baseMap', 0);
 
       VBO.VBOStep(dt);
