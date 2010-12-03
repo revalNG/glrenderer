@@ -49,6 +49,11 @@ var
   //debug
   t: Single;
   stop: Boolean;
+  space_pressed: Boolean;
+
+const
+  LIGHT_SIZE_Y = 0.4;
+  LIGHT_SIZE_XZ = 0.10;
 
 //Установка всех параметров источника света
 function renderLightSet(X, Y, Z,
@@ -145,8 +150,14 @@ function LightStep(deltaTime: Single): Integer;
 begin
   Result := -10; //Затычка
 
-  if dfInput.IsKeyDown($20) then
+  if dfInput.IsKeyDown($20) and not space_pressed then
+  begin
     stop := not stop;
+    space_pressed := True;
+  end;
+
+  if not dfInput.IsKeyDown($20) then
+    space_pressed := False;
   if not stop then
     t := t + deltaTime;
   LightPos := dfVec4f(5*sin(t), 3*sin(t), 5*cos(t), 0);
@@ -155,8 +166,41 @@ begin
   gl.PushAttrib(GL_COLOR);
   gl.Color3f(dif.x, dif.y, dif.z);
   gl.Disable(GL_LIGHTING);
-  gl.Beginp(GL_POINTS);
-    gl.Vertex3f(LightPos.x, LightPos.y, LightPos.z);
+  gl.Beginp(GL_TRIANGLES);
+    gl.Vertex3f(LightPos.x - LIGHT_SIZE_XZ, LightPos.y, LightPos.z + LIGHT_SIZE_XZ);
+    gl.Vertex3f(LightPos.x + LIGHT_SIZE_XZ, LightPos.y, LightPos.z + LIGHT_SIZE_XZ);
+    gl.Vertex3f(LightPos.x, LightPos.y + LIGHT_SIZE_Y, LightPos.z);
+
+    gl.Vertex3f(LightPos.x + LIGHT_SIZE_XZ, LightPos.y, LightPos.z + LIGHT_SIZE_XZ);
+    gl.Vertex3f(LightPos.x + LIGHT_SIZE_XZ, LightPos.y, LightPos.z - LIGHT_SIZE_XZ);
+    gl.Vertex3f(LightPos.x, LightPos.y + LIGHT_SIZE_Y, LightPos.z);
+
+    gl.Vertex3f(LightPos.x + LIGHT_SIZE_XZ, LightPos.y, LightPos.z - LIGHT_SIZE_XZ);
+    gl.Vertex3f(LightPos.x - LIGHT_SIZE_XZ, LightPos.y, LightPos.z - LIGHT_SIZE_XZ);
+    gl.Vertex3f(LightPos.x, LightPos.y + LIGHT_SIZE_Y, LightPos.z);
+
+    gl.Vertex3f(LightPos.x - LIGHT_SIZE_XZ, LightPos.y, LightPos.z - LIGHT_SIZE_XZ);
+    gl.Vertex3f(LightPos.x - LIGHT_SIZE_XZ, LightPos.y, LightPos.z + LIGHT_SIZE_XZ);
+    gl.Vertex3f(LightPos.x, LightPos.y + LIGHT_SIZE_Y, LightPos.z);
+
+
+
+    gl.Vertex3f(LightPos.x + LIGHT_SIZE_XZ, LightPos.y, LightPos.z + LIGHT_SIZE_XZ);
+    gl.Vertex3f(LightPos.x - LIGHT_SIZE_XZ, LightPos.y, LightPos.z + LIGHT_SIZE_XZ);
+    gl.Vertex3f(LightPos.x, LightPos.y - LIGHT_SIZE_Y, LightPos.z);
+
+    gl.Vertex3f(LightPos.x + LIGHT_SIZE_XZ, LightPos.y, LightPos.z - LIGHT_SIZE_XZ);
+    gl.Vertex3f(LightPos.x + LIGHT_SIZE_XZ, LightPos.y, LightPos.z + LIGHT_SIZE_XZ);
+    gl.Vertex3f(LightPos.x, LightPos.y - LIGHT_SIZE_Y, LightPos.z);
+
+    gl.Vertex3f(LightPos.x - LIGHT_SIZE_XZ, LightPos.y, LightPos.z - LIGHT_SIZE_XZ);
+    gl.Vertex3f(LightPos.x + LIGHT_SIZE_XZ, LightPos.y, LightPos.z - LIGHT_SIZE_XZ);
+    gl.Vertex3f(LightPos.x, LightPos.y - LIGHT_SIZE_Y, LightPos.z);
+
+    gl.Vertex3f(LightPos.x - LIGHT_SIZE_XZ, LightPos.y, LightPos.z + LIGHT_SIZE_XZ);
+    gl.Vertex3f(LightPos.x - LIGHT_SIZE_XZ, LightPos.y, LightPos.z - LIGHT_SIZE_XZ);
+    gl.Vertex3f(LightPos.x, LightPos.y - LIGHT_SIZE_Y, LightPos.z);
+
   gl.Endp;
   gl.Enable(GL_LIGHTING);
   gl.PopAttrib();
