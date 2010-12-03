@@ -67,12 +67,15 @@ var
   //Сохраненные значения, переданные юзером при инициализации рендера
   cFOV, cZNear, cZFar: Single;
 
-  texID1, texID2: Integer;
+  texID1: Integer;
+  //texID2: Integer;
   vs, fs: Shaders.TShader;
   prog: Shaders.TShaderProgram;
 
   dx, dy: Integer;
-  spinVec1, spinVec2: TdfVec3f;
+//  spinVec1, spinVec2: TdfVec3f;
+  UseShaders: Boolean = True;
+  s_pressed: Boolean;
 
 function MyWindowProc(hWnd: HWND; Msg: UINT; wParam: WPARAM; lParam: LPARAM): LRESULT; stdcall;
 var
@@ -111,10 +114,8 @@ begin
       begin
         x := LOWORD(lParam);
         y := HIWORD(lParam);
-        SpinVec1 := dfVec3f(0, 1, 0);
-        SpinVec2 := CameraGetLeft;
-        Camera.CameraRotate(deg2rad*(x - dx), SpinVec1);
-        Camera.CameraRotate(deg2rad*(y - dy), SpinVec2);
+        Camera.CameraRotate(deg2rad*(x - dx), dfVec3f(0, 1, 0));
+        Camera.CameraRotate(deg2rad*(y - dy), CameraGetLeft);
         dx := x;
         dy := y;
       end;
@@ -371,20 +372,20 @@ begin
     renderCameraSet(camPos.x, camPos.y, camPos.z,
                     camLook.x, camLook.y, camLook.z,
                     camUp.x, camUp.y, camUp.z);
-    Data.DataInit();
+    //Data.DataInit();
     Light.LightInit();
     //2010-05-03 - Добавлена инициализация анимации
-    Animation.AnimInit();
+    //Animation.AnimInit();
     renderLightSet(lightPos.x, lightPos.y, lightpos.z,
                    lAmb.x, lAmb.y, lAmb.z, lAmb.w,
                    lDif.x, lDif.y, lDif.z, lDif.z,
                    lSpec.x, lSpec.y, lSpec.z, lSpec.w,
                    lConstAtten, lLinearAtten, lQuadroAtten);
     VBO.VBOInit();
-    Sprites.SpriteInit();
+    //Sprites.SpriteInit();
     //
     texID1 := Textures.renderTexLoad('Data\tile.bmp');
-    texID2 := Textures.renderTexLoad('Data\sphere.bmp');
+    //texID2 := Textures.renderTexLoad('Data\sphere.bmp');
     vs := TShader.Create(TGLConst.GL_VERTEX_SHADER);
     vs.LoadFromFile('Data\vs_phong.txt');
     fs := TShader.Create(TGLConst.GL_FRAGMENT_SHADER);
@@ -442,19 +443,21 @@ begin
         raise Exception.CreateRes(2);
       Light.LightStep(dt);
       Textures.renderTexBind(texID1);
-      prog.Use();
-      prog.SetUniforms('fSpecularPower', 25);
-      prog.SetUniforms('fvLightPosition', Light.LightGetPos());
-      prog.SetUniforms('fvEyePosition', Camera.CameraGetPos());
-      prog.SetUniforms('fvAmbient', dfVec4f(0.36, 0.36, 0.36, 1.0));
-      prog.SetUniforms('fvDiffuse', dfVec4f(0.88, 0.88, 0.88, 1.0));
-      prog.SetUniforms('fvSpecular', dfVec4f(0.4, 0.4, 0.4, 1.0));
-      prog.SetUniforms('baseMap', 0);
-
+      if UseShaders then
+      begin
+        prog.Use();
+        prog.SetUniforms('fSpecularPower', 25);
+        prog.SetUniforms('fvLightPosition', Light.LightGetPos());
+        prog.SetUniforms('fvEyePosition', Camera.CameraGetPos());
+        prog.SetUniforms('fvAmbient', dfVec4f(0.36, 0.36, 0.36, 1.0));
+        prog.SetUniforms('fvDiffuse', dfVec4f(0.88, 0.88, 0.88, 1.0));
+        prog.SetUniforms('fvSpecular', dfVec4f(0.4, 0.4, 0.4, 1.0));
+        prog.SetUniforms('baseMap', 0);
+      end;
       VBO.VBOStep(dt);
       prog.UseNull();
-      Textures.renderTexBind(texID2);
-      Sprites.SpriteStep(dt);
+//      Textures.renderTexBind(texID2);
+//      Sprites.SpriteStep(dt);
       Textures.renderTexUnbind;
 
 //      if dfInput.IsKeyDown(VK_MOUSEWHEELUP) then
@@ -462,6 +465,13 @@ begin
 //        Camera.CameraRotate(1, dfVec3f(0, 1, 0));
 //      end;
 
+    if (dfInput.IsKeyDown('s') or dfInput.IsKeyDown('ы')) and not s_pressed then
+    begin
+      UseShaders := not UseShaders;
+      s_pressed := true;
+    end;
+    if not (dfInput.IsKeyDown('s') or dfInput.IsKeyDown('ы')) then
+      s_pressed := false;
 
     gl.PopMatrix();
     Windows.SwapBuffers(FDC);
@@ -484,16 +494,16 @@ begin
   try
     renderReady := False;
     Camera.CameraDeInit();
-    Data.DataDeInit();
+//    Data.DataDeInit();
     Light.LightDeInit();
     //2010-05-03 - Добавлена деинициализация анимации
-    Animation.AnimDeInit();
+//    Animation.AnimDeInit();
     VBO.VBODeInit();
-    Sprites.SpriteDeInit();
+//    Sprites.SpriteDeInit();
     Textures.TexDeInit();
     //
     Textures.renderTexDel(texID1);
-    Textures.renderTexDel(texID2);
+//    Textures.renderTexDel(texID2);
     prog.Free;
     vs.Free;
     fs.Free;
