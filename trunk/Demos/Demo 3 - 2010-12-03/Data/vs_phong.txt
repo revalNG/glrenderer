@@ -23,6 +23,6 @@ void main( void )
    
    ViewDirection  = EyePosition.xyz - fvObjectPosition.xyz;
    LightDirection = LightPosition.xyz - fvObjectPosition.xyz;
-   Normal.xyz         = gl_ModelViewMatrix * vec4(gl_Normal, 0);
+   Normal.xyz         = (gl_ModelViewMatrix * vec4(gl_Normal, 0)).xyz;
    
 }
