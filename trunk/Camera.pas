@@ -40,6 +40,7 @@ uses
 
   //Функции для дебага
   function CameraRotate(Delta: Single; Axis: TdfVec3f): Integer;
+  function CameraScale(AScale: Single): Integer;
   function CameraGetUp(): TdfVec3f;
   function CameraGetDir(): TdfVec3f;
   function CameraGetLeft(): TdfVec3f;
@@ -295,6 +296,11 @@ function CameraRotate(Delta: Single; Axis: TdfVec3f): Integer;
 begin
   Model.Rotate(Delta, Axis);
   Result := 0;
+end;
+
+function CameraScale(AScale: Single): Integer;
+begin
+  Model.Translate(dfVec3f(0,0,0) - (CameraGetDir * AScale));
 end;
 
 function CameraGetUp(): TdfVec3f;

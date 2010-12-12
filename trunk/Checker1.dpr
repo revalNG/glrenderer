@@ -18,7 +18,7 @@ begin
   WriteLn(' ===== Use SPACE to stop/move light source');
   renderInit('settings.txt');
   h := renderWindowGetHandle();
-//  renderSpritesAddFromFile('inf.txt');
+//  renderSpritesAddFromFile('inf1.txt');
   repeat
     if PeekMessage(msg, 0, 0, 0, PM_NOREMOVE) then
     begin

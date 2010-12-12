@@ -68,14 +68,15 @@ var
   cFOV, cZNear, cZFar: Single;
 
   texID1: Integer;
-  //texID2: Integer;
+  texID2: Integer;
   vs, fs: Shaders.TShader;
   prog: Shaders.TShaderProgram;
 
   dx, dy: Integer;
-//  spinVec1, spinVec2: TdfVec3f;
   UseShaders: Boolean = True;
   s_pressed: Boolean;
+
+  Scale: Single;
 
 function MyWindowProc(hWnd: HWND; Msg: UINT; wParam: WPARAM; lParam: LPARAM): LRESULT; stdcall;
 var
@@ -372,20 +373,20 @@ begin
     renderCameraSet(camPos.x, camPos.y, camPos.z,
                     camLook.x, camLook.y, camLook.z,
                     camUp.x, camUp.y, camUp.z);
-    //Data.DataInit();
+    Data.DataInit();
     Light.LightInit();
     //2010-05-03 - Добавлена инициализация анимации
-    //Animation.AnimInit();
+    Animation.AnimInit();
     renderLightSet(lightPos.x, lightPos.y, lightpos.z,
                    lAmb.x, lAmb.y, lAmb.z, lAmb.w,
                    lDif.x, lDif.y, lDif.z, lDif.z,
                    lSpec.x, lSpec.y, lSpec.z, lSpec.w,
                    lConstAtten, lLinearAtten, lQuadroAtten);
     VBO.VBOInit();
-    //Sprites.SpriteInit();
+    Sprites.SpriteInit();
     //
     texID1 := Textures.renderTexLoad('Data\tile.bmp');
-    //texID2 := Textures.renderTexLoad('Data\sphere.bmp');
+    texID2 := Textures.renderTexLoad('Data\sphere.bmp');
     vs := TShader.Create(TGLConst.GL_VERTEX_SHADER);
     vs.LoadFromFile('Data\vs_phong.txt');
     fs := TShader.Create(TGLConst.GL_FRAGMENT_SHADER);
@@ -394,6 +395,8 @@ begin
     prog.AttachVertexShader(vs);
     prog.AttachFragmentShader(fs);
     prog.Link;
+
+    Scale := 1.0;
 
     //
     QueryPerformanceFrequency(Freq);
@@ -456,14 +459,19 @@ begin
       end;
       VBO.VBOStep(dt);
       prog.UseNull();
-//      Textures.renderTexBind(texID2);
-//      Sprites.SpriteStep(dt);
+      Textures.renderTexBind(texID2);
+      Sprites.SpriteStep(dt);
       Textures.renderTexUnbind;
 
-//      if dfInput.IsKeyDown(VK_MOUSEWHEELUP) then
-//      begin
-//        Camera.CameraRotate(1, dfVec3f(0, 1, 0));
-//      end;
+      if dfInput.IsKeyDown(VK_MOUSEWHEELUP) then
+      begin
+        Camera.CameraScale(-1.0);
+      end;
+
+      if dfInput.IsKeyDown(VK_MOUSEWHEELDOWN) then
+      begin
+        Camera.CameraScale(1.0);
+      end;
 
     if (dfInput.IsKeyDown('s') or dfInput.IsKeyDown('ы')) and not s_pressed then
     begin
@@ -494,16 +502,16 @@ begin
   try
     renderReady := False;
     Camera.CameraDeInit();
-//    Data.DataDeInit();
+    Data.DataDeInit();
     Light.LightDeInit();
     //2010-05-03 - Добавлена деинициализация анимации
-//    Animation.AnimDeInit();
+    Animation.AnimDeInit();
     VBO.VBODeInit();
-//    Sprites.SpriteDeInit();
+    Sprites.SpriteDeInit();
     Textures.TexDeInit();
     //
     Textures.renderTexDel(texID1);
-//    Textures.renderTexDel(texID2);
+    Textures.renderTexDel(texID2);
     prog.Free;
     vs.Free;
     fs.Free;
