@@ -127,9 +127,6 @@ library glRenderer;
 
 uses
   Main in 'Main.pas',
-  dfHInput in 'dfHInput.pas',
-  dfMath in 'dfMath.pas',
-  dfHEngine in 'dfHEngine.pas',
   Camera in 'Camera.pas',
   Data in 'Data.pas',
   Light in 'Light.pas',
@@ -138,8 +135,13 @@ uses
   Sprites in 'Sprites.pas',
   Log in 'Log.pas',
   Textures in 'Textures.pas',
-  dfHGL in 'dfHGL.pas',
-  Shaders in 'Shaders.pas';
+  Shaders in 'Shaders.pas',
+  dfHEngine in 'common\dfHEngine.pas',
+  dfHGL in 'common\dfHGL.pas',
+  dfHInput in 'common\dfHInput.pas',
+  dfList in 'common\dfList.pas',
+  dfLogger in 'common\dfLogger.pas',
+  dfMath in 'common\dfMath.pas';
 
 exports
   renderInit,
