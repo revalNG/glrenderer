@@ -51,7 +51,6 @@
 			<DCCReference Include="Animation.pas"/>
 			<DCCReference Include="VBO.pas"/>
 			<DCCReference Include="Sprites.pas"/>
-			<DCCReference Include="Log.pas"/>
 			<DCCReference Include="Textures.pas"/>
 			<DCCReference Include="Shaders.pas"/>
 			<DCCReference Include="common\dfHEngine.pas"/>

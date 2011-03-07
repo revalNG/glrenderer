@@ -61,10 +61,17 @@ type
 
   end;
 
+  function shadersInit(): Integer;
+  function shadersDeinit(): Integer;
+
 implementation
 
 uses
-  SysUtils;
+  SysUtils,
+  dfLogger;
+
+var
+  slog: Integer;
 
 constructor TShader.Create(_type: TGLConst);
 begin
@@ -156,8 +163,10 @@ end;
 function TShaderProgram.GetUniformLocation(const name: String): Integer;
 begin
   Result := gl.GetUniformLocation(prog, PAnsiChar(AnsiString(name)));
-//  if Result < 0 then
-//    raise Exception.Create('Пиздос ' + #13#10 + 'Нет такой юниформы: ' + name);
+  if Result < 0 then
+  begin
+//    LoggerWriteDateTime(slog, '');
+  end;
 end;
 
 procedure TShaderProgram.SetUniforms(const name: String; const value: single; count: Integer = 1);
@@ -190,5 +199,25 @@ begin
   gl.UniformMatrix4fv(GetUniformLocation(name), count, transpose, @value);
 end;
 
+
+
+
+
+
+
+
+function shadersInit(): Integer;
+begin
+  slog := LoggerFindLog('glrenderer.log');
+  LoggerWriteDateTime(slog, '');
+
+end;
+
+
+function shadersDeinit(): Integer;
+begin
+
+
+end;
 
 end.
