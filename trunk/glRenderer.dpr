@@ -1,6 +1,8 @@
 {
   LD - Last Developed - Над чем работал в последний раз в этот день
 
+  2011-03-07 - LD ----    - RC 16, чистка кода. Привязка логгинг-системы
+                            (Предыдущая версия теперь в _old как beta_rc15)
   2011-01-31 - LD ----    - Попытки прикрутить лог от Романуса. Отписал на форуме
                             о багах, жду изменений. Пока все лог-запросы
                             закомментированы.
@@ -131,13 +133,12 @@ library glRenderer;
 uses
   Main in 'Main.pas',
   Camera in 'Camera.pas',
-  Data in 'Data.pas',
   Light in 'Light.pas',
-  Animation in 'Animation.pas',
-  VBO in 'VBO.pas',
   Sprites in 'Sprites.pas',
   Textures in 'Textures.pas',
   Shaders in 'Shaders.pas',
+  Logger in 'Logger.pas',
+
   dfHEngine in 'common\dfHEngine.pas',
   dfHGL in 'common\dfHGL.pas',
   dfHInput in 'common\dfHInput.pas',
@@ -158,26 +159,6 @@ exports
   renderCameraSetPos, renderCameraSetPosMove,
   renderCameraSetUp, renderCameraSetUpMove,
   renderCameraMoveAroundTarget,
-
-  renderDataAddFromFile,
-  renderDataSaveToFile,
-  renderDataSphereAdd,
-  renderDataSpherePos, renderDataSpherePosMove,
-  renderDataSphereRad, renderDataSphereRadMove,
-  renderDataSphereRGB, renderDataSphereRGBMove,
-
-  renderDataCylinderAdd,
-
-  renderAnimAddFromFile,
-  renderAnimSetSpeed,
-  renderAnimGetSpeed,
-  renderAnimPlay,
-  renderAnimPause,
-  renderAnimStop,
-  renderAnimNextBlock,
-  renderAnimPrevBlock,
-  renderAnimJumpToA,
-  renderAnimJumpToB,
 
   renderLightSet,
   renderLightSetPos,  renderLightSetPosMove,

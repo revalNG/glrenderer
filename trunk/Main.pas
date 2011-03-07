@@ -52,8 +52,8 @@ var
 implementation
 
 uses
-  Camera, Data, Light, Animation, VBO, Sprites, Textures, Shaders,
-  dfMath, dfHInput, dfLogger, dfHEngine,
+  Camera, Light, Sprites, Textures, Shaders,
+  dfMath, dfHInput, dfHEngine, Logger,
   Classes;
 
 var
@@ -67,19 +67,11 @@ var
   //Сохраненные значения, переданные юзером при инициализации рендера
   cFOV, cZNear, cZFar: Single;
 
-  texID1: Integer;
   texID2: Integer;
-  vs, fs: Shaders.TShader;
-  prog: Shaders.TShaderProgram;
 
   dx, dy: Integer;
-  UseShaders: Boolean = True;
-  s_pressed: Boolean;
 
   Scale: Single;
-
-//  log: dfLogger.TdfFormatlogger;
-  slog: Integer; //Индекс логгера
 
 function MyWindowProc(hWnd: HWND; Msg: UINT; wParam: WPARAM; lParam: LPARAM): LRESULT; stdcall;
 var
@@ -160,11 +152,8 @@ var
   PFD: TPixelFormatDescriptor;
   nPixelFormat: Integer;
 begin
-  LoggerAddLog('glrenderer.log');
-  slog := LoggerFindLog('glrenderer.log');
-  //log := TdfFormatLogger.Create('glrenderer.log');
-  //log.WriteHeader('Старт логгирования');
-  LoggerWriteHeader(slog, 'Старт логгирования');
+  Logger.LogInit();
+
   W := cDefWindowW;
   H := cDefWindowH;
   X := cDefWindowX;
@@ -180,13 +169,9 @@ begin
       strData := TFileStream.Create(FileName, fmOpenRead)
     else
     begin
-      //log.WriteDateTime('');
-      //log.WriteError('Отсутствует файл конфига ' + FileName);
-      //log.Free;
-//      LoggerWriteDateTime(slog, '');
-//      LoggerWriteError(slog, 'Отсутствует файл конфига ' + PCharToPWide(FileName));
-//      LoggerDelLog('glrenderer.log');
-      //raise Exception.Create('Отсутствует файл конфига ' + FileName);
+      logWriteError('Отсутствует файл конфига ' + FileName, True, True, True);
+      Result := -1;
+      Exit;
     end;
     par := TParser.Create(strData);
     repeat
@@ -326,10 +311,7 @@ begin
     until par.NextToken = toEOF;
     par.Free;
     strData.Free;
-    LoggerWriteDateTime(slog, '');
-    //log.WriteDateTime('');
-//    Loggerwr
-//    log.WriteLnMessage('Успешная загрузка параметров из конфиг-файла ' + FileName);
+    logWriteMessage('Успешная загрузка параметров из конфиг-файла ' + FileName);
   {$ENDREGION}
 
     //Инициализация
@@ -350,29 +332,22 @@ begin
                             X, Y, W, H, 0, 0, WC.hInstance, nil);
     if WHandle = 0 then
     begin
-//      log.WriteDateTime('');
-//      log.WriteError('Ошибка инициализации окна. Возвращен нулевой handle');
-//      log.Free;
+      logWriteError('Ошибка инициализации окна. Возвращен нулевой handle', True, True, True);
       Result := 1;
       Exit;
     end;
-//    log.WriteDateTime('');
-//    log.WriteLnMessage('Успешная инициализация окна, полученный handle: ' + IntToStr(WHandle));
+    logWriteMessage('Успешная инициализация окна, полученный handle: ' + IntToStr(WHandle));
 
     FDC := GetDC(WHandle);
 
     if FDC = 0 then
     begin
-//      log.WriteDateTime('');
-//      log.WriteError('Ошибка получения Device Context, возвращен нулевой контекст');
-//      log.Free;
+      logWriteError('Ошибка получения Device Context, возвращен нулевой контекст', True, True, True);
       Result := 2;
       Exit;
     end;
 
-//    log.WriteDateTime('');
-//    log.WriteLnMessage('Успешное получение Device Context: ' + IntToStr(FDC));
-    //Assert(FDC <> 0, 'Error while getting DC from handle, code 2');
+    logWriteMessage('Успешное получение Device Context: ' + IntToStr(FDC));
 
     pfd.nSize := SizeOf(PIXELFORMATDESCRIPTOR);
     pfd.nVersion := 1;
@@ -381,18 +356,15 @@ begin
     pfd.cColorBits := 32;
 
     nPixelFormat := ChoosePixelFormat(FDC, @pfd);
-    //Assert(nPixelFormat <> 0, 'Error while getting PFD, code 3');
 
     if nPixelFormat = 0 then
     begin
-//      log.WriteDateTime('');
-//      log.WriteError('Ошибка получения дескриптора пиксельного формата PDF, возвращен нулевой дескриптор');
-//      log.Free;
+      logWriteError('Ошибка получения дескриптора пиксельного формата PDF, возвращен нулевой дескриптор', True, True, True);
       Result := 3;
       Exit;
     end;
-//    log.WriteDateTime('');
-//    log.WriteLnMessage('Успешное получение PFD: ' + IntToStr(nPixelFormat));
+
+    logWriteMessage('Успешное получение PFD: ' + IntToStr(nPixelFormat));
 
     SetPixelFormat(FDC, nPixelFormat, @pfd);
 
@@ -400,23 +372,14 @@ begin
 
     if FHGLRC = 0 then
     begin
-//      log.WriteDateTime('');
-//      log.WriteError('Ошибка получения рендер-контекста, возвращен нулевой контекст');
-//      log.Free;
+      logWriteError('Ошибка получения рендер-контекста, возвращен нулевой контекст', True, True, True);
       Result := 4;
       Exit;
     end;
 
-//    log.WriteDateTime('');
-//    log.WriteLnMessage('Успешное получение рендер-контекста: ' + IntToStr(FHGLRC));
-
-    //Assert(FHGLRC <> 0, 'Error while getting OGL context, code 4');
+    logWriteMessage('Успешное получение рендер-контекста: ' + IntToStr(FHGLRC));
 
     wglMakeCurrent(FDC, FHGLRC);
-
-    //InitOpenGL();
-    //FHGLRC := CreateRenderingContext(FDC, [opDoubleBuffered], 32, 16, 16, 16,16, 0);
-    //ActivateRenderingContext(FDC, FHGLRC);
 
     gl.Init;
     gl.Enable(GL_DEPTH_TEST);
@@ -434,36 +397,22 @@ begin
     renderCameraSet(camPos.x, camPos.y, camPos.z,
                     camLook.x, camLook.y, camLook.z,
                     camUp.x, camUp.y, camUp.z);
-    Data.DataInit();
     Light.LightInit();
-    //2010-05-03 - Добавлена инициализация анимации
-    Animation.AnimInit();
     renderLightSet(lightPos.x, lightPos.y, lightpos.z,
                    lAmb.x, lAmb.y, lAmb.z, lAmb.w,
                    lDif.x, lDif.y, lDif.z, lDif.z,
                    lSpec.x, lSpec.y, lSpec.z, lSpec.w,
                    lConstAtten, lLinearAtten, lQuadroAtten);
-    VBO.VBOInit();
     Sprites.SpriteInit();
-    //
-    texID1 := Textures.renderTexLoad('Data\tile.bmp');
+    Shaders.ShadersInit();
     texID2 := Textures.renderTexLoad('Data\sphere.bmp');
-    vs := TShader.Create(TGLConst.GL_VERTEX_SHADER);
-    vs.LoadFromFile('Data\vs_phong.txt');
-    fs := TShader.Create(TGLConst.GL_FRAGMENT_SHADER);
-    fs.LoadFromFile('Data\fs_phong.txt');
-    prog := TShaderProgram.Create();
-    prog.AttachVertexShader(vs);
-    prog.AttachFragmentShader(fs);
-    prog.Link;
 
     Scale := 1.0;
 
-    //
     QueryPerformanceFrequency(Freq);
     renderReady := True;
-//    log.WriteDateTime('');
-//    log.WriteLnMessage('Успешная инициализация');
+
+    logWriteMessage('Успешная инициализация');
     Result := 0;
   except
     Result := -1;
@@ -505,23 +454,7 @@ begin
       if Camera.CameraStep(dt) = -1 then
         raise Exception.CreateRes(1);
       DrawAxes();
-      if Data.DataStep(dt) = -1 then
-        raise Exception.CreateRes(2);
       Light.LightStep(dt);
-      Textures.renderTexBind(texID1);
-      if UseShaders then
-      begin
-        prog.Use();
-        prog.SetUniforms('fSpecularPower', 25);
-        prog.SetUniforms('fvLightPosition', Light.LightGetPos());
-        prog.SetUniforms('fvEyePosition', Camera.CameraGetPos());
-        prog.SetUniforms('fvAmbient', dfVec4f(0.36, 0.36, 0.36, 1.0));
-        prog.SetUniforms('fvDiffuse', dfVec4f(0.88, 0.88, 0.88, 1.0));
-        prog.SetUniforms('fvSpecular', dfVec4f(0.4, 0.4, 0.4, 1.0));
-        prog.SetUniforms('baseMap', 0);
-      end;
-      VBO.VBOStep(dt);
-      prog.UseNull();
       Textures.renderTexBind(texID2);
       Sprites.SpriteStep(dt);
       Textures.renderTexUnbind;
@@ -535,15 +468,6 @@ begin
       begin
         Camera.CameraScale(1.0);
       end;
-
-    if (dfInput.IsKeyDown('s') or dfInput.IsKeyDown('ы')) and not s_pressed then
-    begin
-      UseShaders := not UseShaders;
-      s_pressed := true;
-    end;
-    if not (dfInput.IsKeyDown('s') or dfInput.IsKeyDown('ы')) then
-      s_pressed := false;
-
     gl.PopMatrix();
     Windows.SwapBuffers(FDC);
   except
@@ -562,36 +486,23 @@ end;
 function renderDeInit(): Integer; stdcall;
 begin
   Result := 0;
-//  log.WriteDateTime('');
-//  log.WriteLnMessage('Деинициализация рендера.');
+  logWriteMessage('Деинициализация рендера');
   try
     renderReady := False;
     Camera.CameraDeInit();
-    Data.DataDeInit();
     Light.LightDeInit();
-    //2010-05-03 - Добавлена деинициализация анимации
-    Animation.AnimDeInit();
-    VBO.VBODeInit();
     Sprites.SpriteDeInit();
     Textures.TexDeInit();
-    //
-    Textures.renderTexDel(texID1);
     Textures.renderTexDel(texID2);
-    prog.Free;
-    vs.Free;
-    fs.Free;
-    //
     wglDeleteContext(FHGLRC);
     ReleaseDC(WHandle, FDC);
     wglMakeCurrent(FDC, 0);
-//    DestroyRenderingContext(FHGLRC);
     FDC := 0;
     FHGLRC := 0;
     CloseWindow(WHandle);
     DestroyWindow(WHandle);
     WHandle := 0;
-//    log.WriteBottom('Окончание логгирования');
-//    log.Free();
+    Logger.LogDeinit();
   except
     Result := -1;
     Exit;
