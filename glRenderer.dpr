@@ -1,6 +1,9 @@
 {
   LD - Last Developed - Над чем работал в последний раз в этот день
 
+  2011-01-31 - LD ----    - Попытки прикрутить лог от Романуса. Отписал на форуме
+                            о багах, жду изменений. Пока все лог-запросы
+                            закомментированы.
   2010-11-01 - LD ----    - Рендерер переведен на GL-хидер a-la XProger
                           - renderInit2 экспортируется как renderInit. Сама
                             renderInit - deprecated.
@@ -133,7 +136,6 @@ uses
   Animation in 'Animation.pas',
   VBO in 'VBO.pas',
   Sprites in 'Sprites.pas',
-  Log in 'Log.pas',
   Textures in 'Textures.pas',
   Shaders in 'Shaders.pas',
   dfHEngine in 'common\dfHEngine.pas',

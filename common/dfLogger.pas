@@ -14,11 +14,11 @@ uses
   Classes, dfList, dfHEngine;
 
 const
-  ConstNameEngine           =         'DiF Engine';
+  ConstNameEngine           =         'glRenderer';
   //заголовок
-  ConstFormatHeader         =         '/DiF Engine ------------------';
+  ConstFormatHeader         =         '/glRenderer ------------------';
   //низ
-  ConstFormatBottom         =         '\DiF Engine ------------------';
+  ConstFormatBottom         =         '\glRenderer ------------------';
   //заголовок html
   ConstFormatHeaderHtml     =         ConstNameEngine + ' log start';
   //низ html
@@ -377,7 +377,7 @@ begin
   Result:=false;
   //проверить использует
   //ли кто-то еще этот файл
-  if LoggerFindLog(FileName) <> 1 then
+  if LoggerFindLog(FileName) <> -1 then
     Exit;
   AString:=FileName;
   if Pos('html',FileName) <> 0 then

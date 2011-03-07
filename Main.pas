@@ -53,7 +53,7 @@ implementation
 
 uses
   Camera, Data, Light, Animation, VBO, Sprites, Textures, Shaders,
-  dfMath, dfHInput,
+  dfMath, dfHInput, dfLogger, dfHEngine,
   Classes;
 
 var
@@ -77,6 +77,9 @@ var
   s_pressed: Boolean;
 
   Scale: Single;
+
+//  log: dfLogger.TdfFormatlogger;
+  slog: Integer; //Индекс логгера
 
 function MyWindowProc(hWnd: HWND; Msg: UINT; wParam: WPARAM; lParam: LPARAM): LRESULT; stdcall;
 var
@@ -157,7 +160,11 @@ var
   PFD: TPixelFormatDescriptor;
   nPixelFormat: Integer;
 begin
-
+  LoggerAddLog('glrenderer.log');
+  slog := LoggerFindLog('glrenderer.log');
+  //log := TdfFormatLogger.Create('glrenderer.log');
+  //log.WriteHeader('Старт логгирования');
+  LoggerWriteHeader(slog, 'Старт логгирования');
   W := cDefWindowW;
   H := cDefWindowH;
   X := cDefWindowX;
@@ -172,7 +179,15 @@ begin
     if FileExists(FileName) then
       strData := TFileStream.Create(FileName, fmOpenRead)
     else
-      raise Exception.Create('No such a file');
+    begin
+      //log.WriteDateTime('');
+      //log.WriteError('Отсутствует файл конфига ' + FileName);
+      //log.Free;
+//      LoggerWriteDateTime(slog, '');
+//      LoggerWriteError(slog, 'Отсутствует файл конфига ' + PCharToPWide(FileName));
+//      LoggerDelLog('glrenderer.log');
+      //raise Exception.Create('Отсутствует файл конфига ' + FileName);
+    end;
     par := TParser.Create(strData);
     repeat
       if par.TokenString = 'decimalseparator' then
@@ -311,6 +326,10 @@ begin
     until par.NextToken = toEOF;
     par.Free;
     strData.Free;
+    LoggerWriteDateTime(slog, '');
+    //log.WriteDateTime('');
+//    Loggerwr
+//    log.WriteLnMessage('Успешная загрузка параметров из конфиг-файла ' + FileName);
   {$ENDREGION}
 
     //Инициализация
@@ -331,12 +350,29 @@ begin
                             X, Y, W, H, 0, 0, WC.hInstance, nil);
     if WHandle = 0 then
     begin
+//      log.WriteDateTime('');
+//      log.WriteError('Ошибка инициализации окна. Возвращен нулевой handle');
+//      log.Free;
       Result := 1;
       Exit;
     end;
+//    log.WriteDateTime('');
+//    log.WriteLnMessage('Успешная инициализация окна, полученный handle: ' + IntToStr(WHandle));
 
     FDC := GetDC(WHandle);
-    Assert(FDC <> 0, 'Error while getting DC from handle, code 2');
+
+    if FDC = 0 then
+    begin
+//      log.WriteDateTime('');
+//      log.WriteError('Ошибка получения Device Context, возвращен нулевой контекст');
+//      log.Free;
+      Result := 2;
+      Exit;
+    end;
+
+//    log.WriteDateTime('');
+//    log.WriteLnMessage('Успешное получение Device Context: ' + IntToStr(FDC));
+    //Assert(FDC <> 0, 'Error while getting DC from handle, code 2');
 
     pfd.nSize := SizeOf(PIXELFORMATDESCRIPTOR);
     pfd.nVersion := 1;
@@ -345,11 +381,36 @@ begin
     pfd.cColorBits := 32;
 
     nPixelFormat := ChoosePixelFormat(FDC, @pfd);
-    Assert(nPixelFormat <> 0, 'Error while getting PFD, code 3');
+    //Assert(nPixelFormat <> 0, 'Error while getting PFD, code 3');
+
+    if nPixelFormat = 0 then
+    begin
+//      log.WriteDateTime('');
+//      log.WriteError('Ошибка получения дескриптора пиксельного формата PDF, возвращен нулевой дескриптор');
+//      log.Free;
+      Result := 3;
+      Exit;
+    end;
+//    log.WriteDateTime('');
+//    log.WriteLnMessage('Успешное получение PFD: ' + IntToStr(nPixelFormat));
+
     SetPixelFormat(FDC, nPixelFormat, @pfd);
 
     FHGLRC := wglCreateContext(FDC);
-    Assert(FHGLRC <> 0, 'Error while getting OGL context, code 4');
+
+    if FHGLRC = 0 then
+    begin
+//      log.WriteDateTime('');
+//      log.WriteError('Ошибка получения рендер-контекста, возвращен нулевой контекст');
+//      log.Free;
+      Result := 4;
+      Exit;
+    end;
+
+//    log.WriteDateTime('');
+//    log.WriteLnMessage('Успешное получение рендер-контекста: ' + IntToStr(FHGLRC));
+
+    //Assert(FHGLRC <> 0, 'Error while getting OGL context, code 4');
 
     wglMakeCurrent(FDC, FHGLRC);
 
@@ -401,6 +462,8 @@ begin
     //
     QueryPerformanceFrequency(Freq);
     renderReady := True;
+//    log.WriteDateTime('');
+//    log.WriteLnMessage('Успешная инициализация');
     Result := 0;
   except
     Result := -1;
@@ -499,6 +562,8 @@ end;
 function renderDeInit(): Integer; stdcall;
 begin
   Result := 0;
+//  log.WriteDateTime('');
+//  log.WriteLnMessage('Деинициализация рендера.');
   try
     renderReady := False;
     Camera.CameraDeInit();
@@ -525,6 +590,8 @@ begin
     CloseWindow(WHandle);
     DestroyWindow(WHandle);
     WHandle := 0;
+//    log.WriteBottom('Окончание логгирования');
+//    log.Free();
   except
     Result := -1;
     Exit;
