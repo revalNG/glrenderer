@@ -14,11 +14,10 @@ begin
   WriteLn(' ===== Press ESCAPE to EXIT ===== ');
   WriteLn(' ===== Use LEFT MOUSE BUTTON to rotate the scene');
   WriteLn(' ===== Use MOUSE WHEEL to scale the scene');
-  WriteLn(' ===== Use "S" to switch on/off Phong shader');
   WriteLn(' ===== Use SPACE to stop/move light source');
   renderInit('settings.txt');
   h := renderWindowGetHandle();
-//  renderSpritesAddFromFile('inf1.txt');
+  renderSpritesAddFromFile('data/data1.txt');
   repeat
     if PeekMessage(msg, 0, 0, 0, PM_NOREMOVE) then
     begin

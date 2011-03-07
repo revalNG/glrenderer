@@ -28,7 +28,8 @@ implementation
 uses
   Classes, SysUtils,
   dfHEngine, dfHInput,
-  dfHGL;
+  dfHGL,
+  Logger;
 
 var
   q: TdfVec3f;
@@ -45,6 +46,7 @@ var
   particle: PParticle;
   f: TFileStream;
 begin
+  logWriteMessage('Загрузка данных по спрайтам из файла ' + FileName);
   particles.Clear();
   f := TFileStream.Create(FileName, $0000);
   p := TParser.Create(f);
@@ -68,15 +70,14 @@ begin
   until (p.NextToken = toEOF);
   f.Free;
   p.Free;
+  logWriteMessage('Загрузка данных завершена, добавлено ' + IntToStr(particles.Count) + ' спрайтов');
+  Result := 0;
 end;
 
 function SpriteInit(): Integer;
 begin
-//  if not dglCheckExtension('GL_ARB_point_parameters') then
-//  begin
-//    Result := -1;
-//    Exit;
-//  end;
+  //TODO: check extension GL_ARB_POINT_PARAMETERS
+  logWriteMessage('Инициализация модуля Sprites');
   particles := TList.Create();
   q := dfVec3f(0.5, 0.5, 0.5);
   gl.PointParameterfv(GL_POINT_DISTANCE_ATTENUATION, @q);
@@ -130,6 +131,7 @@ function SpriteDeInit(): Integer;
 var
   i: Integer;
 begin
+  logWriteMessage('Деинициализация модуля Sprites');
   for i := 0 to particles.Count - 1 do
     Dispose(particles[i]);
   particles.Free;

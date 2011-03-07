@@ -157,6 +157,9 @@ function LoggerWriteText(Index:Integer;Msg:PWideChar;Proc:TdfUniProc):Boolean;st
 function LoggerWriteTab(Index:Integer;Msg:PWideChar;Count:Byte):Boolean;stdcall;
 //пишем с датой и временем
 function LoggerWriteDateTime(Index:Integer;Msg:PWideChar):Boolean;stdcall;
+//perfect.daemon:
+//пишем конец строки
+function LoggerWriteEndL(Index: Integer): Boolean; stdcall;
 
 
 implementation
@@ -486,6 +489,15 @@ begin
   if Index >= LoggerCollection.Count then
     Exit;
   TdfFormatLogger(LoggerCollection.Items[Index]).WriteDateTime(PWideToPChar(Msg));
+end;
+
+//perfect.daemon:
+//пишем конец строки
+function LoggerWriteEndL(Index: Integer): Boolean; stdcall;
+begin
+  if Index >= LoggerCollection.Count then
+    Exit;
+  TdfFormatLogger(LoggerCollection.Items[Index]).WriteEndl();
 end;
 
 initialization

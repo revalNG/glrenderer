@@ -77,6 +77,9 @@ function PWideToPChar(pw: PWideChar): PAnsiChar;
 
 {$ENDREGION}
 
+//Размер памяти под указателем
+function SizeOfP(const P: Pointer): Integer;
+
 implementation
 
 uses
@@ -111,6 +114,14 @@ begin
 end;
 
 {$ENDREGION}
+
+function SizeOfP(const P: Pointer): Integer;
+begin
+  if P = nil then
+    Result := -1
+  else
+    Result := Integer(Pointer((Integer(p) - 4))^) and $7FFFFFFC - 4;
+end;
 
 initialization
   ReportMemoryLeaksOnShutDown := True;

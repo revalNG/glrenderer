@@ -21,7 +21,7 @@ function TexDeInit(): Integer;
 implementation
 
 uses
-  dfHGL, TexLoad;
+  dfHGL, dfHEngine, TexLoad, Logger, SysUtils;
 
 function renderTexLoad(FileName: PAnsiChar): Integer; stdcall;
 var
@@ -29,6 +29,7 @@ var
   Data: Pointer;
   W, H: Integer;
 begin
+  logWriteMessage('Загрузка текстуры ' + FileName);
   gl.GenTextures(1, @Result);
   gl.BindTexture(GL_TEXTURE_2D, Result);
   New(Data);
@@ -38,6 +39,7 @@ begin
 	gl.TexParameteri( GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER, GL_LINEAR );
   gl.TexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
   gl.BindTexture(GL_TEXTURE_2D, 0);
+  logWriteMessage('Загрузка текстуры завершена. ID = ' + IntToStr(Result) +' Размер текстуры: ' + IntToStr(W) + 'x' + IntToStr(H) + '; ' + IntToStr(SizeOfP(Data)) + ' байт');
   Dispose(Data);
 end;
 
@@ -61,6 +63,7 @@ end;
 
 function renderTexDel(ID: Integer): Integer;
 begin
+  logWriteMessage('Удаление текстуры ID '+ IntToStr(ID));
   gl.DeleteTextures(1, @ID);
   Result := -10;
 end;
