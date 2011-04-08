@@ -5,7 +5,7 @@
         +4) Исправить deltaTime у CameraStep, DataStep
         +5) MyWndProc - исправить изменение FOV, ZNear, ZFar при WM_SIZE.
             Не сохраняются переданные параметры
-         6) renderInit2 - больше параметров из файла
+        -6) renderInit2 - больше параметров из файла
         +7) Параметры (X, Y) - положение окна - при инициализации не учитываются, исправить
 }
 
@@ -73,6 +73,12 @@ var
 
   Scale: Single;
 
+  hDefaultCursor, hHandCursor: HICON;
+
+  backgroundColor: TdfVec3f;
+
+  bDrawAxes: Boolean;
+
 function MyWindowProc(hWnd: HWND; Msg: UINT; wParam: WPARAM; lParam: LPARAM): LRESULT; stdcall;
 var
   x, y: Integer;
@@ -96,7 +102,7 @@ begin
       if Frames >= 1000 then
       begin
         //Вывод фпс
-        SetWindowText(WHandle, FloatToStr(FPS));
+//        SetWindowText(WHandle, FloatToStr(FPS));
         Frames := 0;
       end;
     end;
@@ -106,12 +112,24 @@ begin
     end;
     WM_MOUSEMOVE:
     begin
+      //Нажата левая кнопка мыши, и идет движение
       if wParam and MK_LBUTTON <> 0 then
       begin
         x := LOWORD(lParam);
         y := HIWORD(lParam);
-        Camera.CameraRotate(deg2rad*(x - dx), dfVec3f(0, 1, 0));
-        Camera.CameraRotate(deg2rad*(y - dy), CameraGetLeft);
+//        Camera.CameraRotate(deg2rad*(x - dx), dfVec3f(0, 1, 0));
+        Camera.CameraRotate(deg2rad*(x - dx), CameraGetUp());
+        Camera.CameraRotate(deg2rad*(y - dy), CameraGetLeft());
+        dx := x;
+        dy := y;
+      end;
+      //Нажата правая кнопка мыши, и идет движение
+      if wParam and MK_RBUTTON <> 0 then
+      begin
+        SetCursor(hHandCursor);
+        x := LOWORD(lParam);
+        y := HIWORD(lParam);
+        Camera.CameraPan(y-dy, dx-x);
         dx := x;
         dy := y;
       end;
@@ -126,12 +144,24 @@ begin
       dX := 0;
       dY := 0;
     end;
+
+    WM_RBUTTONDOWN:
+    begin
+      dx := LOWORD(lParam);
+      dy := HIWORD(lParam);
+      SetCursor(hHandCursor);
+    end;
+    WM_RBUTTONUP:
+    begin
+      dX := 0;
+      dY := 0;
+    end;
+
     WM_MOUSEWHEEL:
     begin
       d := HIWORD(wParam);
       dfInput.KeyboardNotifyWheelMoved(d);
     end
-
   else
     Result := DefWindowProc(hWnd, Msg, wParam, lParam);
   end;
@@ -145,6 +175,7 @@ var
   lAmb, lDif, lSpec: TdfVec4f; //Цвет источника света
   lConstAtten, lLinearAtten, lQuadroAtten: Single; //Параметры источника света
   W, H, X, Y: Integer; //Параметры окна - длина, ширина, позицияХ, позицияУ
+  atomColor: TdfVec3f;
 
   WC: TWndClass;
   Style: Cardinal;
@@ -207,6 +238,20 @@ begin
         X := par.TokenInt;
         par.NextToken;
         Y := par.TokenInt;
+      end
+      else if par.TokenString = 'backgroundColor' then
+      begin
+        par.NextToken;
+        backgroundColor.x := par.TokenFloat;
+        par.NextToken;
+        backgroundColor.y := par.TokenFloat;
+        par.NextToken;
+        backgroundColor.z := par.TokenFloat;
+      end
+      else if par.TokenString = 'axes' then
+      begin
+        par.NextToken;
+        bDrawAxes := (par.TokenString = 'true');
       end
       //Камера
       else if par.TokenString = 'FOV' then
@@ -308,6 +353,20 @@ begin
         par.NextToken;
         lQuadroAtten := par.TokenFloat;
       end
+      else if par.TokenString = 'lightDraw' then
+      begin
+        par.NextToken;
+        Light.bDrawLight := (par.TokenString = 'true');
+      end
+      else if par.TokenString = 'atomColor' then
+      begin
+        par.NextToken;
+        atomColor.x := par.TokenFloat;
+        par.NextToken;
+        atomColor.y := par.TokenFloat;
+        par.NextToken;
+        atomColor.z := par.TokenFloat;
+      end;
     until par.NextToken = toEOF;
     par.Free;
     strData.Free;
@@ -323,10 +382,12 @@ begin
       hInstance := 0;
       hIcon := LoadIcon(0, IDI_WINLOGO);
       hCursor := LoadCursor(0, IDC_ARROW);
+      hDefaultCursor := hCursor;
       hbrBackground := GetStockObject (White_Brush);
       lpfnWndProc := @MyWindowProc;
       lpszClassName := 'TMyWindow';
     end;
+    hHandCursor := LoadCursor(0, IDC_HAND);
     Windows.RegisterClass(WC);
     WHandle := CreateWindow('TMyWindow', 'MyCaption', Style,
                             X, Y, W, H, 0, 0, WC.hInstance, nil);
@@ -387,6 +448,7 @@ begin
     gl.Enable(GL_CULL_FACE);
     gl.Enable(GL_COLOR_MATERIAL);
     gl.Enable(GL_TEXTURE_2D);
+    gl.ClearColor(backgroundColor.x, backgroundColor.y, backgroundColor.z, 1.0);
     gl.SwapInterval(0);
 
     ShowWindow(WHandle, CmdShow);
@@ -403,9 +465,9 @@ begin
                    lDif.x, lDif.y, lDif.z, lDif.z,
                    lSpec.x, lSpec.y, lSpec.z, lSpec.w,
                    lConstAtten, lLinearAtten, lQuadroAtten);
-    Sprites.SpriteInit();
+    Sprites.SpriteInit(atomColor);
     Shaders.ShadersInit();
-    texID2 := Textures.renderTexLoad('Data\sphere.bmp');
+    texID2 := Textures.renderTexLoad('Data\particle.bmp');
 
     Scale := 1.0;
 
@@ -453,7 +515,8 @@ begin
     gl.PushMatrix();
       if Camera.CameraStep(dt) = -1 then
         raise Exception.CreateRes(1);
-      DrawAxes();
+      if bDrawAxes then
+        DrawAxes();
       Light.LightStep(dt);
       Textures.renderTexBind(texID2);
       Sprites.SpriteStep(dt);

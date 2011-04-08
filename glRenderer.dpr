@@ -1,6 +1,14 @@
 {
   LD - Last Developed - Над чем работал в последний раз в этот день
 
+  2011-04-08 - LD Main    - Переделано вращение камеры - теперь "рыскание"
+                            происходит относительно вектора Up камеры
+  2011-04-08 - LD Camera  - Добавлено управлением "креном" камеры
+  2011-04-08 - LD Camera  - Закомментированы строки с анимацией камеры за
+                            ненадобностью
+  2011-04-08 - LD ----    - Настройки (внешние) цвета атомов, цвета фона,
+                            отрисовки осей, источника света
+  2011-04-08 - LD ----    - Добавлена панорама для камеры на правую кнопку
   2011-03-07 - LD ----    - RC 16, чистка кода. Привязка логгинг-системы
                             (Предыдущая версия теперь в _old как beta_rc15)
   2011-01-31 - LD ----    - Попытки прикрутить лог от Романуса. Отписал на форуме
@@ -10,7 +18,7 @@
                           - renderInit2 экспортируется как renderInit. Сама
                             renderInit - deprecated.
                             TODO: колесо мыши, общая чистка
-  2010-10-31 - LD Sprites - Добалвена функция экспорта файла вида I X Y Z ...
+  2010-10-31 - LD Sprites - Добавлена функция экспорта файла вида I X Y Z ...
   2010-09-28 - LD Camera, Main - Поборол камеру. Метод SetCamera переработан.
                                  В соответствие с ним необходимо выстроить
                                  другие методы модуля.
@@ -61,12 +69,12 @@
          + параметры окна,
          + параметры камеры,
          + параметры источника света,
-           используемые технологии (вкл/выкл VBO, shaders и прочее)
+         - используемые технологии (вкл/выкл VBO, shaders и прочее)
          6)   Result := -10; //Затычка
               Данная строка содержится во всех функциях, требующих внимания
          7) Добавление / Удаление объектов. Имена объектов.
 
-  -->>   8) Колесо мыши - зум.
+        +8) Колесо мыши - зум.
 
 }
 
@@ -124,6 +132,7 @@
    - Вызвать функцию renderInit(), передав ей на вход необходимые параметры
      (Либо воспользоваться функцией renderInit2(), передав ей на вход файл конфигураций)
      2010-04-20
+     2011-04-08 - убран из функционала
    - По окончании работы вызывать renderDeInit()
 }
 library glRenderer;
@@ -155,10 +164,10 @@ exports
   renderWindowGetHandle,
 
   renderCameraSet,
-  renderCameraSetTarget, renderCameraSetTargetMove,
-  renderCameraSetPos, renderCameraSetPosMove,
-  renderCameraSetUp, renderCameraSetUpMove,
-  renderCameraMoveAroundTarget,
+  renderCameraSetTarget,// renderCameraSetTargetMove,
+  renderCameraSetPos,// renderCameraSetPosMove,
+  renderCameraSetUp,// renderCameraSetUpMove,
+  //renderCameraMoveAroundTarget,
 
   renderLightSet,
   renderLightSetPos,  renderLightSetPosMove,
