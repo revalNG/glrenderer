@@ -36,6 +36,9 @@ uses
   function LightStep(deltaTime: Single): Integer;
   function LightDeInit(): Integer;
 
+var
+  bDrawLight: Boolean;
+
 
 implementation
 
@@ -48,7 +51,7 @@ var
 
   //debug
   t: Single;
-  stop: Boolean;
+  stop: Boolean = True;
   space_pressed: Boolean;
 
 const
@@ -146,23 +149,8 @@ begin
   t := 0;
 end;
 
-function LightStep(deltaTime: Single): Integer;
+procedure DrawLightSource();
 begin
-  Result := -10; //Затычка
-
-  if dfInput.IsKeyDown($20) and not space_pressed then
-  begin
-    stop := not stop;
-    space_pressed := True;
-  end;
-
-  if not dfInput.IsKeyDown($20) then
-    space_pressed := False;
-  if not stop then
-    t := t + deltaTime;
-  LightPos := dfVec4f(5*sin(t), 3*sin(t), 5*cos(t), 0);
-  gl.Lightfv(GL_LIGHT0, GL_POSITION, @LightPos);
-
   gl.PushAttrib(GL_COLOR);
   gl.Color3f(dif.x, dif.y, dif.z);
   gl.Disable(GL_LIGHTING);
@@ -204,6 +192,26 @@ begin
   gl.Endp;
   gl.Enable(GL_LIGHTING);
   gl.PopAttrib();
+end;
+
+function LightStep(deltaTime: Single): Integer;
+begin
+  Result := -10; //Затычка
+
+  if dfInput.IsKeyDown($20) and not space_pressed then
+  begin
+    stop := not stop;
+    space_pressed := True;
+  end;
+
+  if not dfInput.IsKeyDown($20) then
+    space_pressed := False;
+  if not stop then
+    t := t + deltaTime;
+  LightPos := dfVec4f(5*sin(t), 3*sin(t), 5*cos(t), 0);
+  gl.Lightfv(GL_LIGHT0, GL_POSITION, @LightPos);
+  if bDrawLight then
+    DrawLightSource();
 end;
 
 function LightDeInit(): Integer;

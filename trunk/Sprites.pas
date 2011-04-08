@@ -19,7 +19,7 @@ type
 
 function renderSpritesAddFromFile(FileName: PAnsiChar): Integer; stdcall;
 
-function SpriteInit(): Integer;
+function SpriteInit(AtomColor: TdfVec3f): Integer;
 function SpriteStep(deltaTime: Single): Integer;
 function SpriteDeInit(): Integer;
 
@@ -36,6 +36,7 @@ var
   psize: Single;
   particles: TList;
   MaxX, MaxY: Single;
+  particleColor: TdfVec3f;
 
 
 
@@ -64,7 +65,7 @@ begin
       if pos.y > maxY then maxY := pos.y;
       p.NextToken;
       pos.z := p.TokenFloat;
-      col := dfVec3f(1.0, 1.0, 1.0);
+      col := particleColor;
     end;
     particles.Add(particle);
   until (p.NextToken = toEOF);
@@ -74,7 +75,7 @@ begin
   Result := 0;
 end;
 
-function SpriteInit(): Integer;
+function SpriteInit(AtomColor: TdfVec3f): Integer;
 begin
   //TODO: check extension GL_ARB_POINT_PARAMETERS
   logWriteMessage('Инициализация модуля Sprites');
@@ -83,10 +84,15 @@ begin
   gl.PointParameterfv(GL_POINT_DISTANCE_ATTENUATION, @q);
   psize := 0;
   gl.GetFloatv(GL_POINT_SIZE_MAX, @psize);
-  psize := Min(psize, 50);
-  gl.PointParameterf(GL_POINT_FADE_THRESHOLD_SIZE, 10.0);
-  gl.PointParameterf(GL_POINT_SIZE_MIN, 1.5);
+  logWriteMessage('Sprites: GL_POINT_SIZE_MAX = ' + FloatToStr(psize));
+  psize := Min(psize, 100);
+  gl.PointParameterf(GL_POINT_FADE_THRESHOLD_SIZE, 100.0);
+  gl.PointParameterf(GL_POINT_SIZE_MIN, 1.0);
   gl.PointParameterf(GL_POINT_SIZE_MAX, psize);
+
+  gl.TexEnvf(GL_POINT_SPRITE, GL_COORD_REPLACE, $0001 );
+
+  particleColor := AtomColor;
 
   Result := -10;
 end;
@@ -100,13 +106,13 @@ begin
   gl.Disable(GL_LIGHTING);
 
   gl.Enable(GL_BLEND);
-	gl.BlendFunc(GL_SRC_ALPHA, GL_SRC_ALPHA);
+//  gl.BlendFunc(GL_ONE, GL_ONE);
+//  gl.BlendFunc(GL_ONE, GL_SRC_ALPHA);
+	gl.BlendFunc(GL_SRC_ALPHA, GL_ONE);
 
   gl.Enable(GL_POINT_SPRITE);
 
   gl.PointSize(psize);
-
-  gl.TexEnvf( GL_POINT_SPRITE, GL_COORD_REPLACE, 1.0 );
 
 	gl.Beginp( GL_POINTS );
     for i := 0 to particles.Count - 1 do

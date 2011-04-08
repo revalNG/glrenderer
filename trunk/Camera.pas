@@ -20,17 +20,17 @@ uses
   //Установка точки наблюдения с сохранением остальных параметров
   function renderCameraSetTarget(LookX, LookY, LookZ: Single): Integer; stdcall;
   //Плавное передвижение камеры к новой точке с максимальной скоростью MaxSpeed
-  function renderCameraSetTargetMove(LookX, LookY, LookZ, MaxSpeed, Accel: Single): Integer; stdcall;
+//  function renderCameraSetTargetMove(LookX, LookY, LookZ, MaxSpeed, Accel: Single): Integer; stdcall;
   //Установка позиции камеры с сохранием остальных параметров
   function renderCameraSetPos(X, Y, Z: Single): Integer; stdcall;
   //Плавное перемещение позиции камеры с максимальной скоростью MaxSpeed с сохранением остальных параметров
-  function renderCameraSetPosMove(X, Y, Z, MaxSpeed, Accel: Single): Integer; stdcall;
+//  function renderCameraSetPosMove(X, Y, Z, MaxSpeed, Accel: Single): Integer; stdcall;
   //Установка вектора "верха" камеры с сохранением  остальных параметров
   function renderCameraSetUp(UpX, UpY, UpZ: Single): Integer; stdcall;
   //Плавное изменение вектора "верха" камеры с максимальной скоростью MaxSpeed с сохранением остальных параметров
-  function renderCameraSetUpMove(UpX, UpY, UpZ, MaxSpeed, Accel: Single): Integer; stdcall;
+//  function renderCameraSetUpMove(UpX, UpY, UpZ, MaxSpeed, Accel: Single): Integer; stdcall;
   //Вращение камеры вокруг позиции наблюдения с сохранением расстояния до нее
-  function renderCameraMoveAroundTarget(HorDelta, VerDelta: Single): Integer; stdcall;
+//  function renderCameraMoveAroundTarget(HorDelta, VerDelta: Single): Integer; stdcall;
 
 
   //ВНУТРЕННИЕ ФУНКЦИИ
@@ -41,28 +41,33 @@ uses
   //Функции для дебага
   function CameraRotate(Delta: Single; Axis: TdfVec3f): Integer;
   function CameraScale(AScale: Single): Integer;
+  //2011-04-08 pd: панорама камерой
+  function CameraPan(up, left: Single): Integer;
+//  //2011-04-08 pd: крен камерой
+//  function CameraRoll(Delta: Single): Integer;
   function CameraGetUp(): TdfVec3f;
   function CameraGetDir(): TdfVec3f;
   function CameraGetLeft(): TdfVec3f;
   function CameraGetPos(): TdfVec3f;
+
 
 implementation
 
 uses
   Windows;
 
-type
-
-  //Анимация камеры
-  TCameraAnimation = record
-    //t - величина времени, необходимая для интерполяции 0..1
-    //Speed - текущая скорость
-    t, Accel, Speed, MaxSpeed: Single;
-    //start - вектор начального состояния
-    //finish - вектор конечного состояния
-    Start, Finish: TdfVec3f;
-    Enabled: Boolean;
-  end;
+//type
+//
+//  //Анимация камеры
+//  TCameraAnimation = record
+//    //t - величина времени, необходимая для интерполяции 0..1
+//    //Speed - текущая скорость
+//    t, Accel, Speed, MaxSpeed: Single;
+//    //start - вектор начального состояния
+//    //finish - вектор конечного состояния
+//    Start, Finish: TdfVec3f;
+//    Enabled: Boolean;
+//  end;
 
 var
   //Модельная матрица и матрица проекции камеры
@@ -70,7 +75,7 @@ var
   //Точка взгляда камеры - LookX, LookY, LookZ (можно высчитывать каждый раз при анимации,
   // но проще хранить)
   LX, LY, LZ: Single;
-  aPos, aTarget, aUp: TCameraAnimation;
+//  aPos, aTarget, aUp: TCameraAnimation;
 
 //Установка всех параметров камеры: Позиция, Точка наблюдения, Вектор "верха"
 function renderCameraSet(X, Y, Z, LookX, LookY, LookZ, UpX, UpY, UpZ: Single): Integer; stdcall;
@@ -131,22 +136,22 @@ begin
   Result := 0;
 end;
 
-function renderCameraSetTargetMove(LookX, LookY, LookZ, MaxSpeed, Accel: Single): Integer; stdcall;
-begin
-  if not aTarget.Enabled then
-  begin
-    aTarget.Enabled := True;
-    aTarget.t := 0;
-    aTarget.Start := dfVec3f(LX, LY, LZ);
-    aTarget.Finish := dfVec3f(0, 0, 0);
-  end;
-  aTarget.Finish := aTarget.Finish + dfVec3f(LookX, LookY, LookZ);
-  aTarget.Accel := Accel;
-  aTarget.MaxSpeed := MaxSpeed;
-  aTarget.Speed := 0;
-
-  Result := 0;
-end;
+//function renderCameraSetTargetMove(LookX, LookY, LookZ, MaxSpeed, Accel: Single): Integer; stdcall;
+//begin
+//  if not aTarget.Enabled then
+//  begin
+//    aTarget.Enabled := True;
+//    aTarget.t := 0;
+//    aTarget.Start := dfVec3f(LX, LY, LZ);
+//    aTarget.Finish := dfVec3f(0, 0, 0);
+//  end;
+//  aTarget.Finish := aTarget.Finish + dfVec3f(LookX, LookY, LookZ);
+//  aTarget.Accel := Accel;
+//  aTarget.MaxSpeed := MaxSpeed;
+//  aTarget.Speed := 0;
+//
+//  Result := 0;
+//end;
 
 //Установка позиции камеры с сохранием остальных параметров
 function renderCameraSetPos(X, Y, Z: Single): Integer; stdcall;
@@ -175,22 +180,22 @@ begin
   Result := 0;
 end;
 
-function renderCameraSetPosMove(X, Y, Z, MaxSpeed, Accel: Single): Integer; stdcall;
-begin
-  if not aPos.Enabled then
-  begin
-    aPos.Enabled := True;
-    aPos.t := 0;
-    aPos.Start := Model.Pos;
-    aPos.Finish := dfVec3f(0, 0, 0);
-  end;
-  aPos.Finish := aPos.Finish + dfVec3f(X, Y, Z);
-  aPos.Accel := Accel;
-  aPos.MaxSpeed := MaxSpeed;
-  aPos.Speed := 0;
-
-  Result := 0;
-end;
+//function renderCameraSetPosMove(X, Y, Z, MaxSpeed, Accel: Single): Integer; stdcall;
+//begin
+//  if not aPos.Enabled then
+//  begin
+//    aPos.Enabled := True;
+//    aPos.t := 0;
+//    aPos.Start := Model.Pos;
+//    aPos.Finish := dfVec3f(0, 0, 0);
+//  end;
+//  aPos.Finish := aPos.Finish + dfVec3f(X, Y, Z);
+//  aPos.Accel := Accel;
+//  aPos.MaxSpeed := MaxSpeed;
+//  aPos.Speed := 0;
+//
+//  Result := 0;
+//end;
 
 //Установка вектора "верха" камеры с сохранением  остальных параметров
 function renderCameraSetUp(UpX, UpY, UpZ: Single): Integer; stdcall;
@@ -198,29 +203,29 @@ begin
   Result := -10; //Затычка
 end;
 
-//Плавное изменение вектора "верха" камеры со скоростью Speed с сохранением остальных параметров
-function renderCameraSetUpMove(UpX, UpY, UpZ, MaxSpeed, Accel: Single): Integer; stdcall;
-begin
-  if not aUp.Enabled then
-  begin
-    aUp.Enabled := True;
-    aUp.t := 0;
-    aUp.Start := dfVec3f(Model.e01, Model.e11, Model.e21);
-    aUp.Finish := dfVec3f(0, 0, 0);
-  end;
-  aUp.Finish := aUp.Finish + dfVec3f(UpX, UpY, UpZ);
-  aUp.Accel := Accel;
-  aUp.MaxSpeed := MaxSpeed;
-  aUp.Speed := 0;
-
-  Result := 0;
-end;
-
-//Вращение камеры вокруг позиции наблюдения с сохранением расстояния до нее
-function renderCameraMoveAroundTarget(HorDelta, VerDelta: Single): Integer; stdcall;
-begin
-  Result := -10; //Затычка
-end;
+////Плавное изменение вектора "верха" камеры со скоростью Speed с сохранением остальных параметров
+//function renderCameraSetUpMove(UpX, UpY, UpZ, MaxSpeed, Accel: Single): Integer; stdcall;
+//begin
+//  if not aUp.Enabled then
+//  begin
+//    aUp.Enabled := True;
+//    aUp.t := 0;
+//    aUp.Start := dfVec3f(Model.e01, Model.e11, Model.e21);
+//    aUp.Finish := dfVec3f(0, 0, 0);
+//  end;
+//  aUp.Finish := aUp.Finish + dfVec3f(UpX, UpY, UpZ);
+//  aUp.Accel := Accel;
+//  aUp.MaxSpeed := MaxSpeed;
+//  aUp.Speed := 0;
+//
+//  Result := 0;
+//end;
+//
+////Вращение камеры вокруг позиции наблюдения с сохранением расстояния до нее
+//function renderCameraMoveAroundTarget(HorDelta, VerDelta: Single): Integer; stdcall;
+//begin
+//  Result := -10; //Затычка
+//end;
 
 
 //**********
@@ -232,12 +237,11 @@ begin
     gl.Viewport(x, y, w, h);
     Proj.Identity;
     Proj.Perspective(FOV, w / h, ZNear, ZFar);
-    ZeroMemory(@aPos, SizeOf(aPos));
-    ZeroMemory(@aTarget, SizeOf(aTarget));
-    ZeroMemory(@aUp, SizeOf(aUp));
+//    ZeroMemory(@aPos, SizeOf(aPos));
+//    ZeroMemory(@aTarget, SizeOf(aTarget));
+//    ZeroMemory(@aUp, SizeOf(aUp));
     gl.MatrixMode(GL_PROJECTION);
     gl.LoadMatrixf(Proj);
-    gl.ClearColor(0.3, 0.3, 0.3, 1.0);
   except
     Result := -1;
     Exit;
@@ -246,30 +250,35 @@ end;
 
 function CameraStep(deltaTime: Single): Integer;
 
-  procedure SetPos();
-  var
-    pos: TdfVec3f;
-  begin
-    with aPos do
-      begin
-        if Speed < MaxSpeed then
-          Speed := Speed + Accel;
-        t := t + Speed * deltaTime;
-        pos := Start.Lerp(Finish, t);
-        if t - cEPS  >= 1 then
-        begin
-          Enabled := False;
-          Exit;
-        end;
-        renderCameraSetPos(pos.x, pos.y, pos.z);
-      end;
-  end;
+//  procedure SetPos();
+//  var
+//    pos: TdfVec3f;
+//  begin
+//    with aPos do
+//      begin
+//        if Speed < MaxSpeed then
+//          Speed := Speed + Accel;
+//        t := t + Speed * deltaTime;
+//        pos := Start.Lerp(Finish, t);
+//        if t - cEPS  >= 1 then
+//        begin
+//          Enabled := False;
+//          Exit;
+//        end;
+//        renderCameraSetPos(pos.x, pos.y, pos.z);
+//      end;
+//  end;
 
 begin
   Result := 0;
   try
-    if aPos.Enabled then
-      SetPos();
+//    if aPos.Enabled then
+//      SetPos();
+
+    if dfInput.IsKeyDown('z') or dfInput.IsKeyDown('я') then
+      CameraRotate(0.001, CameraGetDir())
+    else if dfInput.IsKeyDown('x') or dfInput.IsKeyDown('ч') then
+      CameraRotate(-0.001, CameraGetDir());
     gl.MatrixMode(GL_PROJECTION);
     gl.LoadMatrixf(Proj);
     gl.MatrixMode(GL_MODELVIEW);
@@ -284,9 +293,9 @@ function CameraDeInit(): Integer;
 begin
   Model.Identity;
   Proj.Identity;
-  ZeroMemory(@aPos, SizeOf(aPos));
-  ZeroMemory(@aTarget, SizeOf(aTarget));
-  ZeroMemory(@aUp, SizeOf(aUp));
+//  ZeroMemory(@aPos, SizeOf(aPos));
+//  ZeroMemory(@aTarget, SizeOf(aTarget));
+//  ZeroMemory(@aUp, SizeOf(aUp));
   //*
 
   Result := 0;
@@ -301,6 +310,15 @@ end;
 function CameraScale(AScale: Single): Integer;
 begin
   Model.Translate(dfVec3f(0,0,0) - (CameraGetDir * AScale));
+end;
+
+function CameraPan(up, left: Single): Integer;
+var
+  v: TdfVec3f;
+begin
+  v := CameraGetUp() * up * 0.01;
+  v := v + CameraGetLeft() * left * 0.01;
+  Model.Translate(v);
 end;
 
 function CameraGetUp(): TdfVec3f;
