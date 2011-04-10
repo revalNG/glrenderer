@@ -159,7 +159,8 @@ uses
   dfList in 'common\dfList.pas',
   dfLogger in 'common\dfLogger.pas',
   dfMath in 'common\dfMath.pas',
-  dfHRenderer in 'headers\dfHRenderer.pas';
+  dfHRenderer in 'headers\dfHRenderer.pas',
+  Node in 'Node.pas';
 
 exports
   CreateRenderer;

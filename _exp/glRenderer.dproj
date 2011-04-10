@@ -58,6 +58,7 @@
 			<DCCReference Include="common\dfLogger.pas"/>
 			<DCCReference Include="common\dfMath.pas"/>
 			<DCCReference Include="headers\dfHRenderer.pas"/>
+			<DCCReference Include="Node.pas"/>
 			<BuildConfiguration Include="Base">
 				<Key>Base</Key>
 			</BuildConfiguration>

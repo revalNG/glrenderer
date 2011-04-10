@@ -45,6 +45,7 @@
 			</DelphiCompile>
 			<DCCReference Include="Header.pas"/>
 			<DCCReference Include="headers\dfHRenderer.pas"/>
+			<DCCReference Include="common\dfMath.pas"/>
 			<BuildConfiguration Include="Base">
 				<Key>Base</Key>
 			</BuildConfiguration>
