@@ -79,6 +79,8 @@ var
 
   bDrawAxes: Boolean;
 
+  camPos, camLook, camUp: TdfVec3f;
+
 function MyWindowProc(hWnd: HWND; Msg: UINT; wParam: WPARAM; lParam: LPARAM): LRESULT; stdcall;
 var
   x, y: Integer;
@@ -171,17 +173,20 @@ function renderInit(FileName: PAnsiChar): Integer; stdcall;
 var
   strData: TFileStream;
   par: TParser;
-  camPos, camLook, camUp, lightPos: TdfVec3f;
+  lightPos: TdfVec3f;
   lAmb, lDif, lSpec: TdfVec4f; //Цвет источника света
   lConstAtten, lLinearAtten, lQuadroAtten: Single; //Параметры источника света
   W, H, X, Y: Integer; //Параметры окна - длина, ширина, позицияХ, позицияУ
   atomColor: TdfVec3f;
+  windowCaption: PWideChar;
 
   WC: TWndClass;
   Style: Cardinal;
 
   PFD: TPixelFormatDescriptor;
   nPixelFormat: Integer;
+
+  dataPath: PWideChar;
 begin
   Logger.LogInit();
 
@@ -252,6 +257,11 @@ begin
       begin
         par.NextToken;
         bDrawAxes := (par.TokenString = 'true');
+      end
+      else if par.TokenString = 'caption' then
+      begin
+        par.NextToken;
+        windowCaption := PWideChar(par.TokenString);
       end
       //Камера
       else if par.TokenString = 'FOV' then
@@ -366,6 +376,11 @@ begin
         atomColor.y := par.TokenFloat;
         par.NextToken;
         atomColor.z := par.TokenFloat;
+      end
+      else if par.TokenString = 'dataPath' then
+      begin
+        par.NextToken;
+        dataPath := PWideChar(par.TokenString);
       end;
     until par.NextToken = toEOF;
     par.Free;
@@ -389,7 +404,7 @@ begin
     end;
     hHandCursor := LoadCursor(0, IDC_HAND);
     Windows.RegisterClass(WC);
-    WHandle := CreateWindow('TMyWindow', 'MyCaption', Style,
+    WHandle := CreateWindow('TMyWindow', windowCaption, Style,
                             X, Y, W, H, 0, 0, WC.hInstance, nil);
     if WHandle = 0 then
     begin
@@ -475,6 +490,7 @@ begin
     renderReady := True;
 
     logWriteMessage('Успешная инициализация');
+    renderSpritesAddFromFile(PWideToPChar(dataPath));
     Result := 0;
   except
     Result := -1;
@@ -523,14 +539,20 @@ begin
       Textures.renderTexUnbind;
 
       if dfInput.IsKeyDown(VK_MOUSEWHEELUP) then
-      begin
-        Camera.CameraScale(-1.0);
-      end;
-
-      if dfInput.IsKeyDown(VK_MOUSEWHEELDOWN) then
-      begin
+        Camera.CameraScale(-1.0)
+      else if dfInput.IsKeyDown(VK_MOUSEWHEELDOWN) then
         Camera.CameraScale(1.0);
-      end;
+
+      if dfInput.IsKeyDown('z') or dfInput.IsKeyDown('я') then
+        CameraRotate(0.001, CameraGetDir())
+      else if dfInput.IsKeyDown('x') or dfInput.IsKeyDown('ч') then
+        CameraRotate(-0.001, CameraGetDir());
+
+      if dfInput.IsKeyDown('c') or dfInput.IsKeyDown('с') then
+        renderCameraSet(camPos.x, camPos.y, camPos.z,
+                        camLook.x, camLook.y, camLook.z,
+                        camUp.x, camUp.y, camUp.z);
+
     gl.PopMatrix();
     Windows.SwapBuffers(FDC);
   except

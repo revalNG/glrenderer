@@ -16,11 +16,9 @@ begin
   WriteLn(' ===== Use RIGHT MOUSE BUTTON to pan');
   WriteLn(' ===== Use Z and X buttons to roll the scene (additional rotate angle)');
   WriteLn(' ===== Use MOUSE WHEEL to scale the scene');
-//  WriteLn(' ===== Use SPACE to stop/move light source');
+  WriteLn(' ===== Use C to get back to origin camera position');
   renderInit('settings.txt');
   h := renderWindowGetHandle();
-  renderSpritesAddFromFile('data/data1.txt');
-  SetWindowText(h, 'glrenderer 0.2. Специальная редакция для Трухманова Дмитрия');
   repeat
     if PeekMessage(msg, 0, 0, 0, PM_NOREMOVE) then
     begin

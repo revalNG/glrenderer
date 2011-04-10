@@ -46,10 +46,14 @@ var
   p: TParser;
   particle: PParticle;
   f: TFileStream;
+  aFileName: String;
 begin
-  logWriteMessage('Загрузка данных по спрайтам из файла ' + FileName);
+  //Агли хак, иначе после первого же использования FileName оно превращается в бред
+  aFileName := FileName;
+  logWriteMessage('Загрузка данных по спрайтам из файла ' + aFileName);
   particles.Clear();
-  f := TFileStream.Create(FileName, $0000);
+  f := TFileStream.Create(aFileName, $0000);
+
   p := TParser.Create(f);
 
   repeat

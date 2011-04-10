@@ -274,11 +274,6 @@ begin
   try
 //    if aPos.Enabled then
 //      SetPos();
-
-    if dfInput.IsKeyDown('z') or dfInput.IsKeyDown('ÿ') then
-      CameraRotate(0.001, CameraGetDir())
-    else if dfInput.IsKeyDown('x') or dfInput.IsKeyDown('÷') then
-      CameraRotate(-0.001, CameraGetDir());
     gl.MatrixMode(GL_PROJECTION);
     gl.LoadMatrixf(Proj);
     gl.MatrixMode(GL_MODELVIEW);
