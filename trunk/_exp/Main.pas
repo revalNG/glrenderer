@@ -49,6 +49,9 @@ type
     FBackgroundColor: TdfVec3f;
     FDrawAxes: Boolean;
 
+    //Активная камера
+    FCamera: IdfCamera;
+
     function GetWindowHandle(): Integer;
     function GetWindowCaption(): PAnsiChar;
     procedure SetWindowCaption(aCaption: PAnsiChar);
@@ -241,6 +244,21 @@ begin
   Result := FRenderReady;
 end;
 
+function TdfRenderer.GetFPS(): Single;
+begin
+  Result := FFPS;
+end;
+
+function TdfRenderer.GetCamera(): IdfCamera;
+begin
+  Result := FCamera;
+end;
+
+procedure TdfRenderer.SetCamera(aCamera: IdfCamera);
+begin
+  FCamera := aCamera;
+end;
+
 constructor TdfRenderer.Create;
 begin
   FRenderReady := False;
@@ -338,17 +356,17 @@ begin
       else if par.TokenString = 'FOV' then
       begin
         par.NextToken;
-        cFOV := par.TokenFloat;
+//        cFOV := par.TokenFloat;
       end
       else if par.TokenString = 'zNear' then
       begin
         par.NextToken;
-        czNear := par.TokenFloat;
+//        czNear := par.TokenFloat;
       end
       else if par.TokenString = 'zFar' then
       begin
         par.NextToken;
-        czFar := par.TokenFloat;
+//        czFar := par.TokenFloat;
       end
       else if par.TokenString = 'cameraPos' then
       begin
@@ -535,7 +553,7 @@ begin
     ShowWindow(FWHandle, CmdShow);
     UpdateWindow(FWHandle);
 
-    Camera.CameraInit(0, 0, FWWidth, FWHeight, cFOV, cZNear, cZFar);
+//    Camera.CameraInit(0, 0, FWWidth, FWHeight, cFOV, cZNear, cZFar);
     //Задаем параметры камеры
     renderCameraSet(camPos.x, camPos.y, camPos.z,
                     camLook.x, camLook.y, camLook.z,
@@ -549,7 +567,7 @@ begin
     Sprites.SpriteInit(atomColor);
     Shaders.ShadersInit();
 
-    Scale := 1.0;
+//    Scale := 1.0;
 
     QueryPerformanceFrequency(FFreq);
     FRenderReady := True;
@@ -590,8 +608,8 @@ begin
     gl.Clear(GL_DEPTH_BUFFER_BIT);
     gl.MatrixMode(GL_MODELVIEW);
     gl.PushMatrix();
-      if Camera.CameraStep(deltaTime) = -1 then
-        raise Exception.CreateRes(1);
+//      if Camera.CameraStep(deltaTime) = -1 then
+//        raise Exception.CreateRes(1);
       if FDrawAxes then
         DrawAxes();
       Light.LightStep(deltaTime);
@@ -622,6 +640,8 @@ begin
 end;
 
 function TdfRenderer.Start(): Integer;
+var
+  msg: TMsg;
 begin
   repeat
     if PeekMessage(msg, 0, 0, 0, PM_NOREMOVE) then
@@ -639,7 +659,7 @@ begin
       FDeltaTime := (FNewTicks - FOldTicks) / FFreq;
       FOldTicks := FNewTicks;
 //      Inc(FFrames);
-      FPS :=  1 / FDeltaTime;
+      FFPS :=  1 / FDeltaTime;
       if TheRenderer.RenderReady then
         TheRenderer.Step(FDeltaTime);
 //      if FFrames >= 1000 then
@@ -658,7 +678,7 @@ begin
   logWriteMessage('Деинициализация рендера');
   try
     FRenderReady := False;
-    Camera.CameraDeInit();
+//    Camera.CameraDeInit();
     Light.LightDeInit();
     Sprites.SpriteDeInit();
     Textures.TexDeInit();

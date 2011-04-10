@@ -4,7 +4,8 @@ program Checker1;
 uses
   Windows,
   Header in 'Header.pas',
-  dfHRenderer in 'headers\dfHRenderer.pas';
+  dfHRenderer in 'headers\dfHRenderer.pas',
+  dfMath in 'common\dfMath.pas';
 
 var
   msg: TMsg;
