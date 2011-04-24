@@ -28,12 +28,14 @@ var
   Format: Cardinal;
   Data: Pointer;
   W, H: Integer;
+  aFileName: String;
 begin
-  logWriteMessage('Загрузка текстуры ' + FileName);
+  aFileName := FileName;
+  logWriteMessage('Загрузка текстуры ' + aFileName);
   gl.GenTextures(1, @Result);
   gl.BindTexture(GL_TEXTURE_2D, Result);
   New(Data);
-  Data := TexLoad.LoadTexture(FileName, Format, W, H, False);
+  Data := TexLoad.LoadTexture(aFileName, Format, W, H, False);
   gl.TexImage2D(GL_TEXTURE_2D, 0, TGLConst(Format), W, H, 0, TGLConst(Format), GL_UNSIGNED_BYTE, Data);
   gl.TexParameteri( GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER, GL_LINEAR );
 	gl.TexParameteri( GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER, GL_LINEAR );

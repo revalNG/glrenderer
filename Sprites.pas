@@ -19,7 +19,7 @@ type
 
 function renderSpritesAddFromFile(FileName: PAnsiChar): Integer; stdcall;
 
-function SpriteInit(AtomColor: TdfVec3f): Integer;
+function SpriteInit(AtomColor: TdfVec3f; AtomSize: Single): Integer;
 function SpriteStep(deltaTime: Single): Integer;
 function SpriteDeInit(): Integer;
 
@@ -79,7 +79,7 @@ begin
   Result := 0;
 end;
 
-function SpriteInit(AtomColor: TdfVec3f): Integer;
+function SpriteInit(AtomColor: TdfVec3f; AtomSize: Single): Integer;
 begin
   //TODO: check extension GL_ARB_POINT_PARAMETERS
   logWriteMessage('Инициализация модуля Sprites');
@@ -89,7 +89,9 @@ begin
   psize := 0;
   gl.GetFloatv(GL_POINT_SIZE_MAX, @psize);
   logWriteMessage('Sprites: GL_POINT_SIZE_MAX = ' + FloatToStr(psize));
-  psize := Min(psize, 100);
+  if psize > AtomSize then
+    psize := AtomSize;
+
   gl.PointParameterf(GL_POINT_FADE_THRESHOLD_SIZE, 100.0);
   gl.PointParameterf(GL_POINT_SIZE_MIN, 1.0);
   gl.PointParameterf(GL_POINT_SIZE_MAX, psize);
@@ -111,10 +113,12 @@ begin
 
   gl.Enable(GL_BLEND);
 //  gl.BlendFunc(GL_ONE, GL_ONE);
-//  gl.BlendFunc(GL_ONE, GL_SRC_ALPHA);
+//  gl.BlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	gl.BlendFunc(GL_SRC_ALPHA, GL_ONE);
 
   gl.Enable(GL_POINT_SPRITE);
+  gl.Enable(GL_ALPHA_TEST);
+  gl.Disable(GL_DEPTH_TEST);
 
   gl.PointSize(psize);
 
@@ -128,6 +132,8 @@ begin
 
 	gl.Endp();
 
+  gl.Enable(GL_DEPTH_TEST);
+  gl.Disable(GL_ALPHA_TEST);
 	gl.Disable(GL_POINT_SPRITE);
 
   gl.Disable(GL_BLEND);

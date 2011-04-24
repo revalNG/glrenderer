@@ -77,7 +77,7 @@ var
 
   backgroundColor: TdfVec3f;
 
-  bDrawAxes: Boolean;
+  bDrawAxis: Boolean;
 
   camPos, camLook, camUp: TdfVec3f;
 
@@ -177,7 +177,6 @@ var
   lAmb, lDif, lSpec: TdfVec4f; //Цвет источника света
   lConstAtten, lLinearAtten, lQuadroAtten: Single; //Параметры источника света
   W, H, X, Y: Integer; //Параметры окна - длина, ширина, позицияХ, позицияУ
-  atomColor: TdfVec3f;
   windowCaption: PWideChar;
 
   WC: TWndClass;
@@ -185,8 +184,11 @@ var
 
   PFD: TPixelFormatDescriptor;
   nPixelFormat: Integer;
-
+  atomColor: TdfVec3f;
+  atomTexturePath: PWideChar;
+  atomSize: Single;
   dataPath: PWideChar;
+
 begin
   Logger.LogInit();
 
@@ -253,10 +255,10 @@ begin
         par.NextToken;
         backgroundColor.z := par.TokenFloat;
       end
-      else if par.TokenString = 'axes' then
+      else if par.TokenString = 'axis' then
       begin
         par.NextToken;
-        bDrawAxes := (par.TokenString = 'true');
+        bDrawAxis := (par.TokenString = 'true');
       end
       else if par.TokenString = 'caption' then
       begin
@@ -377,6 +379,16 @@ begin
         par.NextToken;
         atomColor.z := par.TokenFloat;
       end
+      else if par.TokenString = 'atomTexturePath' then
+      begin
+        par.NextToken;
+        atomTexturePath := PWideChar(par.TokenString);
+      end
+      else if par.TokenString = 'atomSize' then
+      begin
+        par.NextToken;
+        atomSize := par.TokenFloat;
+      end
       else if par.TokenString = 'dataPath' then
       begin
         par.NextToken;
@@ -480,9 +492,9 @@ begin
                    lDif.x, lDif.y, lDif.z, lDif.z,
                    lSpec.x, lSpec.y, lSpec.z, lSpec.w,
                    lConstAtten, lLinearAtten, lQuadroAtten);
-    Sprites.SpriteInit(atomColor);
+    Sprites.SpriteInit(atomColor, atomSize);
     Shaders.ShadersInit();
-    texID2 := Textures.renderTexLoad('Data\particle.bmp');
+    texID2 := Textures.renderTexLoad(PWideToPChar(atomTexturePath));
 
     Scale := 1.0;
 
@@ -501,7 +513,7 @@ function renderStep(): Integer; stdcall;
 var
   lp: TdfVec3f;
 
-procedure DrawAxes();
+procedure DrawAxis();
 begin
   //Draw axes
   gl.Disable(GL_LIGHTING);
@@ -531,8 +543,8 @@ begin
     gl.PushMatrix();
       if Camera.CameraStep(dt) = -1 then
         raise Exception.CreateRes(1);
-      if bDrawAxes then
-        DrawAxes();
+      if bDrawAxis then
+        DrawAxis();
       Light.LightStep(dt);
       Textures.renderTexBind(texID2);
       Sprites.SpriteStep(dt);
