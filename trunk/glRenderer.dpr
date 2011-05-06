@@ -147,13 +147,13 @@ uses
   Textures in 'Textures.pas',
   Shaders in 'Shaders.pas',
   Logger in 'Logger.pas',
-
   dfHEngine in 'common\dfHEngine.pas',
   dfHGL in 'common\dfHGL.pas',
   dfHInput in 'common\dfHInput.pas',
   dfList in 'common\dfList.pas',
   dfLogger in 'common\dfLogger.pas',
-  dfMath in 'common\dfMath.pas';
+  dfMath in 'common\dfMath.pas',
+  File3ds in 'File3ds.pas';
 
 exports
   renderInit,
