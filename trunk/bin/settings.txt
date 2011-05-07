@@ -4,7 +4,7 @@ rendermode window
 resolution 800 600
 windowPos 200 200
 backgroundColor 0.40 0.40 0.48
-axis false
+axis true
 caption 'glrenderer 0.2'
 //Камера
 FOV 45

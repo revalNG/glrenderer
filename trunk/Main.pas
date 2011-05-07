@@ -52,8 +52,8 @@ var
 implementation
 
 uses
-  Camera, Light, Sprites, Textures, Shaders,
-  dfMath, dfHInput, dfHEngine, Logger,
+  Camera, Light, Sprites, Textures, Shaders, Logger, File3ds, VBO,
+  dfMath, dfHInput, dfHEngine,
   Classes;
 
 var
@@ -80,6 +80,8 @@ var
   bDrawAxis: Boolean;
 
   camPos, camLook, camUp: TdfVec3f;
+
+  mesh: TdfMesh;
 
 function MyWindowProc(hWnd: HWND; Msg: UINT; wParam: WPARAM; lParam: LPARAM): LRESULT; stdcall;
 var
@@ -472,7 +474,7 @@ begin
     gl.Init;
     gl.Enable(GL_DEPTH_TEST);
     gl.Enable(GL_LIGHTING);
-    gl.Enable(GL_CULL_FACE);
+//    gl.Enable(GL_CULL_FACE);
     gl.Enable(GL_COLOR_MATERIAL);
     gl.Enable(GL_TEXTURE_2D);
     gl.ClearColor(backgroundColor.x, backgroundColor.y, backgroundColor.z, 1.0);
@@ -494,6 +496,7 @@ begin
                    lConstAtten, lLinearAtten, lQuadroAtten);
     Sprites.SpriteInit(atomColor, atomSize);
     Shaders.ShadersInit();
+    VBO.VBOInit();
     texID2 := Textures.renderTexLoad(PWideToPChar(atomTexturePath));
 
     Scale := 1.0;
@@ -503,6 +506,9 @@ begin
 
     logWriteMessage('Успешная инициализация');
     renderSpritesAddFromFile(PWideToPChar(dataPath));
+    mesh := TdfMesh.Create;
+    mesh.LoadFrom3ds('Data\su37.3ds');
+    VBO.VBOAddDataFromMesh(mesh);
     Result := 0;
   except
     Result := -1;
@@ -546,10 +552,10 @@ begin
       if bDrawAxis then
         DrawAxis();
       Light.LightStep(dt);
-      Textures.renderTexBind(texID2);
-      Sprites.SpriteStep(dt);
-      Textures.renderTexUnbind;
-
+//      Textures.renderTexBind(texID2);
+//      Sprites.SpriteStep(dt);
+//      Textures.renderTexUnbind;
+      VBO.VBOStep(dt);
       if dfInput.IsKeyDown(VK_MOUSEWHEELUP) then
         Camera.CameraScale(-1.0)
       else if dfInput.IsKeyDown(VK_MOUSEWHEELDOWN) then
@@ -591,6 +597,7 @@ begin
     Sprites.SpriteDeInit();
     Textures.TexDeInit();
     Textures.renderTexDel(texID2);
+    VBO.VBODeInit();
     wglDeleteContext(FHGLRC);
     ReleaseDC(WHandle, FDC);
     wglMakeCurrent(FDC, 0);
@@ -600,6 +607,8 @@ begin
     DestroyWindow(WHandle);
     WHandle := 0;
     Logger.LogDeinit();
+
+    mesh.Free;
   except
     Result := -1;
     Exit;

@@ -59,6 +59,7 @@
 			<DCCReference Include="common\dfLogger.pas"/>
 			<DCCReference Include="common\dfMath.pas"/>
 			<DCCReference Include="File3ds.pas"/>
+			<DCCReference Include="VBO.pas"/>
 			<BuildConfiguration Include="Base">
 				<Key>Base</Key>
 			</BuildConfiguration>
