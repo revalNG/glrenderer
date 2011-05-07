@@ -153,7 +153,8 @@ uses
   dfList in 'common\dfList.pas',
   dfLogger in 'common\dfLogger.pas',
   dfMath in 'common\dfMath.pas',
-  File3ds in 'File3ds.pas';
+  File3ds in 'File3ds.pas',
+  VBO in 'VBO.pas';
 
 exports
   renderInit,
