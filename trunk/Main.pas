@@ -67,7 +67,7 @@ var
   //Сохраненные значения, переданные юзером при инициализации рендера
   cFOV, cZNear, cZFar: Single;
 
-  texID2: Integer;
+  texID2, texID1: Integer;
 
   dx, dy: Integer;
 
@@ -82,6 +82,9 @@ var
   camPos, camLook, camUp: TdfVec3f;
 
   mesh: TdfMesh;
+
+  vs, fs: Shaders.TShader;
+  prog: Shaders.TShaderProgram;
 
 function MyWindowProc(hWnd: HWND; Msg: UINT; wParam: WPARAM; lParam: LPARAM): LRESULT; stdcall;
 var
@@ -474,8 +477,8 @@ begin
     gl.Init;
     gl.Enable(GL_DEPTH_TEST);
     gl.Enable(GL_LIGHTING);
-//    gl.Enable(GL_CULL_FACE);
-    gl.Enable(GL_COLOR_MATERIAL);
+    gl.Enable(GL_CULL_FACE);
+//    gl.Enable(GL_COLOR_MATERIAL);
     gl.Enable(GL_TEXTURE_2D);
     gl.ClearColor(backgroundColor.x, backgroundColor.y, backgroundColor.z, 1.0);
     gl.SwapInterval(0);
@@ -497,6 +500,7 @@ begin
     Sprites.SpriteInit(atomColor, atomSize);
     Shaders.ShadersInit();
     VBO.VBOInit();
+    texID1 := Textures.renderTexLoad('Data\su37.bmp');
     texID2 := Textures.renderTexLoad(PWideToPChar(atomTexturePath));
 
     Scale := 1.0;
@@ -509,6 +513,15 @@ begin
     mesh := TdfMesh.Create;
     mesh.LoadFrom3ds('Data\su37.3ds');
     VBO.VBOAddDataFromMesh(mesh);
+
+    vs := TShader.Create(TGLConst.GL_VERTEX_SHADER);
+    vs.LoadFromFile('Data\vs_phong.txt');
+    fs := TShader.Create(TGLConst.GL_FRAGMENT_SHADER);
+    fs.LoadFromFile('Data\fs_phong.txt');
+    prog := TShaderProgram.Create();
+    prog.AttachVertexShader(vs);
+    prog.AttachFragmentShader(fs);
+    prog.Link;
     Result := 0;
   except
     Result := -1;
@@ -555,11 +568,24 @@ begin
 //      Textures.renderTexBind(texID2);
 //      Sprites.SpriteStep(dt);
 //      Textures.renderTexUnbind;
+      Textures.renderTexBind(texID1);
+      prog.Use();
+      prog.SetUniforms('fSpecularPower', 5);
+      prog.SetUniforms('fvLightPosition', Light.LightGetPos());
+      prog.SetUniforms('fvEyePosition', Camera.CameraGetPos());
+      prog.SetUniforms('fvAmbient', dfVec4f(0.02, 0.02, 0.02, 1.0));
+      prog.SetUniforms('fvDiffuse', dfVec4f(0.88, 0.88, 0.88, 1.0));
+      prog.SetUniforms('fvSpecular', dfVec4f(0.2, 0.2, 0.2, 1.0));
+      prog.SetUniforms('baseMap', 0);
+//      gl.PolygonMode(GL_FRONT_AND_BACK, GL_LINE);
       VBO.VBOStep(dt);
+//      gl.PolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+      prog.UseNull;
+      Textures.renderTexUnbind;
       if dfInput.IsKeyDown(VK_MOUSEWHEELUP) then
-        Camera.CameraScale(-1.0)
+        Camera.CameraScale(-5.0)
       else if dfInput.IsKeyDown(VK_MOUSEWHEELDOWN) then
-        Camera.CameraScale(1.0);
+        Camera.CameraScale(5.0);
 
       if dfInput.IsKeyDown('z') or dfInput.IsKeyDown('я') then
         CameraRotate(0.001, CameraGetDir())
@@ -592,9 +618,12 @@ begin
   logWriteMessage('Деинициализация рендера');
   try
     renderReady := False;
+    mesh.Free;
+    prog.Free;
     Camera.CameraDeInit();
     Light.LightDeInit();
     Sprites.SpriteDeInit();
+    Shaders.ShadersDeinit();
     Textures.TexDeInit();
     Textures.renderTexDel(texID2);
     VBO.VBODeInit();
@@ -607,8 +636,6 @@ begin
     DestroyWindow(WHandle);
     WHandle := 0;
     Logger.LogDeinit();
-
-    mesh.Free;
   except
     Result := -1;
     Exit;

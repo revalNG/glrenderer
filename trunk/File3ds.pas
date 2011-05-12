@@ -114,10 +114,10 @@ type
 
   TdfMesh = class
   private
-    FMaterials: array of TdfMaterial;
     procedure SendToVBO;
   public
     FSubMeshes: array of TdfSubMesh;
+    FMaterials: array of TdfMaterial;
     constructor Create; virtual;
     destructor Destroy; override;
 
@@ -208,6 +208,43 @@ var
   uv: TdfVec2f;
   //Булевский буфер для чтения
   boolbuf: Boolean;
+  //Массив для помеченных вершин (если помечена, значит уже использована в другом фейсе)
+  marked: array of Boolean;
+  //Индекс для ускорения работы с элементом массива
+  ind: Word;
+  //Нормаль для фейсов
+  normal: TdfVec3f;
+
+
+  //Проверяет, задействована ли вершина, если да, то дублирует ее, если нет - возвращает старый индекс
+  function GetIndex(aInd: Word): Word;
+  begin
+    if marked[aInd] then
+    begin
+      //Дублируем вершину
+      SetLength(FSubMeshes[SubCount - 1].Vertices, Length(FSubMeshes[SubCount - 1].Vertices) + 1);
+      Result := Length(FSubMeshes[SubCount - 1].Vertices) - 1;
+      FSubMeshes[SubCount - 1].Vertices[Result] := FSubMeshes[SubCount - 1].Vertices[aInd];
+
+      SetLength(FSubMeshes[SubCount - 1].TexCoords, Length(FSubMeshes[SubCount - 1].TexCoords) + 1);
+      FSubMeshes[SubCount - 1].TexCoords[Result] := FSubMeshes[SubCount - 1].TexCoords[aInd];
+    end
+    else
+    begin
+      marked[aInd] := True;
+      Result := aInd;
+    end;
+  end;
+
+  function CalcNormal(v1, v2, v3: TdfVec3f): TdfVec3f;
+  var
+    vec1, vec2: TdfVec3f;
+  begin
+    vec1 := v1 - v2;
+    vec2 := v3 - v2;
+    Result := vec1.Cross(vec2);
+    Result.Normalize;
+  end;
 begin
   aFileName := FileName;
   logWriteMessage('File3ds: Загрузка модели из файла ' + aFileName);
@@ -310,7 +347,7 @@ begin
       end;
       MAT_OPACMAP:
       begin
-          FMaterials[MatCount - 1].HasOpacMap := True;
+        FMaterials[MatCount - 1].HasOpacMap := True;
         opac := 100;
         fs.Read(wrdbuf, SizeOf(TdfChunkHeader));
         //percentage chunk header overslaan...
@@ -497,6 +534,7 @@ begin
         begin
 //          FSubMeshes[SubCount - 1].VertexCount := vCount;
           SetLength(FSubmeshes[SubCount - 1].Vertices, vCount);
+          SetLength(marked, vCount);
 
           for i := 0 to vCount - 1 do
           begin
@@ -504,6 +542,7 @@ begin
             FSubMeshes[SubCount - 1].Vertices[i].x := vertex.x;
             FSubMeshes[SubCount - 1].Vertices[i].y := vertex.y;
             FSubMeshes[SubCount - 1].Vertices[i].z := vertex.z;
+            marked[i] := False;
 
 //            //Set dummy values for meshes without mapping
 //            tempmap.tu := 0;
@@ -571,6 +610,7 @@ begin
       TRI_FACEL1:
       begin
         fs.Read(vCount, 2);
+        logWriteMessage('File3ds: найден chunk FaceList, количество фейсов: ' + IntToStr(vCount));
         SetLength(FSubMeshes[SubCount - 1].Indices, vCount * 3);
         SetLength(FSubMeshes[SubCount - 1].Normals, vCount * 3);
         SetLength(FSubMeshes[SubCount - 1].Faces, vCount);
@@ -584,76 +624,33 @@ begin
         begin
           wrdbuf := 0;
           fs.Read(wrdbuf, 2);
-          FSubMeshes[SubCount - 1].Indices[i * 3] := wrdbuf;
-          FSubMeshes[SubCount - 1].Faces[i].v1 := wrdbuf;
+          ind := GetIndex(wrdbuf);
+          FSubMeshes[SubCount - 1].Indices[i * 3] := ind;
+          FSubMeshes[SubCount - 1].Faces[i].v1 := ind;
 
           wrdbuf := 0;
           fs.Read(wrdbuf, 2);
-          FSubMeshes[SubCount - 1].Indices[i * 3 + 1] := wrdbuf;
-          FSubMeshes[SubCount - 1].Faces[i].v2 := wrdbuf;
+          ind := GetIndex(wrdbuf);
+          FSubMeshes[SubCount - 1].Indices[i * 3 + 1] := ind;
+          FSubMeshes[SubCount - 1].Faces[i].v2 := ind;
 
           wrdbuf := 0;
           fs.Read(wrdbuf, 2);
-          FSubMeshes[SubCount - 1].Indices[i * 3 + 2] := wrdbuf;
-          FSubMeshes[SubCount - 1].Faces[i].v3 := wrdbuf;
+          ind := GetIndex(wrdbuf);
+          FSubMeshes[SubCount - 1].Indices[i * 3 + 2] := ind;
+          FSubMeshes[SubCount - 1].Faces[i].v3 := ind;
 
           wrdbuf := 0;
           //Читаем флаги и предательски их не используем
           fs.Read(wrdbuf, 2);
-
-          //temp_diff:=wordbuffer AND $000F;
-          //FMesh[acount - 1].Face[i * 3 + 3]:=(temp_diff AND $0004) OR 2;
-          //FMesh[acount - 1].Face[i * 3 + 4]:=(temp_diff AND $0002) OR 1;
-          //FMesh[acount - 1].Face[i * 3 + 5]:=(temp_diff AND $0001);
-
-          //TODO: waarom dubbel? Een methode overhouden!!!
-          //Alleen TFace overhouden!!!
-
+          with FSubMeshes[SubCount - 1] do
+            normal := CalcNormal(Vertices[Faces[i].v1],
+                                 Vertices[Faces[i].v2],
+                                 Vertices[Faces[i].v3]);
           //TODO: А здесь надо убрать этот стыд и рассчитывать нормали правильно
-          FSubMeshes[SubCount - 1].Normals[i * 3]     :=
-            FSubMeshes[SubCount - 1].Vertices[FSubMeshes[SubCount - 1].Indices[i * 3]].Normal;
-          FSubMeshes[SubCount - 1].Normals[i * 3 + 1] :=
-            FSubMeshes[SubCount - 1].Vertices[FSubMeshes[SubCount - 1].Indices[i * 3 + 1]].Normal;
-          FSubMeshes[SubCount - 1].Normals[i * 3 + 2] :=
-            FSubMeshes[SubCount - 1].Vertices[FSubMeshes[SubCount - 1].Indices[i * 3 + 2]].Normal;
-
-//          FMesh[acount - 1].Map[i * 3] := FMesh[acount - 1].Face[i * 3];
-//          FMesh[acount - 1].Map[i * 3 + 1] := FMesh[acount - 1].Face[i * 3 + 1];
-//          FMesh[acount - 1].Map[i * 3 + 2] := FMesh[acount - 1].Face[i * 3 + 2];
-
-          //FMesh[acount - 1].Normal[i * 3 + 3] :=
-          //  FMesh[acount - 1].Face[i * 3 + 3];
-          //FMesh[acount - 1].Normal[i * 3 + 4] :=
-          //  FMesh[acount - 1].Face[i * 3 + 4];
-          //FMesh[acount - 1].Normal[i * 3 + 5] :=
-          //  FMesh[acount - 1].Face[i * 3 + 5];
-
-
-
-          //copy vertex and normal indexes to face structure
-          //TODO FIX ASAP no faces are storedd.....
-
-          (*
-          tempface:= FMesh[acount -1].Faces[i];
-          tempface.vertex[0]:=FMesh[acount - 1].Face[i * 3];
-          tempface.vertex[1]:=FMesh[acount - 1].Face[i * 3 + 1];
-          tempface.vertex[2]:=FMesh[acount - 1].Face[i * 3 + 2];
-
-          //tempface.vertex[3]:=FMesh[acount - 1].Face[i * 3 + 3];
-          //tempface.vertex[4]:=FMesh[acount - 1].Face[i * 3 + 4];
-          //tempface.vertex[5]:=FMesh[acount - 1].Face[i * 3 + 5];
-
-          tempface.normal[0]:=FMesh[acount - 1].Normal[i * 3];
-          tempface.normal[1]:=FMesh[acount - 1].Normal[i * 3 + 1];
-          tempface.normal[2]:=FMesh[acount - 1].Normal[i * 3 + 2];
-
-          //tempface.normal[3]:=FMesh[acount - 1].Normal[i * 3 + 3];
-          //tempface.normal[4]:=FMesh[acount - 1].Normal[i * 3 + 4];
-          //tempface.normal[5]:=FMesh[acount - 1].Normal[i * 3 + 5];
-
-          FMesh[acount -1].Faces[i]:=tempface;
-          *)
-
+          FSubMeshes[SubCount - 1].Normals[i * 3    ] := normal;
+          FSubMeshes[SubCount - 1].Normals[i * 3 + 1] := normal;
+          FSubMeshes[SubCount - 1].Normals[i * 3 + 2] := normal;
         end;
       end
 
