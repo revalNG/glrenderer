@@ -208,7 +208,7 @@ begin
     space_pressed := False;
   if not stop then
     t := t + deltaTime;
-  LightPos := dfVec4f(5*sin(t), 3*sin(t), 5*cos(t), 0);
+  LightPos := dfVec4f(10*sin(t), 10*sin(t), 10*cos(t), 0);
   gl.Lightfv(GL_LIGHT0, GL_POSITION, @LightPos);
   if bDrawLight then
     DrawLightSource();

@@ -16,7 +16,7 @@ void main( void )
    vec3  fvLightDirection = normalize( LightDirection );
    vec3  fvNormal         = normalize( Normal );
    float fNDotL           = dot( fvNormal, fvLightDirection ); 
-//   fNDotL           = max(0.0, fNDotL);
+//   fNDotL           = max(0.01, fNDotL);
    
    vec3  fvReflection     = normalize( ( ( 2.0 * fvNormal ) * fNDotL ) - fvLightDirection ); 
    vec3  fvViewDirection  = normalize( ViewDirection );

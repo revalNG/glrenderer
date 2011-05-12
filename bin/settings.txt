@@ -21,7 +21,7 @@ lightSpecColor 1 1 1 1
 lightConstAtten 1
 lightLinearAtten 1
 lightQuadroAtten 1
-lightDraw false
+lightDraw true
 //Цвет атомов
 atomColor 0.5 0.5 0.2
 atomTexturePath 'Data\sphere.bmp'
