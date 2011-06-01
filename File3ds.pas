@@ -304,7 +304,7 @@ begin
             FMaterials[MatCount - 1].Name + chr(chrbuf);
         end;
         Delete(FMaterials[MatCount - 1].Name, length(FMaterials[MatCount - 1].Name), 1);
-//        logWriteMessage('File3ds: добавлен материал ' + FMaterials[MatCount - 1].Name);
+        logWriteMessage('File3ds: добавлен материал ' + FMaterials[MatCount - 1].Name);
       end;
       MAT_AMBIENT:
       begin

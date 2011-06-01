@@ -574,7 +574,7 @@ begin
       prog.SetUniforms('fvLightPosition', Light.LightGetPos());
       prog.SetUniforms('fvEyePosition', Camera.CameraGetPos());
       prog.SetUniforms('fvAmbient', dfVec4f(0.02, 0.02, 0.02, 1.0));
-      prog.SetUniforms('fvDiffuse', dfVec4f(0.88, 0.88, 0.88, 1.0));
+      prog.SetUniforms('fvDiffuse', dfVec4f(0.68, 0.68, 0.68, 1.0));
       prog.SetUniforms('fvSpecular', dfVec4f(0.2, 0.2, 0.2, 1.0));
       prog.SetUniforms('baseMap', 0);
 //      gl.PolygonMode(GL_FRONT_AND_BACK, GL_LINE);
