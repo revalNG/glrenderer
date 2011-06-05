@@ -4,7 +4,7 @@ rendermode window
 resolution 800 600
 windowPos 200 200
 backgroundColor 0.40 0.40 0.48
-axis true
+axis false
 caption 'glrenderer 0.2'
 //Камера
 FOV 45
@@ -21,7 +21,7 @@ lightSpecColor 1 1 1 1
 lightConstAtten 1
 lightLinearAtten 1
 lightQuadroAtten 1
-lightDraw true
+lightDraw false
 //Цвет атомов
 atomColor 0.5 0.5 0.2
 atomTexturePath 'Data\sphere.bmp'

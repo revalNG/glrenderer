@@ -67,7 +67,7 @@ var
   //Сохраненные значения, переданные юзером при инициализации рендера
   cFOV, cZNear, cZFar: Single;
 
-  texID2, texID1: Integer;
+  texID2{, texID1}: Integer;
 
   dx, dy: Integer;
 
@@ -80,11 +80,11 @@ var
   bDrawAxis: Boolean;
 
   camPos, camLook, camUp: TdfVec3f;
-
-  mesh: TdfMesh;
-
-  vs, fs: Shaders.TShader;
-  prog: Shaders.TShaderProgram;
+//
+//  mesh: TdfMesh;
+//
+//  vs, fs: Shaders.TShader;
+//  prog: Shaders.TShaderProgram;
 
 function MyWindowProc(hWnd: HWND; Msg: UINT; wParam: WPARAM; lParam: LPARAM): LRESULT; stdcall;
 var
@@ -498,9 +498,9 @@ begin
                    lSpec.x, lSpec.y, lSpec.z, lSpec.w,
                    lConstAtten, lLinearAtten, lQuadroAtten);
     Sprites.SpriteInit(atomColor, atomSize);
-    Shaders.ShadersInit();
-    VBO.VBOInit();
-    texID1 := Textures.renderTexLoad('Data\su37.bmp');
+//    Shaders.ShadersInit();
+//    VBO.VBOInit();
+//    texID1 := Textures.renderTexLoad('Data\su37.bmp');
     texID2 := Textures.renderTexLoad(PWideToPChar(atomTexturePath));
 
     Scale := 1.0;
@@ -510,18 +510,18 @@ begin
 
     logWriteMessage('Успешная инициализация');
     renderSpritesAddFromFile(PWideToPChar(dataPath));
-    mesh := TdfMesh.Create;
-    mesh.LoadFrom3ds('Data\su37.3ds');
-    VBO.VBOAddDataFromMesh(mesh);
+//    mesh := TdfMesh.Create;
+//    mesh.LoadFrom3ds('Data\su37.3ds');
+//    VBO.VBOAddDataFromMesh(mesh);
 
-    vs := TShader.Create(TGLConst.GL_VERTEX_SHADER);
-    vs.LoadFromFile('Data\vs_phong.txt');
-    fs := TShader.Create(TGLConst.GL_FRAGMENT_SHADER);
-    fs.LoadFromFile('Data\fs_phong.txt');
-    prog := TShaderProgram.Create();
-    prog.AttachVertexShader(vs);
-    prog.AttachFragmentShader(fs);
-    prog.Link;
+//    vs := TShader.Create(TGLConst.GL_VERTEX_SHADER);
+//    vs.LoadFromFile('Data\vs_phong.txt');
+//    fs := TShader.Create(TGLConst.GL_FRAGMENT_SHADER);
+//    fs.LoadFromFile('Data\fs_phong.txt');
+//    prog := TShaderProgram.Create();
+//    prog.AttachVertexShader(vs);
+//    prog.AttachFragmentShader(fs);
+//    prog.Link;
     Result := 0;
   except
     Result := -1;
@@ -564,24 +564,24 @@ begin
         raise Exception.CreateRes(1);
       if bDrawAxis then
         DrawAxis();
-      Light.LightStep(dt);
-//      Textures.renderTexBind(texID2);
-//      Sprites.SpriteStep(dt);
-//      Textures.renderTexUnbind;
-      Textures.renderTexBind(texID1);
-      prog.Use();
-      prog.SetUniforms('fSpecularPower', 5);
-      prog.SetUniforms('fvLightPosition', Light.LightGetPos());
-      prog.SetUniforms('fvEyePosition', Camera.CameraGetPos());
-      prog.SetUniforms('fvAmbient', dfVec4f(0.02, 0.02, 0.02, 1.0));
-      prog.SetUniforms('fvDiffuse', dfVec4f(0.68, 0.68, 0.68, 1.0));
-      prog.SetUniforms('fvSpecular', dfVec4f(0.2, 0.2, 0.2, 1.0));
-      prog.SetUniforms('baseMap', 0);
-//      gl.PolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-      VBO.VBOStep(dt);
-//      gl.PolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-      prog.UseNull;
+//      Light.LightStep(dt);
+      Textures.renderTexBind(texID2);
+      Sprites.SpriteStep(dt);
       Textures.renderTexUnbind;
+//      Textures.renderTexBind(texID1);
+//      prog.Use();
+//      prog.SetUniforms('fSpecularPower', 5);
+//      prog.SetUniforms('fvLightPosition', Light.LightGetPos());
+//      prog.SetUniforms('fvEyePosition', Camera.CameraGetPos());
+//      prog.SetUniforms('fvAmbient', dfVec4f(0.02, 0.02, 0.02, 1.0));
+//      prog.SetUniforms('fvDiffuse', dfVec4f(0.68, 0.68, 0.68, 1.0));
+//      prog.SetUniforms('fvSpecular', dfVec4f(0.2, 0.2, 0.2, 1.0));
+//      prog.SetUniforms('baseMap', 0);
+////      gl.PolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+//      VBO.VBOStep(dt);
+////      gl.PolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+//      prog.UseNull;
+//      Textures.renderTexUnbind;
       if dfInput.IsKeyDown(VK_MOUSEWHEELUP) then
         Camera.CameraScale(-5.0)
       else if dfInput.IsKeyDown(VK_MOUSEWHEELDOWN) then
@@ -618,8 +618,8 @@ begin
   logWriteMessage('Деинициализация рендера');
   try
     renderReady := False;
-    mesh.Free;
-    prog.Free;
+//    mesh.Free;
+//    prog.Free;
     Camera.CameraDeInit();
     Light.LightDeInit();
     Sprites.SpriteDeInit();
