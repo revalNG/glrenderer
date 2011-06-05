@@ -65,9 +65,6 @@ uses
   SysUtils,
   Logger;
 
-var
-  slog: Integer;
-
 constructor TShader.Create(_type: TGLConst);
 begin
   inherited Create;
