@@ -27,6 +27,8 @@ type
     procedure SetChild(Index: Integer; aChild: IdfNode);
     function GetParent(): IdfNode;
     procedure SetParent(aParent: IdfNode);
+    function GetRenderable(): IdfRenderable;
+    procedure SetRenderable(aRenderable: IdfRenderable);
   public
 
     constructor Create; virtual;
@@ -38,7 +40,8 @@ type
     property ModelMatrix: TdfMat4f read GetModel write SetModel;
 
     property Visible: Boolean read GetVis write SetVis;
-    procedure Render(deltaTime: Double); virtual;
+    property Renderable: IdfRenderable read GetRenderable write SetRenderable;
+//    procedure Render(deltaTime: Double); virtual;
     property Childs[Index: Integer]: IdfNode read GetChild write SetChild;
     //Добавить уже существующий рендер-узел себе в потомки
     function AddChild(AChild: IdfNode): Integer;
@@ -58,7 +61,17 @@ begin
     Result := Pos;
 end;
 
+function TdfNode.GetRenderable: IdfRenderable;
+begin
+
+end;
+
 procedure TdfNode.SetPos(aPos: TdfVec3f);
+begin
+
+end;
+
+procedure TdfNode.SetRenderable(aRenderable: IdfRenderable);
 begin
 
 end;
@@ -150,10 +163,10 @@ begin
 end;
 
 
-procedure TdfNode.Render(deltaTime: Double);
-begin
-
-end;
+//procedure TdfNode.Render(deltaTime: Double);
+//begin
+//
+//end;
 
 
 function TdfNode.AddChild(AChild: IdfNode): Integer;
