@@ -10,12 +10,14 @@ const
   dllName = 'glrenderer.dll';
 
 type
-//  IdfNode = interface;
-//  IdfNodeClass = class of IdfNode;
+  IdfRenderable = interface
+    ['{A2DD3046-3FDE-43DD-93AE-83C7A29A2196}']
+    procedure Render;
+  end;
 
   IdfNode = interface
     ['{3D31C699-4B5F-4FC3-8F08-2E91BA918135}']
-  {$REGION 'private functions'}
+    {$REGION '[private]'}
     function GetPos(): TdfVec3f;
     procedure SetPos(aPos: TdfVec3f);
     function GetUp(): TdfVec3f;
@@ -32,7 +34,9 @@ type
     procedure SetChild(Index: Integer; aChild: IdfNode);
     function GetParent(): IdfNode;
     procedure SetParent(aParent: IdfNode);
-  {$ENDREGION}
+    function GetRenderable(): IdfRenderable;
+    procedure SetRenderable(aRenderable: IdfRenderable);
+    {$ENDREGION}
 
     property Position: TdfVec3f read GetPos write SetPos;
     property Up: TdfVec3f read GetUp write SetUp;
@@ -42,9 +46,9 @@ type
     property Parent: IdfNode read GetParent write SetParent;
     property Visible: Boolean read GetVis write SetVis;
 
-    procedure Render(deltaTime: Double);
-
     property Childs[Index: Integer]: IdfNode read GetChild write SetChild;
+    property Renderable: IdfRenderable read GetRenderable write SetRenderable;
+
     //Добавить уже существующий рендер-узел себе в потомки
     function AddChild(AChild: IdfNode): Integer;
     //Удалить потомка из списка по индексу. Физически объект остается в памяти.
@@ -67,11 +71,7 @@ type
 
   IdfRenderer = interface
     ['{BFB518E7-A55A-48E2-B0C4-ED7BE8D23796}']
-    function Init(FileName: PAnsiChar): Integer;
-    function Step(deltaTime: Double): Integer;
-    function Start(): Integer;
-    function DeInit(): Integer;
-
+    {$REGION '[private]'}
     function GetWindowHandle(): Integer;
     function GetWindowCaption(): PAnsiChar;
     procedure SetWindowCaption(aCaption: PAnsiChar);
@@ -79,6 +79,12 @@ type
     function GetFPS(): Single;
     function GetCamera(): IdfCamera;
     procedure SetCamera(aCamera: IdfCamera);
+    {$ENDREGION}
+
+    function Init(FileName: PAnsiChar): Integer;
+    function Step(deltaTime: Double): Integer;
+    function Start(): Integer;
+    function DeInit(): Integer;
 
     property WindowHandle: Integer read GetWindowHandle;
     property WindowCaption: PAnsiChar read GetWindowCaption write SetWindowCaption;
@@ -86,6 +92,18 @@ type
     property FPS: Single read GetFPS;
 
     property Camera: IdfCamera read GetCamera write SetCamera;
+  end;
+
+  IdfMesh = interface
+    ['{90223F0B-7F8F-4EBF-9752-DF84CE75B7E7}']
+
+  end;
+
+  IdfScene = interface
+    ['{5E52434E-3A00-478E-AE73-BA45C77BD2AC}']
+    function GetRoot: IdfNode;
+    procedure SetRoot(aRoot: IdfNode);
+    property RootNode: IdfNode read GetRoot write SetRoot;
   end;
 
 var

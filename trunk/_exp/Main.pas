@@ -165,9 +165,8 @@ begin
       begin
         x := LOWORD(lParam);
         y := HIWORD(lParam);
-//        Camera.CameraRotate(deg2rad*(x - dx), dfVec3f(0, 1, 0));
-        Camera.CameraRotate(deg2rad*(x - dx), CameraGetUp());
-        Camera.CameraRotate(deg2rad*(y - dy), CameraGetLeft());
+//        Camera.CameraRotate(deg2rad*(x - dx), CameraGetUp());
+//        Camera.CameraRotate(deg2rad*(y - dy), CameraGetLeft());
         dx := x;
         dy := y;
       end;
@@ -177,7 +176,7 @@ begin
         SetCursor(TheRenderer.FhHandCursor);
         x := LOWORD(lParam);
         y := HIWORD(lParam);
-        Camera.CameraPan(y-dy, dx-x);
+//        Camera.CameraPan(y-dy, dx-x);
         dx := x;
         dy := y;
       end;
@@ -555,9 +554,9 @@ begin
 
 //    Camera.CameraInit(0, 0, FWWidth, FWHeight, cFOV, cZNear, cZFar);
     //Задаем параметры камеры
-    renderCameraSet(camPos.x, camPos.y, camPos.z,
-                    camLook.x, camLook.y, camLook.z,
-                    camUp.x, camUp.y, camUp.z);
+//    renderCameraSet(camPos.x, camPos.y, camPos.z,
+//                    camLook.x, camLook.y, camLook.z,
+//                    camUp.x, camUp.y, camUp.z);
     Light.LightInit();
     renderLightSet(lightPos.x, lightPos.y, lightpos.z,
                    lAmb.x, lAmb.y, lAmb.z, lAmb.w,
