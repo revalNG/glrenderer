@@ -12,23 +12,23 @@ type
     FChilds: TdfList;
 
     function GetPos(): TdfVec3f;
-    procedure SetPos(aPos: TdfVec3f);
+    procedure SetPos(const aPos: TdfVec3f);
     function GetUp(): TdfVec3f;
-    procedure SetUp(aUp: TdfVec3f);
+    procedure SetUp(const aUp: TdfVec3f);
     function GetDir(): TdfVec3f;
-    procedure SetDir(aDir: TdfVec3f);
+    procedure SetDir(const aDir: TdfVec3f);
     function GetLeft(): TdfVec3f;
-    procedure SetLeft(aLeft: TdfVec3f);
+    procedure SetLeft(const aLeft: TdfVec3f);
     function GetModel(): TdfMat4f;
-    procedure SetModel(aModel: TdfMat4f);
+    procedure SetModel(const aModel: TdfMat4f);
     function GetVis(): Boolean;
-    procedure SetVis(aVis: Boolean);
+    procedure SetVis(const aVis: Boolean);
     function GetChild(Index: Integer): IdfNode;
     procedure SetChild(Index: Integer; aChild: IdfNode);
     function GetParent(): IdfNode;
-    procedure SetParent(aParent: IdfNode);
+    procedure SetParent(const aParent: IdfNode);
     function GetRenderable(): IdfRenderable;
-    procedure SetRenderable(aRenderable: IdfRenderable);
+    procedure SetRenderable(const aRenderable: IdfRenderable);
   public
 
     constructor Create; virtual;
@@ -66,12 +66,12 @@ begin
 
 end;
 
-procedure TdfNode.SetPos(aPos: TdfVec3f);
+procedure TdfNode.SetPos(const aPos: TdfVec3f);
 begin
 
 end;
 
-procedure TdfNode.SetRenderable(aRenderable: IdfRenderable);
+procedure TdfNode.SetRenderable(const aRenderable: IdfRenderable);
 begin
 
 end;
@@ -82,7 +82,7 @@ begin
     Result := dfVec3f(e10, e11, e12);
 end;
 
-procedure TdfNode.SetUp(aUp: TdfVec3f);
+procedure TdfNode.SetUp(const aUp: TdfVec3f);
 begin
 
 end;
@@ -93,7 +93,7 @@ begin
     Result := dfVec3f(e20, e21, e22);
 end;
 
-procedure TdfNode.SetDir(aDir: TdfVec3f);
+procedure TdfNode.SetDir(const aDir: TdfVec3f);
 begin
 
 end;
@@ -104,7 +104,7 @@ begin
     Result := dfVec3f(e00, e01, e02);
 end;
 
-procedure TdfNode.SetLeft(aLeft: TdfVec3f);
+procedure TdfNode.SetLeft(const aLeft: TdfVec3f);
 begin
 
 end;
@@ -114,7 +114,7 @@ begin
 
 end;
 
-procedure TdfNode.SetModel(aModel: TdfMat4f);
+procedure TdfNode.SetModel(const aModel: TdfMat4f);
 begin
 
 end;
@@ -124,7 +124,7 @@ begin
   Result := FVisible;
 end;
 
-procedure TdfNode.SetVis(aVis: Boolean);
+procedure TdfNode.SetVis(const aVis: Boolean);
 begin
   FVisible := aVis;
 end;
@@ -146,7 +146,7 @@ begin
 
 end;
 
-procedure TdfNode.SetParent(aParent: IdfNode);
+procedure TdfNode.SetParent(const aParent: IdfNode);
 begin
 
 end;
