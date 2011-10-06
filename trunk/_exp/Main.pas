@@ -58,7 +58,7 @@ type
     function GetRenderReady(): Boolean;
     function GetFPS(): Single;
     function GetCamera(): IdfCamera;
-    procedure SetCamera(aCamera: IdfCamera);
+    procedure SetCamera(const aCamera: IdfCamera);
   public
     constructor Create; virtual;
     destructor Destroy; override;
@@ -253,7 +253,7 @@ begin
   Result := FCamera;
 end;
 
-procedure TdfRenderer.SetCamera(aCamera: IdfCamera);
+procedure TdfRenderer.SetCamera(const aCamera: IdfCamera);
 begin
   FCamera := aCamera;
 end;
