@@ -20,7 +20,9 @@
 			<Base>true</Base>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Base)'!=''">
-			<DCC_DependencyCheckOutputName>Checker1.exe</DCC_DependencyCheckOutputName>
+			<DCC_DcuOutput>dcu\</DCC_DcuOutput>
+			<DCC_ExeOutput>bin\</DCC_ExeOutput>
+			<DCC_DependencyCheckOutputName>bin\Checker1.exe</DCC_DependencyCheckOutputName>
 			<DCC_ImageBase>00400000</DCC_ImageBase>
 			<DCC_UnitAlias>WinTypes=Windows;WinProcs=Windows;DbiTypes=BDE;DbiProcs=BDE;DbiErrs=BDE;$(DCC_UnitAlias)</DCC_UnitAlias>
 			<DCC_Platform>x86</DCC_Platform>
@@ -46,6 +48,7 @@
 			<DCCReference Include="Header.pas"/>
 			<DCCReference Include="headers\dfHRenderer.pas"/>
 			<DCCReference Include="common\dfMath.pas"/>
+			<DCCReference Include="common\dfHEngine.pas"/>
 			<BuildConfiguration Include="Base">
 				<Key>Base</Key>
 			</BuildConfiguration>
