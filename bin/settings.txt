@@ -3,7 +3,7 @@ decimalseparator .
 rendermode window
 resolution 800 600
 windowPos 200 200
-backgroundColor 0.40 0.40 0.48
+backgroundColor 0.40 0.40 0.55
 axis false
 caption 'glrenderer 0.2'
 //Камера
@@ -23,8 +23,8 @@ lightLinearAtten 1
 lightQuadroAtten 1
 lightDraw false
 //Цвет атомов
-atomColor 0.5 0.5 0.2
-atomTexturePath 'Data\sphere.bmp'
-atomSize 20
+atomColor 0.2 0.2 0.01
+atomTexturePath 'Data\particle.bmp'
+atomSize 80
 //Файл данных
 dataPath 'Data\Data1.txt'

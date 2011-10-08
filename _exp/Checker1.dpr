@@ -5,7 +5,8 @@ uses
   Windows,
   Header in 'Header.pas',
   dfHRenderer in 'headers\dfHRenderer.pas',
-  dfMath in 'common\dfMath.pas';
+  dfMath in 'common\dfMath.pas',
+  dfHEngine in 'common\dfHEngine.pas';
 
 var
   msg: TMsg;
