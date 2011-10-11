@@ -11,7 +11,7 @@ unit dfLogger;
 interface
 
 uses
-  Classes, dfList, dfHEngine;
+  Classes, dfHEngine;
 
 const
   ConstNameEngine           =         'glRenderer';
@@ -133,7 +133,7 @@ type
 
 var
   //коллекция логеров
-  LoggerCollection:TdfList;
+  LoggerCollection: TList;
 
 //добавляем лог
 function LoggerAddLog(FileName:PWideChar):Boolean;stdcall;
@@ -502,7 +502,7 @@ end;
 
 initialization
 
-  LoggerCollection:=TdfList.Create;
+  LoggerCollection := TList.Create;
 
 finalization
 

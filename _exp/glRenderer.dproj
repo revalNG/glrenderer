@@ -56,11 +56,11 @@
 			<DCCReference Include="common\dfHEngine.pas"/>
 			<DCCReference Include="common\dfHGL.pas"/>
 			<DCCReference Include="common\dfHInput.pas"/>
-			<DCCReference Include="common\dfList.pas"/>
 			<DCCReference Include="common\dfLogger.pas"/>
 			<DCCReference Include="common\dfMath.pas"/>
 			<DCCReference Include="headers\dfHRenderer.pas"/>
 			<DCCReference Include="Node.pas"/>
+			<DCCReference Include="ExportFunc.pas"/>
 			<BuildConfiguration Include="Base">
 				<Key>Base</Key>
 			</BuildConfiguration>

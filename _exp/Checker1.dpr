@@ -3,7 +3,6 @@ program Checker1;
 {$APPTYPE CONSOLE}
 uses
   Windows,
-  Header in 'Header.pas',
   dfHRenderer in 'headers\dfHRenderer.pas',
   dfMath in 'common\dfMath.pas',
   dfHEngine in 'common\dfHEngine.pas';
@@ -11,6 +10,7 @@ uses
 var
   msg: TMsg;
   h: Integer;
+  R: IdfRenderer;
 
 begin
   WriteLn(' ========= Demonstration ======== ');
@@ -19,11 +19,9 @@ begin
   WriteLn(' ===== Use RIGHT MOUSE BUTTON to pan');
   WriteLn(' ===== Use Z and X buttons to roll the scene (additional rotate angle)');
   WriteLn(' ===== Use MOUSE WHEEL to scale the scene');
-//  WriteLn(' ===== Use SPACE to stop/move light source');
-  renderInit('settings.txt');
-  h := renderWindowGetHandle();
-  renderSpritesAddFromFile('data/data1.txt');
-  SetWindowText(h, 'glrenderer 0.2. Специальная редакция для Трухманова Дмитрия');
+  R := dfCreateRenderer();
+  R.Init('settings.txt');
+  h := R.WindowHandle;
   repeat
     if PeekMessage(msg, 0, 0, 0, PM_NOREMOVE) then
     begin
@@ -38,5 +36,6 @@ begin
       SendMessage(h, 15, 0, 0);  //WM_PAINT
     end;
   until GetAsyncKeyState(VK_ESCAPE) < 0;
-  renderDeInit;
+  R.DeInit();
+  R := nil;
 end.

@@ -78,7 +78,6 @@ type
 
 
   function WindowProc(hWnd: HWND; Msg: UINT; wParam: WPARAM; lParam: LPARAM): LRESULT; stdcall;
-  function CreateRenderer(): IdfRenderer;
 
 var
   TheRenderer: TdfRenderer;
@@ -116,17 +115,6 @@ var
 
 //  bDrawAxes: Boolean;
 
-function CreateRenderer(): IdfRenderer;
-begin
-  if not Assigned(TheRenderer) then
-  begin
-    TheRenderer := TdfRenderer.Create();
-    Result := TheRenderer;
-  end
-  else
-    Result := TheRenderer;
-end;
-
 function WindowProc(hWnd: HWND; Msg: UINT; wParam: WPARAM; lParam: LPARAM): LRESULT; stdcall;
 var
   x, y: Integer;
@@ -138,22 +126,23 @@ begin
       PostQuitMessage(0);
       Result := 0;
     end;
-//    WM_PAINT:
-//    begin
-//      QueryPerformanceCounter(NewTicks);
-//      dt := (NewTicks - OldTicks) / Freq;
-//      OldTicks := NewTicks;
-//      Inc(Frames);
-//      FPS :=  1 / dT;
-//      if MainRenderer.RenderReady then
-//        MainRenderer.Step(dt);
-//      if Frames >= 1000 then
-//      begin
-//        //ֲûגמה פןס
-////        SetWindowText(WHandle, FloatToStr(FPS));
-//        Frames := 0;
-//      end;
-//    end;
+    WM_PAINT:
+      with TheRenderer do
+      begin
+        QueryPerformanceCounter(FNewTicks);
+        FDeltaTime := (FNewTicks - FOldTicks) / FFreq;
+        FOldTicks := FNewTicks;
+        Inc(FFrames);
+        FFPS :=  1 / FDeltaTime;
+        if RenderReady then
+          Step(FDeltaTime);
+        if FFrames >= 1000 then
+        begin
+          //ֲûגמה פןס
+  //        SetWindowText(WHandle, FloatToStr(FPS));
+          FFrames := 0;
+        end;
+      end;
     WM_SIZE:
     begin
       //camera.CameraInit(0, 0, LOWORD(lParam), HIWORD(lParam), cFOV, cZNear, cZFar);
@@ -557,14 +546,14 @@ begin
 //    renderCameraSet(camPos.x, camPos.y, camPos.z,
 //                    camLook.x, camLook.y, camLook.z,
 //                    camUp.x, camUp.y, camUp.z);
-    Light.LightInit();
-    renderLightSet(lightPos.x, lightPos.y, lightpos.z,
-                   lAmb.x, lAmb.y, lAmb.z, lAmb.w,
-                   lDif.x, lDif.y, lDif.z, lDif.z,
-                   lSpec.x, lSpec.y, lSpec.z, lSpec.w,
-                   lConstAtten, lLinearAtten, lQuadroAtten);
-    Sprites.SpriteInit(atomColor);
-    Shaders.ShadersInit();
+//    Light.LightInit();
+//    renderLightSet(lightPos.x, lightPos.y, lightpos.z,
+//                   lAmb.x, lAmb.y, lAmb.z, lAmb.w,
+//                   lDif.x, lDif.y, lDif.z, lDif.z,
+//                   lSpec.x, lSpec.y, lSpec.z, lSpec.w,
+//                   lConstAtten, lLinearAtten, lQuadroAtten);
+//    Sprites.SpriteInit(atomColor);
+//    Shaders.ShadersInit();
 
 //    Scale := 1.0;
 
@@ -611,8 +600,8 @@ begin
 //        raise Exception.CreateRes(1);
       if FDrawAxes then
         DrawAxes();
-      Light.LightStep(deltaTime);
-      Sprites.SpriteStep(deltaTime);
+//      Light.LightStep(deltaTime);
+//      Sprites.SpriteStep(deltaTime);
 
 //      if dfInput.IsKeyDown(VK_MOUSEWHEELUP) then
 //      begin
@@ -659,8 +648,8 @@ begin
       FOldTicks := FNewTicks;
 //      Inc(FFrames);
       FFPS :=  1 / FDeltaTime;
-      if TheRenderer.RenderReady then
-        TheRenderer.Step(FDeltaTime);
+//      if RenderReady then
+      Step(FDeltaTime);
 //      if FFrames >= 1000 then
 //      begin
 //        //ֲûגמה פןס
@@ -678,9 +667,9 @@ begin
   try
     FRenderReady := False;
 //    Camera.CameraDeInit();
-    Light.LightDeInit();
-    Sprites.SpriteDeInit();
-    Textures.TexDeInit();
+//    Light.LightDeInit();
+//    Sprites.SpriteDeInit();
+//    Textures.TexDeInit();
     wglDeleteContext(FGLRC);
     ReleaseDC(FWHandle, FWDC);
     wglMakeCurrent(FWDC, 0);
