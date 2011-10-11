@@ -3,13 +3,13 @@ unit Node;
 interface
 
 uses
-  dfHRenderer, dfMath, dfList;
+  Classes, dfHRenderer, dfMath;
 
 type
   TdfNode = class(TInterfacedObject, IdfNode)
   private
     FVisible: Boolean;
-    FChilds: TdfList;
+    FChilds: TList;
 
     function GetPos(): TdfVec3f;
     procedure SetPos(const aPos: TdfVec3f);

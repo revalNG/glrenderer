@@ -45,7 +45,6 @@
 			<DelphiCompile Include="Checker1.dpr">
 				<MainSource>MainSource</MainSource>
 			</DelphiCompile>
-			<DCCReference Include="Header.pas"/>
 			<DCCReference Include="headers\dfHRenderer.pas"/>
 			<DCCReference Include="common\dfMath.pas"/>
 			<DCCReference Include="common\dfHEngine.pas"/>

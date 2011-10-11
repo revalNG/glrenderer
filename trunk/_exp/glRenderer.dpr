@@ -2,6 +2,28 @@
   LD - Last Developed - Над чем работал в последний раз в этот день
 
 
+  2011-10-11: TODO:
+    1. Миграция на интерфейсы уже существующих базовых классов:
+      1. Camera
+      2. Light
+      3. Shaders
+      4. Textures
+    2. Создание новых классов и интерфейсов графического движка:
+      1. Node
+      2. Scene
+      3. Mesh
+      4. VBOBuffer
+      5. Sprite
+      6. Material
+      7. Actor
+    3. Создание вспомогательных классов и интерфейсов:
+      1. Resource
+      2. ResourceManager
+
+    4. Сборка воедино, проверка работоспособности
+
+    5. Привязка звуков, физики и прочих свистелок
+
 
   2011-04-09//
               Новое ответвление - передел под COM-стандарт: интерфейсы и классы
@@ -156,33 +178,13 @@ uses
   dfHEngine in 'common\dfHEngine.pas',
   dfHGL in 'common\dfHGL.pas',
   dfHInput in 'common\dfHInput.pas',
-  dfList in 'common\dfList.pas',
   dfLogger in 'common\dfLogger.pas',
   dfMath in 'common\dfMath.pas',
   dfHRenderer in 'headers\dfHRenderer.pas',
-  Node in 'Node.pas';
+  Node in 'Node.pas',
+  ExportFunc in 'ExportFunc.pas';
 
 exports
   CreateRenderer;
-//  renderInit,
-//  renderStep,
-//  renderDeInit,
-//
-//  renderWindowSetCaption,
-//  renderWindowGetHandle,
-//
-//  renderCameraSet,
-//  renderCameraSetTarget,// renderCameraSetTargetMove,
-//  renderCameraSetPos,// renderCameraSetPosMove,
-//  renderCameraSetUp,// renderCameraSetUpMove,
-//  //renderCameraMoveAroundTarget,
-//
-//  renderLightSet,
-//  renderLightSetPos,  renderLightSetPosMove,
-//  renderLightSetAmb, renderLightSetAmbMove,
-//  renderLightSetDif, renderLightSetDifMove,
-//  renderLightSetSpec, renderLightSetSpecMove,
-//
-//  renderSpritesAddFromFile;
 begin
 end.
