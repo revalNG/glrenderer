@@ -116,14 +116,17 @@ type
     procedure FreeChild(Index: Integer);
   end;
 
-  IdfCamera = interface
+  IdfCamera = interface (IdfNode)
     ['{D6E97126-FF5F-4CE7-9687-4F358A90B34E}']
+    procedure Viewport(x, y, w, h: Integer; FOV, ZNear, ZFar: Single);
     procedure Pan(X, Y: Single);
     procedure Scale(aScale: Single);
     procedure Rotate(delta: Single; Axis: TdfVec3f);
     procedure SetCamera(Pos, TargetPos, Up: TdfVec3f);
     procedure SetTarget(Point: TdfVec3f); overload;
     procedure SetTarget(Target: IdfNode); overload;
+
+    procedure Update();
   end;
 
   IdfRenderer = interface

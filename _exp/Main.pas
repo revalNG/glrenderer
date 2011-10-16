@@ -1,13 +1,3 @@
-{
-  Основной модуль, содержащий класс TdfRenderer
-
-  TODO: 1) Создать интерфейс камеры
-        2) Создать под него класс
-        3) Взаимодействие TdfRenderer.Camera с камерой
-        4) Переделка WindowProc и Init, step, Deinit на работу с TdfRenderer.Camera
-        5) ...
-}
-
 unit Main;
 
 interface
@@ -154,8 +144,11 @@ begin
       begin
         x := LOWORD(lParam);
         y := HIWORD(lParam);
-//        Camera.CameraRotate(deg2rad*(x - dx), CameraGetUp());
-//        Camera.CameraRotate(deg2rad*(y - dy), CameraGetLeft());
+        with TheRenderer.Camera do
+        begin
+//          Rotate(deg2rad*(x - dx), Up());
+//          Rotate(deg2rad*(y - dy), Left());
+        end;
         dx := x;
         dy := y;
       end;
@@ -165,7 +158,7 @@ begin
         SetCursor(TheRenderer.FhHandCursor);
         x := LOWORD(lParam);
         y := HIWORD(lParam);
-//        Camera.CameraPan(y-dy, dx-x);
+        TheRenderer.Camera.Pan(y - dy, dx - x);
         dx := x;
         dy := y;
       end;
@@ -268,6 +261,7 @@ var
   lAmb, lDif, lSpec: TdfVec4f; //Цвет источника света
   lConstAtten, lLinearAtten, lQuadroAtten: Single; //Параметры источника света
   atomColor: TdfVec3f;
+  cFOV, cZNear, cZFar: Single;
 
 begin
   Logger.LogInit();
@@ -344,17 +338,17 @@ begin
       else if par.TokenString = 'FOV' then
       begin
         par.NextToken;
-//        cFOV := par.TokenFloat;
+        cFOV := par.TokenFloat;
       end
       else if par.TokenString = 'zNear' then
       begin
         par.NextToken;
-//        czNear := par.TokenFloat;
+        czNear := par.TokenFloat;
       end
       else if par.TokenString = 'zFar' then
       begin
         par.NextToken;
-//        czFar := par.TokenFloat;
+        czFar := par.TokenFloat;
       end
       else if par.TokenString = 'cameraPos' then
       begin
@@ -541,6 +535,10 @@ begin
     ShowWindow(FWHandle, CmdShow);
     UpdateWindow(FWHandle);
 
+    FCamera := TdfCamera.Create();
+    FCamera.Viewport(0, 0, FWWidth, FWHeight, cFOV, cZNear, cZFar);
+    FCamera.SetCamera(camPos, camLook, camUp);
+
 //    Camera.CameraInit(0, 0, FWWidth, FWHeight, cFOV, cZNear, cZFar);
     //Задаем параметры камеры
 //    renderCameraSet(camPos.x, camPos.y, camPos.z,
@@ -596,6 +594,7 @@ begin
     gl.Clear(GL_DEPTH_BUFFER_BIT);
     gl.MatrixMode(GL_MODELVIEW);
     gl.PushMatrix();
+      FCamera.Update();
 //      if Camera.CameraStep(deltaTime) = -1 then
 //        raise Exception.CreateRes(1);
       if FDrawAxes then
@@ -666,6 +665,7 @@ begin
   logWriteMessage('Деинициализация рендера');
   try
     FRenderReady := False;
+    FCamera := nil;
 //    Camera.CameraDeInit();
 //    Light.LightDeInit();
 //    Sprites.SpriteDeInit();

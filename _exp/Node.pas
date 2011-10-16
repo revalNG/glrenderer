@@ -7,9 +7,10 @@ uses
 
 type
   TdfNode = class(TInterfacedObject, IdfNode)
-  private
+  protected
     FVisible: Boolean;
     FChilds: TList;
+    FModelMatrix: TdfMat4f;
 
     function GetPos(): TdfVec3f;
     procedure SetPos(const aPos: TdfVec3f);
@@ -57,7 +58,7 @@ implementation
 
 function TdfNode.GetPos(): TdfVec3f;
 begin
-  with ModelMatrix do
+  with FModelMatrix do
     Result := Pos;
 end;
 
@@ -78,7 +79,7 @@ end;
 
 function TdfNode.GetUp(): TdfVec3f;
 begin
-  with ModelMatrix do
+  with FModelMatrix do
     Result := dfVec3f(e10, e11, e12);
 end;
 
@@ -89,7 +90,7 @@ end;
 
 function TdfNode.GetDir(): TdfVec3f;
 begin
-  with ModelMatrix do
+  with FModelMatrix do
     Result := dfVec3f(e20, e21, e22);
 end;
 
@@ -100,7 +101,7 @@ end;
 
 function TdfNode.GetLeft(): TdfVec3f;
 begin
-  with ModelMatrix do
+  with FModelMatrix do
     Result := dfVec3f(e00, e01, e02);
 end;
 

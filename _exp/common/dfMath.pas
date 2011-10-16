@@ -60,6 +60,8 @@ type
     function Clamp(const Min, Max: TdfVec2f): TdfVec2f;
     function Rotate(Angle: TdfSingle): TdfVec2f;
     function Angle(const v: TdfVec2f): TdfSingle;
+    function NegateVector(): TdfVec2f;
+    procedure Negate;
   end;
 
   TdfVec3f = record
@@ -81,6 +83,8 @@ type
     function Refract(const n: TdfVec3f; Factor: TdfSingle): TdfVec3f;
     function Clamp(const Min, Max: TdfVec3f): TdfVec3f;
     function Rotate(Angle: TdfSingle; const Axis: TdfVec3f): TdfVec3f;
+    function NegateVector(): TdfVec3f;
+    procedure Negate;
   end;
 
   TdfVec4f = record
@@ -160,6 +164,14 @@ type
   end;
 
 {$ENDREGION}
+
+const
+    IdentMat : TdfMat4f = (
+    e00: 1; e10: 0; e20: 0; e30: 0;
+    e01: 0; e11: 1; e21: 0; e31: 0;
+    e02: 0; e12: 0; e22: 1; e32: 0;
+    e03: 0; e13: 0; e23: 0; e33: 1;
+  );
 
 function Max(x, y: TdfSingle): TdfSingle; overload; inline;
 function Min(x, y: TdfSingle): TdfSingle; overload; inline;
@@ -464,6 +476,18 @@ begin
   Result := ArcCos(Dot(v) / sqrt(LengthQ * v.LengthQ))
 end;
 
+function TdfVec2f.NegateVector(): TdfVec2f;
+begin
+  Result.x := -x;
+  Result.y := -y;
+end;
+
+procedure TdfVec2f.Negate;
+begin
+  x := -x;
+  y := -y;
+end;
+
 //======================dfVec3f
 
 class operator TdfVec3f.Equal(const v1, v2: TdfVec3f): Boolean;
@@ -583,6 +607,20 @@ begin
   Result.x := v0.x + v1.x * c + v2.x * s;
   Result.y := v0.y + v1.y * c + v2.y * s;
   Result.z := v0.z + v1.z * c + v2.z * s;
+end;
+
+function TdfVec3f.NegateVector(): TdfVec3f;
+begin
+  Result.x := -x;
+  Result.y := -y;
+  Result.z := -z;
+end;
+
+procedure TdfVec3f.Negate;
+begin
+  x := -x;
+  y := -y;
+  z := -z;
 end;
 
 //======================dfVec4f
@@ -817,13 +855,6 @@ begin
 end;
 
 procedure TdfMat4f.Identity;
-const
-  IdentMat : TdfMat4f = (
-    e00: 1; e10: 0; e20: 0; e30: 0;
-    e01: 0; e11: 1; e21: 0; e31: 0;
-    e02: 0; e12: 0; e22: 1; e32: 0;
-    e03: 0; e13: 0; e23: 0; e33: 1;
-  );
 begin
   Self := IdentMat;
 end;
