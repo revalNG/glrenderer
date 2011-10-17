@@ -3,9 +3,10 @@ unit ExportFunc;
 interface
 
 uses
-  Main, dfHRenderer;
+  Main, dfHRenderer, Node;
 
   function CreateRenderer(): IdfRenderer; stdcall;
+  function CreateNode(aParent: IdfNode): IdfNode; stdcall;
 
 implementation
 
@@ -19,6 +20,14 @@ begin
   end
   else
     Result := TheRenderer;
+end;
+
+function CreateNode(aParent: IdfNode): IdfNode;
+begin
+  if aParent = nil then
+    Result := TdfNode.Create
+  else
+    Result := aParent.AddNewChild();
 end;
 
 end.

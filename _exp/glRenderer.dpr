@@ -2,10 +2,13 @@
   LD - Last Developed - Над чем работал в последний раз в этот день
 
   BUGS:
-  1. TdfNode пустой - не обрабатывает left, upd и dir
-  2. TdfNode - Добавить CreateAsChild и сопутствующий функционал
-     Вероятно, проще заглянуть в соответсствующий юнит DiF Engine
-  3. TdfNode - поправить функционал в целом. Слишком много багов
++  1. TdfNode пустой - не обрабатывает left, up и dir
+-  2. TdfNode - Добавить CreateAsChild и сопутствующий функционал
++     Вероятно, проще заглянуть в соответсствующий юнит DiF Engine
++  3. TdfNode - поправить функционал в целом. Слишком много багов
+   4. TInterfaceList странно зануляет ссылки в конце. Переделал под TList, но
+      надо разобраться
+
 
 
   2011-10-11: TODO:
@@ -191,6 +194,6 @@ uses
   ExportFunc in 'ExportFunc.pas';
 
 exports
-  CreateRenderer;
+  CreateRenderer, CreateNode;
 begin
 end.

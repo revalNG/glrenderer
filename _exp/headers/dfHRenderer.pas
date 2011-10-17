@@ -107,11 +107,13 @@ type
     property Renderable: IdfRenderable read GetRenderable write SetRenderable;
 
     //Добавить уже существующий рендер-узел себе в потомки
-    function AddChild(AChild: IdfNode): Integer;
+    function AddChild(aChild: IdfNode): Integer;
+    //Добавить нового потомка
+    function AddNewChild(): IdfNode;
     //Удалить потомка из списка по индексу. Физически объект остается в памяти.
     procedure RemoveChild(Index: Integer); overload;
     //Удалить потомка из списка по указателю. Физически объект остается в памяти.
-    procedure RemoveChild(AChild: IdfNode); overload;
+    procedure RemoveChild(aChild: IdfNode); overload;
     //Удалить потомка из списка по индексу. Физически объект уничтожается.
     procedure FreeChild(Index: Integer);
   end;
@@ -183,6 +185,7 @@ type
 var
 
   dfCreateRenderer: function(): IdfRenderer; stdcall;
+  dfCreateNode: function(aParent: IdfNode): IdfNode; stdcall;
   dllHandle: THandle;
 
 implementation
@@ -190,5 +193,6 @@ implementation
 initialization
   dllHandle := LoadLibrary(dllname);
   dfCreateRenderer := GetProcAddress(dllHandle, 'CreateRenderer');
+  dfCreateNode := GetProcAddress(dllHandle, 'CreateNode');
 
 end.
