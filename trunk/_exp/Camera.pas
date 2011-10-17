@@ -78,7 +78,7 @@ end;
 
 procedure TdfCamera.SetCamera(aPos, aTargetPos, aUp: TdfVec3f);
 var
-  vDir, vUp, vLeft, newPos: TdfVec3f;
+  vDir, vUp, vLeft: TdfVec3f;
 begin
   FModelMatrix.Identity;
   vUp := aUp;
@@ -90,14 +90,10 @@ begin
   vLeft.Normalize;
   vUp := vDir.Cross(vLeft);
   vUp.Normalize;
-  newPos := aPos;
-  with FModelMatrix do
-  begin
-    e00 := vLeft.x;  e01 := vLeft.y;  e02 := vLeft.z;  e03 := -newpos.Dot(vLeft);
-    e10 := vUp.x;    e11 := vUp.y;    e12 := vUp.z;    e13 := -newpos.Dot(vUp);
-    e20 := vDir.x;   e21 := vDir.y;   e22 := vDir.z;   e23 := -newpos.Dot(vDir);
-    e30 := 0;        e31 := 0;        e32 := 0;        e33 := 1;
-  end;
+
+  Position := aPos;
+  UpdateDirUpLeft(vDir, vUp, vLeft);
+
   FTargetPoint := aTargetPos;
   FMode := mPoint;
 end;
@@ -117,9 +113,7 @@ begin
     vUp :=vLeft.Cross(vDir);
     vUp.Normalize;
     vLeft.Negate;
-    e00 := vLeft.x; e10 := vLeft.y; e20 := vLeft.z; e30 := 0;
-    e01 := vUp.x;   e11 := vUp.y;   e21 := vUp.z;   e31 := 0;
-    e02 := vDir.x;  e12 := vDir.y;  e22 := vDir.z;  e32 := 0;
+    UpdateDirUpLeft(vDir, vUp, vLeft);
   end;
   FMode := mPoint;
 end;

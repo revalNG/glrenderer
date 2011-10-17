@@ -146,8 +146,8 @@ begin
         y := HIWORD(lParam);
         with TheRenderer.Camera do
         begin
-//          Rotate(deg2rad*(x - dx), Up());
-//          Rotate(deg2rad*(y - dy), Left());
+          Rotate(deg2rad*(x - dx), Up);
+          Rotate(deg2rad*(y - dy), Left);
         end;
         dx := x;
         dy := y;
@@ -595,22 +595,20 @@ begin
     gl.MatrixMode(GL_MODELVIEW);
     gl.PushMatrix();
       FCamera.Update();
-//      if Camera.CameraStep(deltaTime) = -1 then
-//        raise Exception.CreateRes(1);
       if FDrawAxes then
         DrawAxes();
 //      Light.LightStep(deltaTime);
 //      Sprites.SpriteStep(deltaTime);
 
-//      if dfInput.IsKeyDown(VK_MOUSEWHEELUP) then
-//      begin
-//        Camera.CameraScale(-1.0);
-//      end;
-//
-//      if dfInput.IsKeyDown(VK_MOUSEWHEELDOWN) then
-//      begin
-//        Camera.CameraScale(1.0);
-//      end;
+      if dfInput.IsKeyDown(VK_MOUSEWHEELUP) then
+      begin
+        FCamera.Scale(0.9);
+      end;
+
+      if dfInput.IsKeyDown(VK_MOUSEWHEELDOWN) then
+      begin
+        FCamera.Scale(1.1);
+      end;
     gl.PopMatrix();
     Windows.SwapBuffers(FWDC);
   except
@@ -687,108 +685,5 @@ begin
 end;
 
 {$ENDREGION}
-
-//function renderStep(): Integer; stdcall;
-//var
-//  lp: TdfVec3f;
-//
-//  procedure DrawAxes();
-//  begin
-//    //Draw axes
-//    gl.Disable(GL_LIGHTING);
-//    gl.Beginp(GL_LINES);
-//      gl.Color4ub(255, 0, 0, 255);
-//      gl.Vertex3f(0, 0, 0);
-//      gl.Vertex3f(10, 0, 0);
-//
-//      gl.Color4ub(0, 255, 0, 255);
-//      gl.Vertex3f(0, 0, 0);
-//      gl.Vertex3f(0, 10, 0);
-//
-//      gl.Color4ub(0, 0, 255, 255);
-//      gl.Vertex3f(0, 0, 0);
-//      gl.Vertex3f(0, 0, 10);
-//    gl.Endp();
-//    gl.Enable(GL_LIGHTING);
-//  end;
-//
-//begin
-//  Result := 0;
-//  try
-//    lp := Light.LightGetPos();
-//    gl.Clear(GL_COLOR_BUFFER_BIT);
-//    gl.Clear(GL_DEPTH_BUFFER_BIT);
-//    gl.MatrixMode(GL_MODELVIEW);
-//    gl.PushMatrix();
-//      if Camera.CameraStep(dt) = -1 then
-//        raise Exception.CreateRes(1);
-//      if bDrawAxes then
-//        DrawAxes();
-//      Light.LightStep(dt);
-//      Textures.renderTexBind(texID2);
-//      Sprites.SpriteStep(dt);
-//      Textures.renderTexUnbind;
-//
-//      if dfInput.IsKeyDown(VK_MOUSEWHEELUP) then
-//      begin
-//        Camera.CameraScale(-1.0);
-//      end;
-//
-//      if dfInput.IsKeyDown(VK_MOUSEWHEELDOWN) then
-//      begin
-//        Camera.CameraScale(1.0);
-//      end;
-//    gl.PopMatrix();
-//    Windows.SwapBuffers(FDC);
-//  except
-//    on E: Exception do
-//      case StrToInt(e.Message) of
-//        1:
-//          Result := 1;
-//        2:
-//          Result := 2;
-//        else
-//          Result := -1;
-//      end;
-//  end;
-//end;
-
-//function renderDeInit(): Integer; stdcall;
-//begin
-//  Result := 0;
-//  logWriteMessage('Деинициализация рендера');
-//  try
-//    renderReady := False;
-//    Camera.CameraDeInit();
-//    Light.LightDeInit();
-//    Sprites.SpriteDeInit();
-//    Textures.TexDeInit();
-//    Textures.renderTexDel(texID2);
-//    wglDeleteContext(FHGLRC);
-//    ReleaseDC(WHandle, FDC);
-//    wglMakeCurrent(FDC, 0);
-//    FDC := 0;
-//    FHGLRC := 0;
-//    CloseWindow(WHandle);
-//    DestroyWindow(WHandle);
-//    WHandle := 0;
-//    Logger.LogDeinit();
-//  except
-//    Result := -1;
-//    Exit;
-//  end;
-//  //*
-//end;
-
-//function renderWindowSetCaption(aCaption: PAnsiChar): Integer; stdcall;
-//begin
-//  SetWindowText(WHandle, aCaption);
-//  Result := 0;
-//end;
-//
-//function renderWindowGetHandle: Integer; stdcall;
-//begin
-//  Result := WHandle;
-//end;
 
 end.
