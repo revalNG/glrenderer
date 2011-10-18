@@ -22,7 +22,7 @@ type
     FRenderable: IdfRenderable;
 
     function GetPos(): TdfVec3f;
-    procedure SetPos(const aPos: TdfVec3f);
+    procedure SetPos(const aPos: TdfVec3f); virtual;
     function GetUp(): TdfVec3f;
     procedure SetUp(const aUp: TdfVec3f);
     function GetDir(): TdfVec3f;
@@ -67,6 +67,8 @@ type
     procedure RemoveChild(aChild: IdfNode); overload;
     //Удалить потомка из списка по индексу. Физически объект уничтожается.
     procedure FreeChild(Index: Integer);
+
+    procedure Render(aDeltaTime: Single); virtual;
   end;
 
 implementation
@@ -196,6 +198,11 @@ procedure TdfNode.RemoveChild(AChild: IdfNode);
 begin
   //Не проверяем, так как внутри TInterfaceList есть проверка
   FChilds.Remove(Pointer(aChild));
+end;
+
+procedure TdfNode.Render(aDeltaTime: Single);
+begin
+  //*
 end;
 
 procedure TdfNode.SetChild(Index: Integer; aChild: IdfNode);

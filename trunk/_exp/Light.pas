@@ -9,214 +9,212 @@ unit Light;
 interface
 
 uses
+  Node, dfHRenderer,
   dfMath;
 
-  //ВНЕШНИЕ ЭКСПОРТИРУЕМЫЕ ФУНКЦИИ
+const
+  LIGHT_SIZE_Y = 0.4;
+  LIGHT_SIZE_XZ = 0.10;
 
-  //Установка всех параметров источника света
-  function renderLightSet(X, Y, Z,
-                          AmbR, AmbG, AmbB, AmbA,
-                          DifR, DifG, DifB, DifA,
-                          SpecR, SpecG, SpecB, SpecA,
-                          ConstAtten, LinAtten, QuadroAtten: Single): Integer; stdcall;
-  //Установка позиции источника света
-  function renderLightSetPos(X, Y, Z: Single): Integer; stdcall;
-  //Установка позиции источника света со скоростью Speed
-  function renderLightSetPosMove(X, Y, Z, Speed: Single): Integer; stdcall;
-  function renderLightSetAmb(R, G, B, A: Single): Integer; stdcall;
-  function renderLightSetAmbMove(R, G, B, A, MaxSpeed, Accel: Single): Integer; stdcall;
-  function renderLightSetDif(R, G, B, A: Single): Integer; stdcall;
-  function renderLightSetDifMove(R, G, B, A, MaxSpeed, Accel: Single): Integer; stdcall;
-  function renderLightSetSpec(R, G, B, A: Single): Integer; stdcall;
-  function renderLightSetSpecMove(R, G, B, A, MaxSpeed, Accel: Single): Integer; stdcall;
+type
+  TdfLight = class(TdfNode, IdfLight)
+  private
+    FAmb, FDif, FSpec: TdfVec4f;
+    FCAtten, FLAtten, FQAtten: Single;
+    FPos4: TdfVec4f;
 
-  function LightGetPos: TdfVec3f;
+    FDebugRender: Boolean;
 
-  function LightInit(): Integer;
-  function LightStep(deltaTime: Single): Integer;
-  function LightDeInit(): Integer;
+    function GetAmb(): TdfVec4f;
+    procedure SetAmb(const aAmb: TdfVec4f);
+    function GetDif(): TdfVec4f;
+    procedure SetDif(const aDif: TdfVec4f);
+    function GetSpec(): TdfVec4f;
+    procedure SetSpec(const aSpec: TdfVec4f);
+    function GetConstAtten(): Single;
+    procedure SetConstAtten(const aAtten: Single);
+    function GetLinAtten(): Single;
+    procedure SetLinAtten(const aAtten: Single);
+    function GetQuadroAtten(): Single;
+    procedure SetQuadroAtten(const aAtten: Single);
+    function GetDR(): Boolean;
+    procedure SetDR(aDR: Boolean);
 
-var
-  bDrawLight: Boolean;
+    procedure DrawLight();
+  protected
+    procedure SetPos(const aPos: TdfVec3f); override;
+  public
+    constructor Create; override;
 
+    property Ambient: TdfVec4f read GetAmb write SetAmb;
+    property Diffuse: TdfVec4f read GetDif write SetDif;
+    property Specular: TdfVec4f read GetSpec write SetSpec;
+
+    property ConstAtten: Single read GetConstAtten write SetConstAtten;
+    property LinearAtten: Single read GetLinAtten write SetLinAtten;
+    property QuadraticAtten: Single read GetQuadroAtten write SetQuadroAtten;
+
+    property DebugRender: Boolean read GetDR write SetDR;
+
+    procedure Render(aDeltaTime: Single); override;
+  end;
 
 implementation
 
 uses
   dfHGL, dfHInput;
 
-var
-  LightPos: TdfVec4f;
-  Amb, Dif, Spec: TdfVec4f;
 
-  //debug
-  t: Single;
-  stop: Boolean = True;
-  space_pressed: Boolean;
+{ TdfLight }
 
-const
-  LIGHT_SIZE_Y = 0.4;
-  LIGHT_SIZE_XZ = 0.10;
-
-//Установка всех параметров источника света
-function renderLightSet(X, Y, Z,
-                          AmbR, AmbG, AmbB, AmbA,
-                          DifR, DifG, DifB, DifA,
-                          SpecR, SpecG, SpecB, SpecA,
-                          ConstAtten, LinAtten, QuadroAtten: Single): Integer; stdcall;
+constructor TdfLight.Create;
 begin
-  gl.Enable(GL_LIGHT0);
-  LightPos := dfVec4f(X, Y, Z, 0);
-  gl.Lightfv(GL_LIGHT0, GL_POSITION, @LightPos);
-  gl.Lightfv(GL_LIGHT0, GL_CONSTANT_ATTENUATION, @ConstAtten);
-  gl.Lightfv(GL_LIGHT0, GL_LINEAR_ATTENUATION, @LinAtten);
-  gl.Lightfv(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, @QuadroAtten);
-  Amb  := dfVec4f(AmbR, AmbG, AmbB, AmbA);
-  Dif  := dfVec4f(DifR, DifG, DifB, DifA);
-  Spec := dfVec4f(SpecR, SpecG, SpecB, SpecA);
-  gl.Lightfv(GL_LIGHT0, GL_AMBIENT, @Amb);
-  gl.Lightfv(GL_LIGHT0, GL_DIFFUSE, @Dif);
-  gl.Lightfv(GL_LIGHT0, GL_SPECULAR, @Spec);
-  Result := 0;
-end;
-
-//Установка позиции источника света
-function renderLightSetPos(X, Y, Z: Single): Integer; stdcall;
-begin
-  LightPos := dfVec4f(X, Y, Z, 0);
-  gl.Lightfv(GL_LIGHT0, GL_POSITION, @LightPos);
-  Result := 0;
-end;
-
-//Установка позиции источника света со скоростью Speed
-function renderLightSetPosMove(X, Y, Z, Speed: Single): Integer; stdcall;
-begin
-  Result := -10; //Затычка
-end;
-
-function renderLightSetAmb(R, G, B, A: Single): Integer; stdcall;
-begin
-  Amb := dfVec4f(R, G, B, A);
-  gl.Lightfv(GL_LIGHT0, GL_AMBIENT, @Amb);
-  Result := 0;
-end;
-
-function renderLightSetAmbMove(R, G, B, A, MaxSpeed, Accel: Single): Integer; stdcall;
-begin
-  Result := -10; //Затычка
-end;
-
-function renderLightSetDif(R, G, B, A: Single): Integer; stdcall;
-begin
-  Dif := dfVec4f(R, G, B, A);
-  gl.Lightfv(GL_LIGHT0, GL_DIFFUSE, @Dif);
-  Result := 0;
-end;
-
-function renderLightSetDifMove(R, G, B, A, MaxSpeed, Accel: Single): Integer; stdcall;
-begin
-  Result := -10; //Затычка
-end;
-
-function renderLightSetSpec(R, G, B, A: Single): Integer; stdcall;
-begin
-  Spec := dfVec4f(R, G, B, A);
-  gl.Lightfv(GL_LIGHT0, GL_SPECULAR, @Spec);
-  Result := 0;
-end;
-
-function renderLightSetSpecMove(R, G, B, A, MaxSpeed, Accel: Single): Integer; stdcall;
-begin
-  Result := -10; //Затычка
-end;
-
-
-function LightGetPos: TdfVec3f;
-begin
-  Result.x := LightPos.x;
-  Result.y := LightPos.y;
-  Result.z := LightPos.z;
-end;
-
-
-
-function LightInit(): Integer;
-
-begin
+  inherited;
   gl.Enable(GL_LIGHT0);
 
-  Result := 0;
-  t := 0;
+  Ambient := dfVec4f(0.1, 0.1, 0.1, 1.0);
+  Diffuse := dfVec4f(0.5, 0.5, 0.5, 1.0);
+  Specular := dfVec4f(0.9, 0.9, 0.9, 1.0);
+  ConstAtten := 1;
+  LinearAtten := 1;
+  QuadraticAtten := 1;
+  Position := dfVec3f(0, 0, 0);
 end;
 
-procedure DrawLightSource();
+procedure TdfLight.DrawLight;
 begin
   gl.PushAttrib(GL_COLOR);
-  gl.Color3f(dif.x, dif.y, dif.z);
+  gl.Color4f(FDif.x, FDif.y, FDif.z, FDif.w);
   gl.Disable(GL_LIGHTING);
   gl.Beginp(GL_TRIANGLES);
-    gl.Vertex3f(LightPos.x - LIGHT_SIZE_XZ, LightPos.y, LightPos.z + LIGHT_SIZE_XZ);
-    gl.Vertex3f(LightPos.x + LIGHT_SIZE_XZ, LightPos.y, LightPos.z + LIGHT_SIZE_XZ);
-    gl.Vertex3f(LightPos.x, LightPos.y + LIGHT_SIZE_Y, LightPos.z);
+    gl.Vertex3f(FPos4.x - LIGHT_SIZE_XZ, FPos4.y, FPos4.z + LIGHT_SIZE_XZ);
+    gl.Vertex3f(FPos4.x + LIGHT_SIZE_XZ, FPos4.y, FPos4.z + LIGHT_SIZE_XZ);
+    gl.Vertex3f(FPos4.x, FPos4.y + LIGHT_SIZE_Y, FPos4.z);
 
-    gl.Vertex3f(LightPos.x + LIGHT_SIZE_XZ, LightPos.y, LightPos.z + LIGHT_SIZE_XZ);
-    gl.Vertex3f(LightPos.x + LIGHT_SIZE_XZ, LightPos.y, LightPos.z - LIGHT_SIZE_XZ);
-    gl.Vertex3f(LightPos.x, LightPos.y + LIGHT_SIZE_Y, LightPos.z);
+    gl.Vertex3f(FPos4.x + LIGHT_SIZE_XZ, FPos4.y, FPos4.z + LIGHT_SIZE_XZ);
+    gl.Vertex3f(FPos4.x + LIGHT_SIZE_XZ, FPos4.y, FPos4.z - LIGHT_SIZE_XZ);
+    gl.Vertex3f(FPos4.x, FPos4.y + LIGHT_SIZE_Y, FPos4.z);
 
-    gl.Vertex3f(LightPos.x + LIGHT_SIZE_XZ, LightPos.y, LightPos.z - LIGHT_SIZE_XZ);
-    gl.Vertex3f(LightPos.x - LIGHT_SIZE_XZ, LightPos.y, LightPos.z - LIGHT_SIZE_XZ);
-    gl.Vertex3f(LightPos.x, LightPos.y + LIGHT_SIZE_Y, LightPos.z);
+    gl.Vertex3f(FPos4.x + LIGHT_SIZE_XZ, FPos4.y, FPos4.z - LIGHT_SIZE_XZ);
+    gl.Vertex3f(FPos4.x - LIGHT_SIZE_XZ, FPos4.y, FPos4.z - LIGHT_SIZE_XZ);
+    gl.Vertex3f(FPos4.x, FPos4.y + LIGHT_SIZE_Y, FPos4.z);
 
-    gl.Vertex3f(LightPos.x - LIGHT_SIZE_XZ, LightPos.y, LightPos.z - LIGHT_SIZE_XZ);
-    gl.Vertex3f(LightPos.x - LIGHT_SIZE_XZ, LightPos.y, LightPos.z + LIGHT_SIZE_XZ);
-    gl.Vertex3f(LightPos.x, LightPos.y + LIGHT_SIZE_Y, LightPos.z);
+    gl.Vertex3f(FPos4.x - LIGHT_SIZE_XZ, FPos4.y, FPos4.z - LIGHT_SIZE_XZ);
+    gl.Vertex3f(FPos4.x - LIGHT_SIZE_XZ, FPos4.y, FPos4.z + LIGHT_SIZE_XZ);
+    gl.Vertex3f(FPos4.x, FPos4.y + LIGHT_SIZE_Y, FPos4.z);
 
 
 
-    gl.Vertex3f(LightPos.x + LIGHT_SIZE_XZ, LightPos.y, LightPos.z + LIGHT_SIZE_XZ);
-    gl.Vertex3f(LightPos.x - LIGHT_SIZE_XZ, LightPos.y, LightPos.z + LIGHT_SIZE_XZ);
-    gl.Vertex3f(LightPos.x, LightPos.y - LIGHT_SIZE_Y, LightPos.z);
+    gl.Vertex3f(FPos4.x + LIGHT_SIZE_XZ, FPos4.y, FPos4.z + LIGHT_SIZE_XZ);
+    gl.Vertex3f(FPos4.x - LIGHT_SIZE_XZ, FPos4.y, FPos4.z + LIGHT_SIZE_XZ);
+    gl.Vertex3f(FPos4.x, FPos4.y - LIGHT_SIZE_Y, FPos4.z);
 
-    gl.Vertex3f(LightPos.x + LIGHT_SIZE_XZ, LightPos.y, LightPos.z - LIGHT_SIZE_XZ);
-    gl.Vertex3f(LightPos.x + LIGHT_SIZE_XZ, LightPos.y, LightPos.z + LIGHT_SIZE_XZ);
-    gl.Vertex3f(LightPos.x, LightPos.y - LIGHT_SIZE_Y, LightPos.z);
+    gl.Vertex3f(FPos4.x + LIGHT_SIZE_XZ, FPos4.y, FPos4.z - LIGHT_SIZE_XZ);
+    gl.Vertex3f(FPos4.x + LIGHT_SIZE_XZ, FPos4.y, FPos4.z + LIGHT_SIZE_XZ);
+    gl.Vertex3f(FPos4.x, FPos4.y - LIGHT_SIZE_Y, FPos4.z);
 
-    gl.Vertex3f(LightPos.x - LIGHT_SIZE_XZ, LightPos.y, LightPos.z - LIGHT_SIZE_XZ);
-    gl.Vertex3f(LightPos.x + LIGHT_SIZE_XZ, LightPos.y, LightPos.z - LIGHT_SIZE_XZ);
-    gl.Vertex3f(LightPos.x, LightPos.y - LIGHT_SIZE_Y, LightPos.z);
+    gl.Vertex3f(FPos4.x - LIGHT_SIZE_XZ, FPos4.y, FPos4.z - LIGHT_SIZE_XZ);
+    gl.Vertex3f(FPos4.x + LIGHT_SIZE_XZ, FPos4.y, FPos4.z - LIGHT_SIZE_XZ);
+    gl.Vertex3f(FPos4.x, FPos4.y - LIGHT_SIZE_Y, FPos4.z);
 
-    gl.Vertex3f(LightPos.x - LIGHT_SIZE_XZ, LightPos.y, LightPos.z + LIGHT_SIZE_XZ);
-    gl.Vertex3f(LightPos.x - LIGHT_SIZE_XZ, LightPos.y, LightPos.z - LIGHT_SIZE_XZ);
-    gl.Vertex3f(LightPos.x, LightPos.y - LIGHT_SIZE_Y, LightPos.z);
+    gl.Vertex3f(FPos4.x - LIGHT_SIZE_XZ, FPos4.y, FPos4.z + LIGHT_SIZE_XZ);
+    gl.Vertex3f(FPos4.x - LIGHT_SIZE_XZ, FPos4.y, FPos4.z - LIGHT_SIZE_XZ);
+    gl.Vertex3f(FPos4.x, FPos4.y - LIGHT_SIZE_Y, FPos4.z);
 
   gl.Endp;
   gl.Enable(GL_LIGHTING);
   gl.PopAttrib();
 end;
 
-function LightStep(deltaTime: Single): Integer;
+function TdfLight.GetAmb: TdfVec4f;
 begin
-  Result := -10; //Затычка
-
-  if dfInput.IsKeyDown($20) and not space_pressed then
-  begin
-    stop := not stop;
-    space_pressed := True;
-  end;
-
-  if not dfInput.IsKeyDown($20) then
-    space_pressed := False;
-  if not stop then
-    t := t + deltaTime;
-  LightPos := dfVec4f(5*sin(t), 3*sin(t), 5*cos(t), 0);
-  gl.Lightfv(GL_LIGHT0, GL_POSITION, @LightPos);
-  if bDrawLight then
-    DrawLightSource();
+  Result := FAmb;
 end;
 
-function LightDeInit(): Integer;
+function TdfLight.GetConstAtten: Single;
 begin
-  Result := -10; //Затычка
+  Result := FCAtten;
+end;
+
+function TdfLight.GetDif: TdfVec4f;
+begin
+  Result := FDif;
+end;
+
+function TdfLight.GetDR: Boolean;
+begin
+  Result := FDebugRender;
+end;
+
+function TdfLight.GetLinAtten: Single;
+begin
+  Result := FLAtten;
+end;
+
+function TdfLight.GetQuadroAtten: Single;
+begin
+  Result := FQAtten;
+end;
+
+function TdfLight.GetSpec: TdfVec4f;
+begin
+  Result := FSpec;
+end;
+
+procedure TdfLight.Render(aDeltaTime: Single);
+begin
+  if FDebugRender then
+    DrawLight();
+
+  inherited;
+end;
+
+procedure TdfLight.SetAmb(const aAmb: TdfVec4f);
+begin
+  FAmb := aAmb;
+  gl.Lightfv(GL_LIGHT0, GL_AMBIENT, @FAmb);
+end;
+
+procedure TdfLight.SetConstAtten(const aAtten: Single);
+begin
+  FCAtten := aAtten;
+  gl.Lightfv(GL_LIGHT0, GL_CONSTANT_ATTENUATION, @FCAtten);
+end;
+
+procedure TdfLight.SetDif(const aDif: TdfVec4f);
+begin
+  FDif := aDif;
+  gl.Lightfv(GL_LIGHT0, GL_DIFFUSE, @FDif);
+end;
+
+procedure TdfLight.SetDR(aDR: Boolean);
+begin
+  FDebugRender := aDR;
+end;
+
+procedure TdfLight.SetLinAtten(const aAtten: Single);
+begin
+  FLAtten := aAtten;
+  gl.Lightfv(GL_LIGHT0, GL_LINEAR_ATTENUATION, @FLAtten);
+end;
+
+procedure TdfLight.SetPos(const aPos: TdfVec3f);
+begin
+  inherited;
+  FPos4 := dfVec4f(aPos);
+  gl.Lightfv(GL_LIGHT0, GL_POSITION, @FPos4);
+end;
+
+procedure TdfLight.SetQuadroAtten(const aAtten: Single);
+begin
+  FQAtten := aAtten;
+  gl.Lightfv(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, @FQAtten);
+end;
+
+procedure TdfLight.SetSpec(const aSpec: TdfVec4f);
+begin
+  FSpec := aSpec;
+  gl.Lightfv(GL_LIGHT0, GL_SPECULAR, @FSpec);
 end;
 
 end.

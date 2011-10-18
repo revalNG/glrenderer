@@ -11,7 +11,6 @@ var
   msg: TMsg;
   h: Integer;
   R: IdfRenderer;
-  N1, N2, N3: IdfNode;
 
 begin
   WriteLn(' ========= Demonstration ======== ');
@@ -20,21 +19,12 @@ begin
   WriteLn(' ===== Use RIGHT MOUSE BUTTON to pan');
   WriteLn(' ===== Use Z and X buttons to roll the scene (additional rotate angle)');
   WriteLn(' ===== Use MOUSE WHEEL to scale the scene');
+
+  LoadRendererLib();
+
   R := dfCreateRenderer();
   R.Init('settings.txt');
   h := R.WindowHandle;
-
-  N1 := dfCreateNode(nil);
-  N2 := dfCreateNode(N1);
-//  N2 := nil;
-//  N1 := nil;
-//  N2.Position := dfVec3f(0,5,0);
-  N3 := dfCreateNode(nil);
-//
-//  WriteLn('Pos N2: ', N2.Position.x, N2.Position.y, N2.Position.z);
-//
-  N1.AddChild(N3);
-//  N1
 
   repeat
     if PeekMessage(msg, 0, 0, 0, PM_NOREMOVE) then
@@ -52,4 +42,6 @@ begin
   until GetAsyncKeyState(VK_ESCAPE) < 0;
   R.DeInit();
   R := nil;
+
+  UnLoadRendererLib();
 end.

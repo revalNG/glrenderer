@@ -42,6 +42,8 @@ type
     //Активная камера
     FCamera: IdfCamera;
 
+    FLight: IdfLight;
+
     function GetWindowHandle(): Integer;
     function GetWindowCaption(): PAnsiChar;
     procedure SetWindowCaption(aCaption: PAnsiChar);
@@ -262,6 +264,7 @@ var
   lConstAtten, lLinearAtten, lQuadroAtten: Single; //Параметры источника света
   atomColor: TdfVec3f;
   cFOV, cZNear, cZFar: Single;
+  bDrawLight: Boolean;
 
 begin
   Logger.LogInit();
@@ -437,7 +440,7 @@ begin
       else if par.TokenString = 'lightDraw' then
       begin
         par.NextToken;
-        Light.bDrawLight := (par.TokenString = 'true');
+        bDrawLight := (par.TokenString = 'true');
       end
       else if par.TokenString = 'atomColor' then
       begin
@@ -539,11 +542,19 @@ begin
     FCamera.Viewport(0, 0, FWWidth, FWHeight, cFOV, cZNear, cZFar);
     FCamera.SetCamera(camPos, camLook, camUp);
 
-//    Camera.CameraInit(0, 0, FWWidth, FWHeight, cFOV, cZNear, cZFar);
-    //Задаем параметры камеры
-//    renderCameraSet(camPos.x, camPos.y, camPos.z,
-//                    camLook.x, camLook.y, camLook.z,
-//                    camUp.x, camUp.y, camUp.z);
+    FLight := TdfLight.Create;
+    with FLight do
+    begin
+      Position := lightPos;
+      Ambient := lAmb;
+      Diffuse := lDif;
+      Specular := lSpec;
+      ConstAtten := lConstAtten;
+      LinearAtten := lLinearAtten;
+      QuadraticAtten := lQuadroAtten;
+      DebugRender := bDrawLight;
+    end;
+
 //    Light.LightInit();
 //    renderLightSet(lightPos.x, lightPos.y, lightpos.z,
 //                   lAmb.x, lAmb.y, lAmb.z, lAmb.w,
@@ -597,6 +608,7 @@ begin
       FCamera.Update();
       if FDrawAxes then
         DrawAxes();
+      FLight.Render(deltaTime);
 //      Light.LightStep(deltaTime);
 //      Sprites.SpriteStep(deltaTime);
 
@@ -664,6 +676,7 @@ begin
   try
     FRenderReady := False;
     FCamera := nil;
+    FLight := nil;
 //    Camera.CameraDeInit();
 //    Light.LightDeInit();
 //    Sprites.SpriteDeInit();

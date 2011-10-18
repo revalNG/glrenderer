@@ -67,7 +67,7 @@ type
     function GetMaterial(): IdfMaterial;
     procedure SetMaterial(const aMat: IdfMaterial);
     {$ENDREGION}
-    procedure Render;
+    procedure DoRender;
 
     property Material: IdfMaterial read GetMaterial write SetMaterial;
   end;
@@ -116,6 +116,8 @@ type
     procedure RemoveChild(aChild: IdfNode); overload;
     //Удалить потомка из списка по индексу. Физически объект уничтожается.
     procedure FreeChild(Index: Integer);
+
+    procedure Render(aDeltaTime: Single);
   end;
 
   IdfCamera = interface (IdfNode)
@@ -129,6 +131,36 @@ type
     procedure SetTarget(Target: IdfNode); overload;
 
     procedure Update();
+  end;
+
+  IdfLight = interface (IdfNode)
+    ['{2F9B9229-7A8D-4517-9E5D-DB135E1A6929}']
+    {$REGION '[private]'}
+    function GetAmb(): TdfVec4f;
+    procedure SetAmb(const aAmb: TdfVec4f);
+    function GetDif(): TdfVec4f;
+    procedure SetDif(const aDif: TdfVec4f);
+    function GetSpec(): TdfVec4f;
+    procedure SetSpec(const aSpec: TdfVec4f);
+    function GetConstAtten(): Single;
+    procedure SetConstAtten(const aAtten: Single);
+    function GetLinAtten(): Single;
+    procedure SetLinAtten(const aAtten: Single);
+    function GetQuadroAtten(): Single;
+    procedure SetQuadroAtten(const aAtten: Single);
+    function GetDR(): Boolean;
+    procedure SetDR(aDR: Boolean);
+    {$ENDREGION}
+
+    property Ambient: TdfVec4f read GetAmb write SetAmb;
+    property Diffuse: TdfVec4f read GetDif write SetDif;
+    property Specular: TdfVec4f read GetSpec write SetSpec;
+
+    property ConstAtten: Single read GetConstAtten write SetConstAtten;
+    property LinearAtten: Single read GetLinAtten write SetLinAtten;
+    property QuadraticAtten: Single read GetQuadroAtten write SetQuadroAtten;
+
+    property DebugRender: Boolean read GetDR write SetDR;
   end;
 
   IdfRenderer = interface
@@ -182,17 +214,28 @@ type
     property RootNode: IdfNode read GetRoot write SetRoot;
   end;
 
-var
+  procedure LoadRendererLib();
+  procedure UnLoadRendererLib();
 
+var
   dfCreateRenderer: function(): IdfRenderer; stdcall;
   dfCreateNode: function(aParent: IdfNode): IdfNode; stdcall;
   dllHandle: THandle;
 
 implementation
 
-initialization
+procedure LoadRendererLib();
+begin
   dllHandle := LoadLibrary(dllname);
   dfCreateRenderer := GetProcAddress(dllHandle, 'CreateRenderer');
   dfCreateNode := GetProcAddress(dllHandle, 'CreateNode');
+end;
+
+procedure UnLoadRendererLib();
+begin
+//  dfCreateRenderer := nil;
+//  dfCreateNode := nil;
+//  FreeLibrary(dllHandle);
+end;
 
 end.
