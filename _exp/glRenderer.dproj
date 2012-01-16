@@ -61,6 +61,7 @@
 			<DCCReference Include="headers\dfHRenderer.pas"/>
 			<DCCReference Include="Node.pas"/>
 			<DCCReference Include="ExportFunc.pas"/>
+			<DCCReference Include="TexLoad.pas"/>
 			<BuildConfiguration Include="Base">
 				<Key>Base</Key>
 			</BuildConfiguration>

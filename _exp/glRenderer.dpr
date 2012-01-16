@@ -56,7 +56,8 @@ uses
   dfMath in 'common\dfMath.pas',
   dfHRenderer in 'headers\dfHRenderer.pas',
   Node in 'Node.pas',
-  ExportFunc in 'ExportFunc.pas';
+  ExportFunc in 'ExportFunc.pas',
+  TexLoad in 'TexLoad.pas';
 
 exports
   CreateRenderer, CreateNode;
