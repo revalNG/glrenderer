@@ -188,6 +188,9 @@ begin
       dY := 0;
     end;
 
+    WM_ERASEBKGND:
+      Result := 0;
+
     WM_MOUSEWHEEL:
     begin
       d := HIWORD(wParam);
