@@ -6,9 +6,24 @@ unit Sprites;
 interface
 
 uses
-  dfMath;
+  dfMath, dfHRenderer, uRenderable;
 
 type
+
+  TdfHUDSprite = class(TdfRenderable, IdfSprite)
+  private
+    FWidth, FHeight: Single;
+  protected
+    function GetWidth(): Single;
+    procedure SetWidth(const aWidth: Single);
+    function GetHeight(): Single;
+    procedure SetHeight(const aHeight: Single);
+  public
+    property Width: Single read GetWidth write SetWidth;
+    property Height: Single read GetHeight write SetHeight;
+
+    procedure DoRender(); override;
+  end;
 
   TParticle = record
     ind: Integer;
@@ -144,5 +159,33 @@ begin
   Result := -10;
 end;
 
+
+{ TdfHUDSprite }
+
+procedure TdfHUDSprite.DoRender;
+begin
+  inherited;
+
+end;
+
+function TdfHUDSprite.GetHeight: Single;
+begin
+  Result := FHeight;
+end;
+
+function TdfHUDSprite.GetWidth: Single;
+begin
+  Result := FWidth;
+end;
+
+procedure TdfHUDSprite.SetHeight(const aHeight: Single);
+begin
+  FHeight := aHeight;
+end;
+
+procedure TdfHUDSprite.SetWidth(const aWidth: Single);
+begin
+  FWidth := aWidth;
+end;
 
 end.

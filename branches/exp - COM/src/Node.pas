@@ -202,6 +202,8 @@ end;
 
 procedure TdfNode.Render(aDeltaTime: Single);
 begin
+//  FRenderable.Material;
+  FRenderable.DoRender();
   //*
 end;
 

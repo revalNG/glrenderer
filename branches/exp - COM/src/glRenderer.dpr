@@ -1,6 +1,8 @@
 {
   LD - Last Developed - Над чем работал в последний раз в этот день
 
+  LD - TdfTexture, TdfMaterial, TdfSprite. Начал делать рендер спрайта
+
   BUGS:
 +  1. TdfNode пустой - не обрабатывает left, up и dir
 -  2. TdfNode - Добавить CreateAsChild и сопутствующий функционал
@@ -57,7 +59,9 @@ uses
   dfHRenderer in 'headers\dfHRenderer.pas',
   Node in 'Node.pas',
   ExportFunc in 'ExportFunc.pas',
-  TexLoad in 'TexLoad.pas';
+  TexLoad in 'TexLoad.pas',
+  uRenderable in 'uRenderable.pas',
+  uMaterial in 'uMaterial.pas';
 
 exports
   CreateRenderer, CreateNode;

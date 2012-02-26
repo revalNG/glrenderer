@@ -8,6 +8,16 @@ unit Textures;
 
 interface
 
+uses
+  dfHRenderer;
+
+type
+  TdfTexture = class(TInterfacedObject, IdfTexture)
+  private
+  protected
+  public
+  end;
+
 //Возвращает код тектурного объекта
 function renderTexLoad(FileName: PAnsiChar): Integer; stdcall;
 function renderTexBind(ID: Integer): Integer; stdcall;

@@ -57,6 +57,9 @@ type
     property Texture: IdfTexture read GetTexture write SetTexture;
     property ShaderProgram: IdfShaderProgram read GetShader write SetShader;
     property MaterialOptions: IdfMaterialOptions read GetOptions write SetOptions;
+
+    procedure Apply();
+    procedure Unapply();
   end;
 
   {$ENDREGION}
@@ -196,13 +199,13 @@ type
   IdfSprite = interface (IdfRenderable)
     ['{C8048F34-9F3D-4E58-BC71-633F2413A9A5}']
     {$REGION '[private]'}
-    function GetWidth(): Integer;
-    procedure SetWidth(const aWidth: Integer);
-    function GetHeight(): Integer;
-    procedure SetHeight(const aHeight: Integer);
+    function GetWidth(): Single;
+    procedure SetWidth(const aWidth: Single);
+    function GetHeight(): Single;
+    procedure SetHeight(const aHeight: Single);
     {$ENDREGION}
-    property Width: Integer read GetWidth write SetWidth;
-    property Height: Integer read GetHeight write SetHeight;
+    property Width: Single read GetWidth write SetWidth;
+    property Height: Single read GetHeight write SetHeight;
   end;
 
   IdfScene = interface
