@@ -5,6 +5,7 @@ resolution 800 600
 windowPos 200 200
 backgroundColor 0.40 0.40 0.48
 axes true
+vsync true
 //Камера
 FOV 90
 zNear 0.1

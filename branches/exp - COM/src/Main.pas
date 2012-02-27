@@ -44,6 +44,11 @@ type
 
     FLight: IdfLight;
 
+    FRootNode: IdfNode;
+
+    {debug}
+    FSprite: IdfSprite;
+
     function GetWindowHandle(): Integer;
     function GetWindowCaption(): PAnsiChar;
     procedure SetWindowCaption(aCaption: PAnsiChar);
@@ -51,6 +56,8 @@ type
     function GetFPS(): Single;
     function GetCamera(): IdfCamera;
     procedure SetCamera(const aCamera: IdfCamera);
+    function GetRoot: IdfNode;
+    procedure SetRoot(const aRoot: IdfNode);
   public
     constructor Create; virtual;
     destructor Destroy; override;
@@ -66,6 +73,8 @@ type
     property FPS: Single read GetFPS;
 
     property Camera: IdfCamera read GetCamera write SetCamera;
+
+    property RootNode: IdfNode read GetRoot write SetRoot;
   end;
 
 
@@ -77,7 +86,7 @@ var
 implementation
 
 uses
-  Light, Sprites, Textures, Shaders,
+  Light, Sprites, uTextures, Shaders, Node,
   dfHInput, dfHEngine, Logger,
   Classes;
 
@@ -128,10 +137,10 @@ begin
         FFPS :=  1 / FDeltaTime;
         if RenderReady then
           Step(FDeltaTime);
-        if FFrames >= 1000 then
+        if FFrames >= 100 then
         begin
           //Вывод фпс
-  //        SetWindowText(WHandle, FloatToStr(FPS));
+          SetWindowText(FWHandle, cDefWindowCaption + ' :: ' + FloatToStr(FPS));
           FFrames := 0;
         end;
       end;
@@ -230,6 +239,11 @@ begin
   Result := FRenderReady;
 end;
 
+function TdfRenderer.GetRoot: IdfNode;
+begin
+  Result := FRootNode;
+end;
+
 function TdfRenderer.GetFPS(): Single;
 begin
   Result := FFPS;
@@ -245,17 +259,31 @@ begin
   FCamera := aCamera;
 end;
 
+procedure TdfRenderer.SetRoot(const aRoot: IdfNode);
+begin
+  FRootNode := aRoot;
+end;
+
 constructor TdfRenderer.Create;
 begin
   FRenderReady := False;
   FWHandle := 0;
   FWCaption := '';
   WindowCaption := cDefWindowCaption;
+
+  FRootNode := TdfNode.Create();
+  FSprite := TdfHUDSprite.Create();
+  with FSprite do
+  begin
+    Width := 630;
+    Height := 470;
+  end;
 end;
 
 destructor TdfRenderer.Destroy;
 begin
   FRenderReady := False;
+  FRootNode := nil;
 end;
 
 function TdfRenderer.Init(FileName: PAnsiChar): Integer;
@@ -267,7 +295,8 @@ var
   lConstAtten, lLinearAtten, lQuadroAtten: Single; //Параметры источника света
   atomColor: TdfVec3f;
   cFOV, cZNear, cZFar: Single;
-  bDrawLight: Boolean;
+  bDrawLight, bVSync: Boolean;
+  desRect: TRect;
 
 begin
   Logger.LogInit();
@@ -339,6 +368,11 @@ begin
       begin
         par.NextToken;
         FDrawAxes := (par.TokenString = 'true');
+      end
+      else if par.TokenString = 'vsync' then
+      begin
+        par.NextToken;
+        bVSync := (par.TokenString = 'true');
       end
       //Камера
       else if par.TokenString = 'FOV' then
@@ -462,6 +496,11 @@ begin
 
     //Инициализация
     FWStyle := WS_OVERLAPPEDWINDOW or WS_CLIPSIBLINGS or WS_CLIPCHILDREN;
+
+    SetRect(desRect, 0, 0, FWWidth, FWHeight);
+    AdjustWindowRect(desRect, FWStyle, False);
+    FWWidth := Abs(desRect.Left) + desRect.Right;
+    FWHeight := Abs(desRect.Top) + desRect.Bottom;
     ZeroMemory(@FWndClass, SizeOf(TWndClass));
     with FWndClass do
     begin
@@ -475,6 +514,7 @@ begin
       lpszClassName := 'TdfWindow';
     end;
     FhHandCursor := LoadCursor(0, IDC_HAND);
+
     Windows.RegisterClass(FWndClass);
     FWHandle := CreateWindow('TdfWindow', cDefWindowCaption, FWStyle,
                             FWX, FWY, FWWidth, FWHeight, 0, 0, FWndClass.hInstance, nil);
@@ -536,13 +576,16 @@ begin
     gl.Enable(GL_COLOR_MATERIAL);
     gl.Enable(GL_TEXTURE_2D);
     gl.ClearColor(FBackgroundColor.x, FBackgroundColor.y, FBackgroundColor.z, 1.0);
-    gl.SwapInterval(1);
+    if bVSync then
+      gl.SwapInterval(1)
+    else
+      gl.SwapInterval(0);
 
     ShowWindow(FWHandle, CmdShow);
     UpdateWindow(FWHandle);
 
     FCamera := TdfCamera.Create();
-    FCamera.Viewport(0, 0, FWWidth, FWHeight, cFOV, cZNear, cZFar);
+    FCamera.Viewport(desRect.Left, desRect.Top, desRect.Right, desRect.Bottom, cFOV, cZNear, cZFar);
     FCamera.SetCamera(camPos, camLook, camUp);
 
     FLight := TdfLight.Create;
@@ -612,8 +655,8 @@ begin
       if FDrawAxes then
         DrawAxes();
       FLight.Render(deltaTime);
-//      Light.LightStep(deltaTime);
-//      Sprites.SpriteStep(deltaTime);
+      FRootNode.Render(deltaTime);
+      FSprite.DoRender;
 
       if dfInput.IsKeyDown(VK_MOUSEWHEELUP) then
       begin

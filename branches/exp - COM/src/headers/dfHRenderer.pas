@@ -26,10 +26,18 @@ type
 
   IdfTexture = interface
     ['{3D75E1EB-E4C8-4856-BA55-B98020407605}']
+    procedure Bind;
+    procedure Unbind;
+
+    {debug procedure
+     Переделать на загрузку из Stream через ResourceManager}
+    procedure Load(const aFileName: String);
   end;
 
   IdfShader = interface
     ['{5C020C83-273C-4351-A41E-3AE8D12C8A90}']
+    procedure Use;
+    procedure Unuse;
   end;
 
   IdfShaderProgram = interface
@@ -176,6 +184,8 @@ type
     function GetFPS(): Single;
     function GetCamera(): IdfCamera;
     procedure SetCamera(const aCamera: IdfCamera);
+    function GetRoot: IdfNode;
+    procedure SetRoot(const aRoot: IdfNode);
     {$ENDREGION}
 
     function Init(FileName: PAnsiChar): Integer;
@@ -189,6 +199,9 @@ type
     property FPS: Single read GetFPS;
 
     property Camera: IdfCamera read GetCamera write SetCamera;
+
+    {debug - надо юзать IdfScene}
+    property RootNode: IdfNode read GetRoot write SetRoot;
   end;
 
   IdfMesh = interface (IdfRenderable)

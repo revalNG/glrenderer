@@ -1,7 +1,9 @@
 {
   LD - Last Developed - Над чем работал в последний раз в этот день
 
-  LD - TdfTexture, TdfMaterial, TdfSprite. Начал делать рендер спрайта
+
+  2012-02-27 - LD - Баг с вьюпортом и вывод спрайта
+  2012-02-?? - LD - TdfTexture, TdfMaterial, TdfSprite. Начал делать рендер спрайта
 
   BUGS:
 +  1. TdfNode пустой - не обрабатывает left, up и dir
@@ -10,6 +12,9 @@
 +  3. TdfNode - поправить функционал в целом. Слишком много багов
 ?  4. TInterfaceList странно зануляет ссылки в конце. Переделал под TList, но
       надо разобраться
+   5. TdfLight - наследник TdfNode, неверно. Лучше сделать его как TdfRenderable
+      Но как тогда быть с перехватом SetPos?
+   6. Баг с размером вьюпорта. Смотреть Camera.Init и Renderer.Init()
 
 
 
@@ -48,7 +53,7 @@ uses
   Camera in 'Camera.pas',
   Light in 'Light.pas',
   Sprites in 'Sprites.pas',
-  Textures in 'Textures.pas',
+  uTextures in 'uTextures.pas',
   Shaders in 'Shaders.pas',
   Logger in 'Logger.pas',
   dfHEngine in 'common\dfHEngine.pas',

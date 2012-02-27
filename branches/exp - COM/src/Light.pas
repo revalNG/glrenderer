@@ -9,7 +9,7 @@ unit Light;
 interface
 
 uses
-  Node, dfHRenderer,
+  dfHRenderer, Node,
   dfMath;
 
 const

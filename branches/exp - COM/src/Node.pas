@@ -73,6 +73,8 @@ type
 
 implementation
 
+uses
+  dfHGL;
 
 { TdfNode }
 
@@ -95,7 +97,7 @@ begin
   Result := TdfNode.Create;
   Result.Parent := Self;
   FChilds.Add(Pointer(Result));
-  Left := dfVec3f(5, 5, 2);
+//  Left := dfVec3f(5, 5, 2);
 end;
 
 constructor TdfNode.Create;
@@ -201,10 +203,24 @@ begin
 end;
 
 procedure TdfNode.Render(aDeltaTime: Single);
+var
+  i: Integer;
 begin
-//  FRenderable.Material;
-  FRenderable.DoRender();
-  //*
+  gl.PushMatrix();
+    gl.MultMatrixf(FModelMatrix);
+    if Assigned(FRenderable) then
+    begin
+      if Assigned(FRenderable.Material) then
+        FRenderable.Material.Apply;
+
+      FRenderable.DoRender();
+
+      if Assigned(FRenderable.Material) then
+        FRenderable.Material.Unapply;
+    end;
+    for i := 0 to FChilds.Count - 1 do
+      TdfNode(FChilds[i]).Render(aDeltaTime);
+  gl.PopMatrix();
 end;
 
 procedure TdfNode.SetChild(Index: Integer; aChild: IdfNode);
