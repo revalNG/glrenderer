@@ -17,6 +17,7 @@ type
     FWHandle: THandle;
     FWCaption: PAnsiChar;
     FWWidth, FWHeight, FWX, FWY: Integer;
+    FdesRect: TRect;
     FWStyle: Cardinal;
     FWndClass: TWndClass;
     FWDC: hDC;
@@ -145,9 +146,10 @@ begin
         end;
       end;
     WM_SIZE:
-    begin
+      with TheRenderer do
+        if RenderReady then
+          Camera.ViewportOnly(FdesRect.Left, FdesRect.Top, FdesRect.Right, FdesRect.Bottom);
       //camera.CameraInit(0, 0, LOWORD(lParam), HIWORD(lParam), cFOV, cZNear, cZFar);
-    end;
     WM_MOUSEMOVE:
     begin
       //Нажата левая кнопка мыши, и идет движение
@@ -296,7 +298,6 @@ var
   atomColor: TdfVec3f;
   cFOV, cZNear, cZFar: Single;
   bDrawLight, bVSync: Boolean;
-  desRect: TRect;
 
 begin
   Logger.LogInit();
@@ -497,10 +498,10 @@ begin
     //Инициализация
     FWStyle := WS_OVERLAPPEDWINDOW or WS_CLIPSIBLINGS or WS_CLIPCHILDREN;
 
-    SetRect(desRect, 0, 0, FWWidth, FWHeight);
-    AdjustWindowRect(desRect, FWStyle, False);
-    FWWidth := Abs(desRect.Left) + desRect.Right;
-    FWHeight := Abs(desRect.Top) + desRect.Bottom;
+    SetRect(FdesRect, 0, 0, FWWidth, FWHeight);
+    AdjustWindowRect(FdesRect, FWStyle, False);
+    FWWidth := Abs(FdesRect.Left) + FdesRect.Right;
+    FWHeight := Abs(FdesRect.Top) + FdesRect.Bottom;
     ZeroMemory(@FWndClass, SizeOf(TWndClass));
     with FWndClass do
     begin
@@ -585,7 +586,7 @@ begin
     UpdateWindow(FWHandle);
 
     FCamera := TdfCamera.Create();
-    FCamera.Viewport(desRect.Left, desRect.Top, desRect.Right, desRect.Bottom, cFOV, cZNear, cZFar);
+    FCamera.Viewport(FdesRect.Left, FdesRect.Top, FdesRect.Right, FdesRect.Bottom, cFOV, cZNear, cZFar);
     FCamera.SetCamera(camPos, camLook, camUp);
 
     FLight := TdfLight.Create;

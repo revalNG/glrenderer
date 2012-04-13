@@ -181,9 +181,9 @@ begin
 //    gl.Vertex2f(0, FHeight);
 //    gl.Vertex2f(0, 0);
 //    gl.Vertex2f(FWidth, 0);
-    gl.Vertex2f(FWidth, 0);
-    gl.Vertex2f(10, 0);
-    gl.Vertex2f(10, FHeight);
+    gl.Vertex2f(FWidth+5, 0);
+    gl.Vertex2f(5, 0);
+    gl.Vertex2f(5, FHeight);
 //    gl.Vertex2f(-0.5 * FWidth, -0.5 * FHeight);
 //    gl.Vertex2f( 0.5 * FWidth, -0.5 * FHeight);
 //    gl.Vertex2f( 0.5 * FWidth,  0.5 * FHeight);

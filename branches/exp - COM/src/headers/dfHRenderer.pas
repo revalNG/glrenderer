@@ -134,6 +134,7 @@ type
   IdfCamera = interface (IdfNode)
     ['{D6E97126-FF5F-4CE7-9687-4F358A90B34E}']
     procedure Viewport(x, y, w, h: Integer; FOV, ZNear, ZFar: Single);
+    procedure ViewportOnly(x, y, w, h: Integer);
     procedure Pan(X, Y: Single);
     procedure Scale(aScale: Single);
     procedure Rotate(delta: Single; Axis: TdfVec3f);

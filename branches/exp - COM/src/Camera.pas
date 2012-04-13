@@ -17,6 +17,7 @@ type
     FFOV, FZNear, FZFar: Single;
   public
     procedure Viewport(x, y, w, h: Integer; FOV, ZNear, ZFar: Single);
+    procedure ViewportOnly(x, y, w, h: Integer);
 
     procedure Pan(X, Y: Single);
     procedure Scale(aScale: Single);
@@ -42,6 +43,15 @@ begin
   gl.Viewport(x, y, w, h);
   FProjMatrix.Identity;
   FProjMatrix.Perspective(FOV, w / h, ZNear, ZFar);
+  gl.MatrixMode(GL_PROJECTION);
+  gl.LoadMatrixf(FProjMatrix);
+end;
+
+procedure TdfCamera.ViewportOnly(x, y, w, h: Integer);
+begin
+  gl.Viewport(x, y, w, h);
+  FProjMatrix.Identity;
+  FProjMatrix.Perspective(FFOV, w / h, FZNear, FZFar);
   gl.MatrixMode(GL_PROJECTION);
   gl.LoadMatrixf(FProjMatrix);
 end;
