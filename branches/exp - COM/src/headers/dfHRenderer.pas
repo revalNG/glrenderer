@@ -179,8 +179,8 @@ type
     ['{BFB518E7-A55A-48E2-B0C4-ED7BE8D23796}']
     {$REGION '[private]'}
     function GetWindowHandle(): Integer;
-    function GetWindowCaption(): PAnsiChar;
-    procedure SetWindowCaption(aCaption: PAnsiChar);
+    function GetWindowCaption(): PWideChar;
+    procedure SetWindowCaption(aCaption: PWideChar);
     function GetRenderReady(): Boolean;
     function GetFPS(): Single;
     function GetCamera(): IdfCamera;
@@ -195,7 +195,7 @@ type
     function DeInit(): Integer;
 
     property WindowHandle: Integer read GetWindowHandle;
-    property WindowCaption: PAnsiChar read GetWindowCaption write SetWindowCaption;
+    property WindowCaption: PWideChar read GetWindowCaption write SetWindowCaption;
     property RenderReady: Boolean read GetRenderReady;
     property FPS: Single read GetFPS;
 
@@ -220,6 +220,12 @@ type
     {$ENDREGION}
     property Width: Single read GetWidth write SetWidth;
     property Height: Single read GetHeight write SetHeight;
+
+    {debug - для проверки смещения вывода спрайта}
+    procedure AddX(aX: Integer);
+    procedure AddY(aY: Integer);
+    function GetX: Integer;
+    function GetY: Integer;
   end;
 
   IdfScene = interface

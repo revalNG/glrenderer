@@ -15,7 +15,7 @@ type
 
     //Параметры окна
     FWHandle: THandle;
-    FWCaption: PAnsiChar;
+    FWCaption: PWideChar;
     FWWidth, FWHeight, FWX, FWY: Integer;
     FdesRect: TRect;
     FWStyle: Cardinal;
@@ -43,16 +43,16 @@ type
     //Активная камера
     FCamera: IdfCamera;
 
-    FLight: IdfLight;
-
     FRootNode: IdfNode;
 
     {debug}
     FSprite: IdfSprite;
+    FLight: IdfLight;
+    bL, bR, bU, bD: Boolean;
 
     function GetWindowHandle(): Integer;
-    function GetWindowCaption(): PAnsiChar;
-    procedure SetWindowCaption(aCaption: PAnsiChar);
+    function GetWindowCaption(): PWideChar;
+    procedure SetWindowCaption(aCaption: PWideChar);
     function GetRenderReady(): Boolean;
     function GetFPS(): Single;
     function GetCamera(): IdfCamera;
@@ -69,7 +69,7 @@ type
     function DeInit(): Integer;
 
     property WindowHandle: Integer read GetWindowHandle;
-    property WindowCaption: PAnsiChar read GetWindowCaption write SetWindowCaption;
+    property WindowCaption: PWideChar read GetWindowCaption write SetWindowCaption;
     property RenderReady: Boolean read GetRenderReady;
     property FPS: Single read GetFPS;
 
@@ -141,7 +141,7 @@ begin
         if FFrames >= 100 then
         begin
           //Вывод фпс
-          SetWindowText(FWHandle, cDefWindowCaption + ' :: ' + FloatToStr(FPS));
+          //SetWindowText(FWHandle, cDefWindowCaption + ' :: ' + FloatToStr(FPS));
           FFrames := 0;
         end;
       end;
@@ -222,14 +222,14 @@ begin
     Result := 0;
 end;
 
-function TdfRenderer.GetWindowCaption(): PAnsiChar;
+function TdfRenderer.GetWindowCaption(): PWideChar;
 begin
   Result := FWCaption;
 end;
 
-procedure TdfRenderer.SetWindowCaption(aCaption: PAnsiChar);
+procedure TdfRenderer.SetWindowCaption(aCaption: PWideChar);
 begin
-  if FWCaption <> aCaption then
+  //if FWCaption <> aCaption then
   begin
     SetWindowText(FWHandle, aCaption);
     FWCaption := aCaption;
@@ -277,8 +277,8 @@ begin
   FSprite := TdfHUDSprite.Create();
   with FSprite do
   begin
-    Width := 630;
-    Height := 470;
+    Width := 800;
+    Height := 600;
   end;
 end;
 
@@ -500,8 +500,10 @@ begin
 
     SetRect(FdesRect, 0, 0, FWWidth, FWHeight);
     AdjustWindowRect(FdesRect, FWStyle, False);
-    FWWidth := Abs(FdesRect.Left) + FdesRect.Right;
-    FWHeight := Abs(FdesRect.Top) + FdesRect.Bottom;
+//    FWWidth := FdesRect.Right - FdesRect.Left;
+//    FWHeight := FdesRect.Bottom - FdesRect.Top;
+    //FWWidth := Abs(FdesRect.Left) + FdesRect.Right;
+    //FWHeight := Abs(FdesRect.Top) + FdesRect.Bottom;
     ZeroMemory(@FWndClass, SizeOf(TWndClass));
     with FWndClass do
     begin
@@ -518,7 +520,7 @@ begin
 
     Windows.RegisterClass(FWndClass);
     FWHandle := CreateWindow('TdfWindow', cDefWindowCaption, FWStyle,
-                            FWX, FWY, FWWidth, FWHeight, 0, 0, FWndClass.hInstance, nil);
+                            FWX, FWY, FdesRect.Right - FdesRect.Left, FdesRect.Bottom - FdesRect.Top, 0, 0, FWndClass.hInstance, nil);
     if FWHandle = 0 then
     begin
       logWriteError('Ошибка инициализации окна. Возвращен нулевой handle', True, True, True);
@@ -586,7 +588,8 @@ begin
     UpdateWindow(FWHandle);
 
     FCamera := TdfCamera.Create();
-    FCamera.Viewport(FdesRect.Left, FdesRect.Top, FdesRect.Right, FdesRect.Bottom, cFOV, cZNear, cZFar);
+    //FCamera.Viewport(FdesRect.Left, FdesRect.Top, FdesRect.Right, FdesRect.Bottom, cFOV, cZNear, cZFar);
+    FCamera.Viewport(0, 0, FWWidth, FWHeight, cFOV, cZNear, cZFar);
     FCamera.SetCamera(camPos, camLook, camUp);
 
     FLight := TdfLight.Create;
@@ -658,6 +661,17 @@ begin
       FLight.Render(deltaTime);
       FRootNode.Render(deltaTime);
       FSprite.DoRender;
+
+      if dfInput.IsKeyPressed(VK_LEFT, @bL) then
+        FSprite.AddX(-1)
+      else if dfInput.IsKeyPressed(VK_RIGHT, @bR) then
+        FSprite.AddX(1);
+      if dfInput.IsKeyPressed(VK_UP, @bU) then
+        FSprite.AddY(-1)
+      else if dfInput.IsKeyPressed(VK_DOWN, @bD) then
+        FSprite.AddY(1);
+
+      SetWindowCaption(PWideChar('Sprite delta: ' + IntToStr(FSprite.GetX) + ' :: ' + IntToStr(FSprite.GetY)));
 
       if dfInput.IsKeyDown(VK_MOUSEWHEELUP) then
       begin

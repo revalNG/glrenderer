@@ -12,8 +12,11 @@ type
 
   TdfHUDSprite = class(TdfRenderable, IdfSprite)
   private
+    {debug - для проверки вывода спрайта, смещение вывода}
+    {/debug}
     FWidth, FHeight: Single;
   protected
+      Fdx, Fdy: Integer;
     function GetWidth(): Single;
     procedure SetWidth(const aWidth: Single);
     function GetHeight(): Single;
@@ -23,6 +26,12 @@ type
     property Height: Single read GetHeight write SetHeight;
 
     procedure DoRender(); override;
+
+    {debug - для проверки смещения вывода спрайта}
+    procedure AddX(aX: Integer);
+    procedure AddY(aY: Integer);
+    function GetX: Integer;
+    function GetY: Integer;
   end;
 
 //  TParticle = record
@@ -165,13 +174,24 @@ uses
 
 { TdfHUDSprite }
 
+procedure TdfHUDSprite.AddX(aX: Integer);
+begin
+  Fdx := Fdx + aX;
+end;
+
+procedure TdfHUDSprite.AddY(aY: Integer);
+begin
+  Fdy := Fdy + aY;
+end;
+
 procedure TdfHUDSprite.DoRender;
 begin
   inherited;
   gl.MatrixMode(GL_PROJECTION);
   gl.PushMatrix();
   gl.LoadIdentity();
-  gl.Ortho(0, 800, 600, 0, 0, 10);
+  gl.Ortho(0, 800, 600, 0, -1, 1);
+//  gl.Ortho(-8, 800, 630, 22, -1, 1);
   gl.MatrixMode(GL_MODELVIEW);
   gl.LoadIdentity();
   gl.Disable(GL_DEPTH_TEST);
@@ -181,9 +201,9 @@ begin
 //    gl.Vertex2f(0, FHeight);
 //    gl.Vertex2f(0, 0);
 //    gl.Vertex2f(FWidth, 0);
-    gl.Vertex2f(FWidth+5, 0);
-    gl.Vertex2f(5, 0);
-    gl.Vertex2f(5, FHeight);
+    gl.Vertex2f(FWidth + Fdx, Fdy);
+    gl.Vertex2f(Fdx, Fdy);
+    gl.Vertex2f(Fdx, FHeight + Fdy);
 //    gl.Vertex2f(-0.5 * FWidth, -0.5 * FHeight);
 //    gl.Vertex2f( 0.5 * FWidth, -0.5 * FHeight);
 //    gl.Vertex2f( 0.5 * FWidth,  0.5 * FHeight);
@@ -203,6 +223,16 @@ end;
 function TdfHUDSprite.GetWidth: Single;
 begin
   Result := FWidth;
+end;
+
+function TdfHUDSprite.GetX: Integer;
+begin
+  Result := Fdx;
+end;
+
+function TdfHUDSprite.GetY: Integer;
+begin
+  Result := Fdy;
 end;
 
 procedure TdfHUDSprite.SetHeight(const aHeight: Single);

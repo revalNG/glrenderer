@@ -26,6 +26,9 @@ type
     function IsKeyDown(const vk: TdfInteger): Boolean; overload;
     function IsKeyDown(const c: Char): Boolean; overload;
 
+    function IsKeyPressed(aCode: Integer; aPressed: PBoolean): Boolean; overload;
+    function IsKeyPressed(aChar: Char; aPressed: PBoolean): Boolean; overload;
+
     procedure KeyboardNotifyWheelMoved(wheelDelta : Integer);
   end;
 
@@ -72,6 +75,43 @@ end;
 procedure TdfInput.KeyboardNotifyWheelMoved(wheelDelta : Integer);
 begin
    vLastWheelDelta := wheelDelta;
+end;
+
+function TdfInput.IsKeyPressed(aCode: Integer; aPressed: PBoolean): Boolean;
+begin
+  Result := False;
+
+  if (not aPressed^) and (GetAsyncKeyState(aCode) < 0) then
+  begin
+    Result := True;
+    aPressed^ := True;
+  end;
+
+  if (GetAsyncKeyState(aCode) >= 0) then
+    aPressed^ := False;
+end;
+
+
+function TdfInput.IsKeyPressed(aChar: Char; aPressed: PBoolean): Boolean;
+var
+  aCode: Integer;
+begin
+  Result := False;
+
+  aCode := VkKeyScan(aChar) and $FF;
+  if aCode <> $FF then
+  begin
+    if (not aPressed^) and (GetAsyncKeyState(aCode) < 0) then
+    begin
+      Result := True;
+      aPressed^ := True;
+    end;
+
+    if (GetAsyncKeyState(aCode) >= 0) then
+      aPressed^ := False;
+  end
+  else
+    Result := False;
 end;
 
 end.
