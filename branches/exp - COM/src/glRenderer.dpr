@@ -2,6 +2,7 @@
   LD - Last Developed - Над чем работал в последний раз в этот день
 
 
+  2012-07-01 - LD - Вывод спрайта с использованием матрицы Node. Херня какая-то
   2012-04-15 - LD - Баг с вьюпортом и выводом спрайта поборот:
                     AdjustWindowRect должен затрагивать только создание окна
                     В остальном - использовать первоначальные данные
@@ -17,7 +18,7 @@
       надо разобраться
    5. TdfLight - наследник TdfNode, неверно. Лучше сделать его как TdfRenderable
       Но как тогда быть с перехватом SetPos?
-   6. Баг с размером вьюпорта. Смотреть Camera.Init и Renderer.Init()
++  6. Баг с размером вьюпорта. Смотреть Camera.Init и Renderer.Init()
 
 
 
@@ -72,6 +73,6 @@ uses
   uMaterial in 'uMaterial.pas';
 
 exports
-  CreateRenderer, CreateNode;
+  CreateRenderer, CreateNode, CreateHUDSprite;
 begin
 end.

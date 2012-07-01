@@ -15,7 +15,7 @@ type
   public
     ShaderText: TStringList;
     constructor Create(_type: TGLConst);
-    destructor Destroy();
+    destructor Destroy(); override;
 
     procedure LoadFromFile(FileName: PAnsiChar);
 
@@ -65,8 +65,8 @@ uses
   SysUtils,
   Logger;
 
-var
-  slog: Integer;
+//var
+//  slog: Integer;
 
 constructor TShader.Create(_type: TGLConst);
 begin

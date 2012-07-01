@@ -3,7 +3,7 @@ unit Main;
 interface
 
 uses
-  Windows, Messages, SysUtils,
+  Windows, Messages, SysUtils, Classes,
   dfHGL, dfHRenderer, dfMath,
   Camera;
 
@@ -46,9 +46,15 @@ type
     FRootNode: IdfNode;
 
     {debug}
-    FSprite: IdfSprite;
+//    FSprite: IdfSprite;
     FLight: IdfLight;
     bL, bR, bU, bD: Boolean;
+
+    //коллбэки для мыши
+    FOnMouseDown: TdfOnMouseDownProc;
+    FOnMouseUp: TdfOnMouseUpProc;
+    FOnMouseMove: TdfOnMouseMoveProc;
+    FOnMouseWheel: TdfOnMouseWheelProc;
 
     function GetWindowHandle(): Integer;
     function GetWindowCaption(): PWideChar;
@@ -59,6 +65,33 @@ type
     procedure SetCamera(const aCamera: IdfCamera);
     function GetRoot: IdfNode;
     procedure SetRoot(const aRoot: IdfNode);
+
+    procedure SetOnMouseDown(aProc: TdfOnMouseDownProc);
+    procedure SetOnMouseUp(aProc: TdfOnMouseUpProc);
+    procedure SetOnMouseMove(aProc: TdfOnMouseMoveProc);
+    procedure SetOnMouseWheel(aProc: TdfOnMouseWheelProc);
+
+    function GetOnMouseDown(): TdfOnMouseDownProc;
+    function GetOnMouseUp(): TdfOnMouseUpProc;
+    function GetOnMouseMove(): TdfOnMouseMoveProc;
+    function GetOnMouseWheel() : TdfOnMouseWheelProc;
+
+    procedure WMLButtonDown    (var Msg: TMessage); message WM_LBUTTONDOWN;
+    procedure WMLButtonUp      (var Msg: TMessage); message WM_LBUTTONUP;
+    procedure WMLButtonDblClick(var Msg: TMessage); message WM_LBUTTONDBLCLK;
+
+    procedure WMRButtonDown    (var Msg: TMessage); message WM_RBUTTONDOWN;
+    procedure WMRButtonUp      (var Msg: TMessage); message WM_RBUTTONUP;
+    procedure WMRButtonDblClick(var Msg: TMessage); message WM_RBUTTONDBLCLK;
+
+    procedure WMMButtonDown    (var Msg: TMessage); message WM_MBUTTONDOWN;
+    procedure WMMButtonUp      (var Msg: TMessage); message WM_MBUTTONUP;
+    procedure WMMButtonDblClick(var Msg: TMessage); message WM_MBUTTONDBLCLK;
+
+    procedure WMMouseMove      (var Msg: TMessage); message WM_MOUSEMOVE;
+    procedure WMMouseWheel     (var Msg: TMessage); message WM_MOUSEWHEEL;
+
+    procedure WMSize           (var Msg: TMessage); message WM_SIZE;
   public
     constructor Create; virtual;
     destructor Destroy; override;
@@ -76,6 +109,11 @@ type
     property Camera: IdfCamera read GetCamera write SetCamera;
 
     property RootNode: IdfNode read GetRoot write SetRoot;
+
+    property OnMouseDown: TdfOnMouseDownProc read GetOnMouseDown write SetOnMouseDown;
+    property OnMouseUp: TdfOnMouseUpProc read GetOnMouseUp write SetOnMouseUp;
+    property OnMouseMove: TdfOnMouseMoveProc read GetOnMouseMove write SetOnMouseMove;
+    property OnMouseWheel: TdfOnMouseWheelProc read GetOnMouseWheel write SetOnMouseWheel;
   end;
 
 
@@ -88,8 +126,7 @@ implementation
 
 uses
   Light, Sprites, uTextures, Shaders, Node,
-  dfHInput, dfHEngine, Logger,
-  Classes;
+  dfHInput, dfHEngine, Logger;
 
 
 const
@@ -121,6 +158,8 @@ function WindowProc(hWnd: HWND; Msg: UINT; wParam: WPARAM; lParam: LPARAM): LRES
 var
   x, y: Integer;
   d: SmallInt;
+
+  MsgRec: TMessage;
 begin
   case Msg of
     WM_QUIT:
@@ -152,19 +191,19 @@ begin
       //camera.CameraInit(0, 0, LOWORD(lParam), HIWORD(lParam), cFOV, cZNear, cZFar);
     WM_MOUSEMOVE:
     begin
-      //Нажата левая кнопка мыши, и идет движение
-      if wParam and MK_LBUTTON <> 0 then
-      begin
-        x := LOWORD(lParam);
-        y := HIWORD(lParam);
-        with TheRenderer.Camera do
-        begin
-          Rotate(deg2rad*(x - dx), Up);
-          Rotate(deg2rad*(y - dy), Left);
-        end;
-        dx := x;
-        dy := y;
-      end;
+//      //Нажата левая кнопка мыши, и идет движение
+//      if wParam and MK_LBUTTON <> 0 then
+//      begin
+//        x := LOWORD(lParam);
+//        y := HIWORD(lParam);
+//        with TheRenderer.Camera do
+//        begin
+//          Rotate(deg2rad*(x - dx), Up);
+//          Rotate(deg2rad*(y - dy), Left);
+//        end;
+//        dx := x;
+//        dy := y;
+//      end;
       //Нажата правая кнопка мыши, и идет движение
       if wParam and MK_RBUTTON <> 0 then
       begin
@@ -210,6 +249,12 @@ begin
   else
     Result := DefWindowProc(hWnd, Msg, wParam, lParam);
   end;
+    MsgRec.Msg := Msg;
+  MsgRec.WParam := wParam;
+  MsgRec.LParam := lParam;
+  MsgRec.Result := Result;
+  if Assigned(TheRenderer) and TheRenderer.RenderReady then
+    TheRenderer.Dispatch(MsgRec);
 end;
 
 {$REGION 'Класс TdfRenderer'}
@@ -251,6 +296,26 @@ begin
   Result := FFPS;
 end;
 
+function TdfRenderer.GetOnMouseDown: TdfOnMouseDownProc;
+begin
+  Result := FOnMouseDown;
+end;
+
+function TdfRenderer.GetOnMouseMove: TdfOnMouseMoveProc;
+begin
+  Result := FOnMouseMove;
+end;
+
+function TdfRenderer.GetOnMouseUp: TdfOnMouseUpProc;
+begin
+  Result := FOnMouseUp;
+end;
+
+function TdfRenderer.GetOnMouseWheel: TdfOnMouseWheelProc;
+begin
+  Result := FOnMouseWheel;
+end;
+
 function TdfRenderer.GetCamera(): IdfCamera;
 begin
   Result := FCamera;
@@ -261,9 +326,178 @@ begin
   FCamera := aCamera;
 end;
 
+procedure TdfRenderer.SetOnMouseDown(aProc: TdfOnMouseDownProc);
+begin
+  FOnMouseDown := aProc;
+end;
+
+procedure TdfRenderer.SetOnMouseMove(aProc: TdfOnMouseMoveProc);
+begin
+  FOnMouseMove := aProc;
+end;
+
+procedure TdfRenderer.SetOnMouseUp(aProc: TdfOnMouseUpProc);
+begin
+  FOnMouseUp := aProc;
+end;
+
+procedure TdfRenderer.SetOnMouseWheel(aProc: TdfOnMouseWheelProc);
+begin
+  FOnMouseWheel := aProc;
+end;
+
 procedure TdfRenderer.SetRoot(const aRoot: IdfNode);
 begin
   FRootNode := aRoot;
+end;
+
+procedure TdfRenderer.WMLButtonDown(var Msg: TMessage);
+var
+  X, Y: TdfInteger;
+begin
+  if Assigned(FOnMouseDown) then
+  begin
+    X := LOWORD(Msg.LParam);
+    Y := HIWORD(Msg.LParam);
+//    Include(ShiftState, ssLeft);
+    FOnMouseDown(X, Y, mbLeft, []);
+  end;
+end;
+
+procedure TdfRenderer.WMLButtonUp(var Msg: TMessage);
+var
+  X, Y: TdfInteger;
+begin
+  if Assigned(FOnMouseUp) then
+  begin
+    X := LOWORD(Msg.LParam);
+    Y := HIWORD(Msg.LParam);
+//    Exclude(ShiftState, ssLeft);
+    FOnMouseUp(X, Y, mbLeft, []);
+  end;
+end;
+
+procedure TdfRenderer.WMLButtonDblClick(var Msg: TMessage);
+var
+  X, Y: TdfInteger;
+begin
+  if Assigned(FOnMouseDown) then
+  begin
+    X := LOWORD(Msg.LParam);
+    Y := HIWORD(Msg.LParam);
+    FOnMouseDown(X, Y, mbLeft, [ssDouble]);
+  end;
+end;
+
+procedure TdfRenderer.WMRButtonDown(var Msg: TMessage);
+var
+  X, Y: TdfInteger;
+begin
+  if Assigned(FOnMouseDown) then
+  begin
+    X := LOWORD(Msg.LParam);
+    Y := HIWORD(Msg.LParam);
+//    Include(ShiftState, ssRight);
+    FOnMouseDown(X, Y, mbRight, []);
+  end;
+end;
+
+procedure TdfRenderer.WMRButtonUp(var Msg: TMessage);
+var
+  X, Y: TdfInteger;
+begin
+  if Assigned(FOnMouseUp) then
+  begin
+    X := LOWORD(Msg.LParam);
+    Y := HIWORD(Msg.LParam);
+//    Exclude(ShiftState, ssRight);
+    FOnMouseUp(X, Y, mbRight, []);
+  end;
+end;
+
+procedure TdfRenderer.WMRButtonDblClick(var Msg: TMessage);
+var
+  X, Y: TdfInteger;
+begin
+  if Assigned(FOnMouseDown) then
+  begin
+    X := LOWORD(Msg.LParam);
+    Y := HIWORD(Msg.LParam);
+    FOnMouseDown(X, Y, mbRight, [ssDouble]);
+  end;
+end;
+
+procedure TdfRenderer.WMMButtonDown(var Msg: TMessage);
+var
+  X, Y: TdfInteger;
+begin
+  if Assigned(FOnMouseDown) then
+  begin
+    X := LOWORD(Msg.LParam);
+    Y := HIWORD(Msg.LParam);
+//    Include(ShiftState, ssMiddle);
+    FOnMouseDown(X, Y, mbMiddle, []);
+  end;
+end;
+
+procedure TdfRenderer.WMMButtonUp(var Msg: TMessage);
+var
+  X, Y: TdfInteger;
+begin
+  if Assigned(FOnMouseUp) then
+  begin
+    X := LOWORD(Msg.LParam);
+    Y := HIWORD(Msg.LParam);
+//    Exclude(ShiftState, ssMiddle);
+    FOnMouseUp(X, Y, mbMiddle, []);
+  end;
+end;
+
+procedure TdfRenderer.WMMButtonDblClick(var Msg: TMessage);
+var
+  X, Y: TdfInteger;
+begin
+  if Assigned(FOnMouseDown) then
+  begin
+    X := LOWORD(Msg.LParam);
+    Y := HIWORD(Msg.LParam);
+    FOnMouseDown(X, Y, mbMiddle, [ssDouble]);
+  end;
+end;
+
+procedure TdfRenderer.WMMouseMove(var Msg: TMessage);
+var
+  X, Y: TdfInteger;
+  Shift: TdfMouseShiftState;
+begin
+  if Assigned(FOnMouseMove) then
+  begin
+    X := LOWORD(Msg.LParam);
+    Y := HIWORD(Msg.LParam);
+    if Msg.wParam and MK_LBUTTON <> 0 then
+      Include(Shift, ssLeft);
+    if Msg.wParam and MK_RBUTTON <> 0 then
+      Include(Shift, ssRight);
+    if Msg.wParam and MK_MBUTTON <> 0 then
+      Include(Shift, ssMiddle);
+
+    FOnMouseMove(X, Y, Shift);
+  end;
+end;
+
+procedure TdfRenderer.WMMouseWheel(var Msg: TMessage);
+var
+  delta: SmallInt;
+begin
+  delta := HIWORD(Msg.WParam);
+  dfInput.KeyboardNotifyWheelMoved(delta);
+end;
+
+procedure TdfRenderer.WMSize(var Msg: TMessage);
+begin
+//  if (Camera <> nil) then
+    Camera.ViewportOnly(0, 0, LOWORD(Msg.lParam), HIWORD(Msg.lParam));
+  //Camera.SetViewport(0, 0, LOWORD(Msg.lParam), HIWORD(Msg.lParam));
 end;
 
 constructor TdfRenderer.Create;
@@ -274,18 +508,12 @@ begin
   WindowCaption := cDefWindowCaption;
 
   FRootNode := TdfNode.Create();
-  FSprite := TdfHUDSprite.Create();
-  with FSprite do
-  begin
-    Width := 800;
-    Height := 600;
-  end;
 end;
 
 destructor TdfRenderer.Destroy;
 begin
   FRenderReady := False;
-  FRootNode := nil;
+  inherited;
 end;
 
 function TdfRenderer.Init(FileName: PAnsiChar): Integer;
@@ -658,20 +886,9 @@ begin
       FCamera.Update();
       if FDrawAxes then
         DrawAxes();
+
       FLight.Render(deltaTime);
       FRootNode.Render(deltaTime);
-      FSprite.DoRender;
-
-      if dfInput.IsKeyPressed(VK_LEFT, @bL) then
-        FSprite.AddX(-1)
-      else if dfInput.IsKeyPressed(VK_RIGHT, @bR) then
-        FSprite.AddX(1);
-      if dfInput.IsKeyPressed(VK_UP, @bU) then
-        FSprite.AddY(-1)
-      else if dfInput.IsKeyPressed(VK_DOWN, @bD) then
-        FSprite.AddY(1);
-
-      SetWindowCaption(PWideChar('Sprite delta: ' + IntToStr(FSprite.GetX) + ' :: ' + IntToStr(FSprite.GetY)));
 
       if dfInput.IsKeyDown(VK_MOUSEWHEELUP) then
       begin
@@ -731,6 +948,8 @@ begin
 end;
 
 function TdfRenderer.DeInit(): Integer;
+var
+  i: Integer;
 begin
   Result := 0;
   logWriteMessage('Деинициализация рендера');
@@ -738,6 +957,13 @@ begin
     FRenderReady := False;
     FCamera := nil;
     FLight := nil;
+
+    //Необходимо для успешного удаления без утечек
+    with FRootNode do
+      for i := 0 to ChildsCount - 1 do
+        IdfNode(Childs[i]).Parent := nil;
+    FRootNode := nil;
+
 //    Camera.CameraDeInit();
 //    Light.LightDeInit();
 //    Sprites.SpriteDeInit();

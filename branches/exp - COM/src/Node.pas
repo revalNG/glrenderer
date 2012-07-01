@@ -12,7 +12,7 @@ type
 //    function IsChild(aChild: IdfNode): Boolean;
   protected
     FParent: IdfNode;
-    FChilds: TList; //TInterfaceList;
+    FChilds: TInterfaceList; //TList;
 
     FVisible: Boolean;
 
@@ -36,9 +36,10 @@ type
     function GetChild(Index: Integer): IdfNode;
     procedure SetChild(Index: Integer; aChild: IdfNode);
     function GetParent(): IdfNode;
-    procedure SetParent(const aParent: IdfNode);
+    procedure SetParent(aParent: IdfNode);
     function GetRenderable(): IdfRenderable;
-    procedure SetRenderable(const aRenderable: IdfRenderable);
+    procedure SetRenderable(aRenderable: IdfRenderable);
+    function GetChildsCount: Integer;
 
     procedure UpdateDirUpLeft(NewDir, NewUp, NewLeft: TdfVec3f);
   public
@@ -57,6 +58,7 @@ type
     property Renderable: IdfRenderable read GetRenderable write SetRenderable;
 //    procedure Render(deltaTime: Double); virtual;
     property Childs[Index: Integer]: IdfNode read GetChild write SetChild;
+    property ChildsCount: Integer read GetChildsCount;
     //Добавить уже существующий рендер-узел себе в потомки
     function AddChild(aChild: IdfNode): Integer;
     //Добавить нового потомка
@@ -88,7 +90,7 @@ begin
   else
   begin
     aChild.Parent := Self;
-    Result := FChilds.Add(Pointer(aChild));
+    Result := FChilds.Add(aChild);
   end;
 end;
 
@@ -96,14 +98,14 @@ function TdfNode.AddNewChild: IdfNode;
 begin
   Result := TdfNode.Create;
   Result.Parent := Self;
-  FChilds.Add(Pointer(Result));
+  FChilds.Add(Result);
 //  Left := dfVec3f(5, 5, 2);
 end;
 
 constructor TdfNode.Create;
 begin
   inherited;
-  FChilds := TList.Create;
+  FChilds := TInterfaceList.Create;
   FModelMatrix.Identity;
 
 end;
@@ -113,8 +115,9 @@ var
   i: Integer;
 begin
   for i := 0 to FChilds.Count - 1 do
-    FChilds[i] := nil;
+    IdfNode(FChilds[i]).Parent := nil;
   FChilds.Free; //InterfaceList зануляет ссылки
+  FChilds := nil;
   inherited;
 end;
 
@@ -145,6 +148,11 @@ begin
   for i := 0 to FChilds.Count - 1 do
     if IInterface(FChilds[i]) = aChild then
       Exit(i);
+end;
+
+function TdfNode.GetChildsCount: Integer;
+begin
+  Result := FChilds.Count;
 end;
 
 function TdfNode.GetDir: TdfVec3f;
@@ -199,7 +207,7 @@ end;
 procedure TdfNode.RemoveChild(AChild: IdfNode);
 begin
   //Не проверяем, так как внутри TInterfaceList есть проверка
-  FChilds.Remove(Pointer(aChild));
+  FChilds.Remove(aChild);
 end;
 
 procedure TdfNode.Render(aDeltaTime: Single);
@@ -219,13 +227,13 @@ begin
         FRenderable.Material.Unapply;
     end;
     for i := 0 to FChilds.Count - 1 do
-      TdfNode(FChilds[i]).Render(aDeltaTime);
+      IdfNode(FChilds[i]).Render(aDeltaTime);
   gl.PopMatrix();
 end;
 
 procedure TdfNode.SetChild(Index: Integer; aChild: IdfNode);
 begin
-  FChilds[Index] := Pointer(aChild);
+  FChilds[Index] := aChild;
 end;
 
 procedure TdfNode.SetDir(const aDir: TdfVec3f);
@@ -262,7 +270,7 @@ begin
   end;
 end;
 
-procedure TdfNode.SetParent(const aParent: IdfNode);
+procedure TdfNode.SetParent(aParent: IdfNode);
 begin
   if Assigned(Parent) and (Parent <> aParent) then
     FParent.RemoveChild(Self);
@@ -274,7 +282,7 @@ begin
   FModelMatrix.Pos := aPos;
 end;
 
-procedure TdfNode.SetRenderable(const aRenderable: IdfRenderable);
+procedure TdfNode.SetRenderable(aRenderable: IdfRenderable);
 begin
   FRenderable := aRenderable;
 end;

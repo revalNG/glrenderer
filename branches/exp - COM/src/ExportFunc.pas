@@ -3,10 +3,11 @@ unit ExportFunc;
 interface
 
 uses
-  Main, dfHRenderer, Node;
+  Main, dfHRenderer, Node, Sprites;
 
   function CreateRenderer(): IdfRenderer; stdcall;
   function CreateNode(aParent: IdfNode): IdfNode; stdcall;
+  function CreateHUDSprite(): IdfSprite; stdcall;
 
 implementation
 
@@ -28,6 +29,11 @@ begin
     Result := TdfNode.Create
   else
     Result := aParent.AddNewChild();
+end;
+
+function CreateHUDSprite(): IdfSprite;
+begin
+  Result := TdfHUDSprite.Create();
 end;
 
 end.

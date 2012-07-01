@@ -101,9 +101,10 @@ type
     function GetChild(Index: Integer): IdfNode;
     procedure SetChild(Index: Integer; aChild: IdfNode);
     function GetParent(): IdfNode;
-    procedure SetParent(const aParent: IdfNode);
+    procedure SetParent(aParent: IdfNode);
     function GetRenderable(): IdfRenderable;
-    procedure SetRenderable(const aRenderable: IdfRenderable);
+    procedure SetRenderable(aRenderable: IdfRenderable);
+    function GetChildsCount(): Integer;
     {$ENDREGION}
 
     property Position: TdfVec3f read GetPos write SetPos;
@@ -115,6 +116,8 @@ type
     property Visible: Boolean read GetVis write SetVis;
 
     property Childs[Index: Integer]: IdfNode read GetChild write SetChild;
+    property ChildsCount: Integer read GetChildsCount;
+
     property Renderable: IdfRenderable read GetRenderable write SetRenderable;
 
     //Добавить уже существующий рендер-узел себе в потомки
@@ -175,6 +178,15 @@ type
     property DebugRender: Boolean read GetDR write SetDR;
   end;
 
+  TdfMouseShiftState = set of (ssLeft, ssRight, ssMiddle, ssDouble);
+  TdfMouseButton = (mbLeft, mbRight, mbMiddle);
+
+  //TODO: А нужнен ли ShiftState для Up?
+  TdfOnMouseDownProc   = procedure(X, Y: Integer; MouseButton: TdfMouseButton; Shift: TdfMouseShiftState);
+  TdfOnMouseUpProc     = procedure(X, Y: Integer; MouseButton: TdfMouseButton; Shift: TdfMouseShiftState);
+  TdfOnMouseMoveProc   = procedure(X, Y: Integer; Shift: TdfMouseShiftState);
+  TdfOnMouseWheelProc  = procedure(X, Y: Integer; Shift: TdfMouseShiftState; WheelDelta: Integer);
+
   IdfRenderer = interface
     ['{BFB518E7-A55A-48E2-B0C4-ED7BE8D23796}']
     {$REGION '[private]'}
@@ -187,6 +199,16 @@ type
     procedure SetCamera(const aCamera: IdfCamera);
     function GetRoot: IdfNode;
     procedure SetRoot(const aRoot: IdfNode);
+
+    procedure SetOnMouseDown(aProc: TdfOnMouseDownProc);
+    procedure SetOnMouseUp(aProc: TdfOnMouseUpProc);
+    procedure SetOnMouseMove(aProc: TdfOnMouseMoveProc);
+    procedure SetOnMouseWheel(aProc: TdfOnMouseWheelProc);
+
+    function GetOnMouseDown(): TdfOnMouseDownProc;
+    function GetOnMouseUp(): TdfOnMouseUpProc;
+    function GetOnMouseMove(): TdfOnMouseMoveProc;
+    function GetOnMouseWheel() : TdfOnMouseWheelProc;
     {$ENDREGION}
 
     function Init(FileName: PAnsiChar): Integer;
@@ -198,6 +220,11 @@ type
     property WindowCaption: PWideChar read GetWindowCaption write SetWindowCaption;
     property RenderReady: Boolean read GetRenderReady;
     property FPS: Single read GetFPS;
+
+    property OnMouseDown: TdfOnMouseDownProc read GetOnMouseDown write SetOnMouseDown;
+    property OnMouseUp: TdfOnMouseUpProc read GetOnMouseUp write SetOnMouseUp;
+    property OnMouseMove: TdfOnMouseMoveProc read GetOnMouseMove write SetOnMouseMove;
+    property OnMouseWheel: TdfOnMouseWheelProc read GetOnMouseWheel write SetOnMouseWheel;
 
     property Camera: IdfCamera read GetCamera write SetCamera;
 
@@ -243,6 +270,7 @@ type
 var
   dfCreateRenderer: function(): IdfRenderer; stdcall;
   dfCreateNode: function(aParent: IdfNode): IdfNode; stdcall;
+  dfCreateHUDSprite: function(): IdfSprite; stdcall;
   dllHandle: THandle;
 
 implementation
@@ -252,6 +280,7 @@ begin
   dllHandle := LoadLibrary(dllname);
   dfCreateRenderer := GetProcAddress(dllHandle, 'CreateRenderer');
   dfCreateNode := GetProcAddress(dllHandle, 'CreateNode');
+  dfCreateHUDSprite := GetProcAddress(dllHandle, 'CreateHUDSprite');
 end;
 
 procedure UnLoadRendererLib();

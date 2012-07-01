@@ -9,6 +9,9 @@
 			<Projects Include="Checker1.dproj">
 				<Dependencies/>
 			</Projects>
+			<Projects Include="Checker2.dproj">
+				<Dependencies/>
+			</Projects>
 		</ItemGroup>
 		<ProjectExtensions>
 			<Borland.Personality>Default.Personality.12</Borland.Personality>
@@ -35,14 +38,23 @@
 		<Target Name="Checker1:Make">
 			<MSBuild Targets="Make" Projects="Checker1.dproj"/>
 		</Target>
+		<Target Name="Checker2">
+			<MSBuild Projects="Checker2.dproj"/>
+		</Target>
+		<Target Name="Checker2:Clean">
+			<MSBuild Targets="Clean" Projects="Checker2.dproj"/>
+		</Target>
+		<Target Name="Checker2:Make">
+			<MSBuild Targets="Make" Projects="Checker2.dproj"/>
+		</Target>
 		<Target Name="Build">
-			<CallTarget Targets="glRenderer;Checker1"/>
+			<CallTarget Targets="glRenderer;Checker1;Checker2"/>
 		</Target>
 		<Target Name="Clean">
-			<CallTarget Targets="glRenderer:Clean;Checker1:Clean"/>
+			<CallTarget Targets="glRenderer:Clean;Checker1:Clean;Checker2:Clean"/>
 		</Target>
 		<Target Name="Make">
-			<CallTarget Targets="glRenderer:Make;Checker1:Make"/>
+			<CallTarget Targets="glRenderer:Make;Checker1:Make;Checker2:Make"/>
 		</Target>
 		<Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 	</Project>
