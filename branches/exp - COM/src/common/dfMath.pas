@@ -23,6 +23,8 @@ uses
 const
   deg2rad: TdfSingle = 3.1415 / 180;
   rad2deg = 180 / 3.1415;
+  pi = 3.14;
+  twopi = 2 * pi;
 
 type
   TdfBox2f = record

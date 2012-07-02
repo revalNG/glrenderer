@@ -12,10 +12,12 @@ const
 type
   {$REGION ' Resource manager '}
 
+  { IdfResource - ресурс(изображение, звук, текстовый файл, бинарный файл) }
   IdfResource = interface
     ['{A95929A4-C8B6-4EE3-844F-E5C9B5E1249A}']
   end;
 
+  { IdfResourceManager - менеджер по загрузке и использованию ресурсов }
   IdfResourceManager = interface
     ['{BF733D21-0F1B-4907-98B0-F03F2B0FFCCB}']
   end;
@@ -72,6 +74,9 @@ type
 
   {$ENDREGION}
 
+  { IdfRenderable - базовый класс чего-то, способного отобразиться на экране.
+    Имеется материал и метод рендера, который переопределяется в потомках
+    данного класса }
   IdfRenderable = interface
     ['{A2DD3046-3FDE-43DD-93AE-83C7A29A2196}']
     {$REGION '[private]'}
@@ -83,6 +88,13 @@ type
     property Material: IdfMaterial read GetMaterial write SetMaterial;
   end;
 
+  {$REGION ' RenderNodes and scenes '}
+
+
+  { IdfNode - рендер-узел, обладает структурой Родитель-Дети, имеет матрицу,
+    позиционирующую его в пространстве, а также привязанный объект Renderable,
+    который он собственно и рендерит, предварительно определив необходимость
+    рендера и установив матрицу, опции и материал }
   IdfNode = interface
     ['{3D31C699-4B5F-4FC3-8F08-2E91BA918135}']
     {$REGION '[private]'}
@@ -134,6 +146,32 @@ type
     procedure Render(aDeltaTime: Single);
   end;
 
+  { IdfScene - идентифицирует игровую сцену, иерархию рендер-узлов с привязанными
+    к ним графическими объектами }
+  IdfScene = interface
+    ['{5E52434E-3A00-478E-AE73-BA45C77BD2AC}']
+    {$REGION '[private]'}
+    function GetRoot: IdfNode;
+    procedure SetRoot(const aRoot: IdfNode);
+    {$ENDREGION}
+    property RootNode: IdfNode read GetRoot write SetRoot;
+  end;
+
+  { IdfSceneManager - оперирует сценами IdfScene, загружает, подгружает и
+    выгружает их ресурсы }
+  IdfSceneManager = interface
+    ['{4AE2CAE0-4273-45B0-85A5-BAC06D198AA5}']
+    {$REGION '[private]'}
+    function GetScene(Index: String): IdfScene;
+    procedure SetScene(Index: String; aScene: IdfScene);
+    {$ENDREGION}
+    property Scene[Index: String]: IdfScene read GetScene write SetScene;
+  end;
+
+  {$ENDREGION}
+
+  { IdfCamera - идентифицирует камеру с возможностями установки вьюпорта,
+    панорамирования, масштабирования и прочим }
   IdfCamera = interface (IdfNode)
     ['{D6E97126-FF5F-4CE7-9687-4F358A90B34E}']
     procedure Viewport(x, y, w, h: Integer; FOV, ZNear, ZFar: Single);
@@ -148,6 +186,7 @@ type
     procedure Update();
   end;
 
+  { IdfLight - источник света }
   IdfLight = interface (IdfNode)
     ['{2F9B9229-7A8D-4517-9E5D-DB135E1A6929}']
     {$REGION '[private]'}
@@ -196,9 +235,9 @@ type
     function GetRenderReady(): Boolean;
     function GetFPS(): Single;
     function GetCamera(): IdfCamera;
-    procedure SetCamera(const aCamera: IdfCamera);
+    procedure SetCamera(aCamera: IdfCamera);
     function GetRoot: IdfNode;
-    procedure SetRoot(const aRoot: IdfNode);
+    procedure SetRoot(aRoot: IdfNode);
 
     procedure SetOnMouseDown(aProc: TdfOnMouseDownProc);
     procedure SetOnMouseUp(aProc: TdfOnMouseUpProc);
@@ -237,6 +276,10 @@ type
 
   end;
 
+  {Точка отсчета для рендера 2Д вещей}
+  Tdf2DPivotPoint = (ppTopLeft, ppTopRight, ppBottomLeft, ppBottomRight, ppCenter);
+
+  { IdfSprite - двумерный спрайт, отображающийся на экране (HUD-sprite) без искажений }
   IdfSprite = interface (IdfRenderable)
     ['{C8048F34-9F3D-4E58-BC71-633F2413A9A5}']
     {$REGION '[private]'}
@@ -244,24 +287,24 @@ type
     procedure SetWidth(const aWidth: Single);
     function GetHeight(): Single;
     procedure SetHeight(const aHeight: Single);
+    function GetPos(): TdfVec2f;
+    procedure SetPos(const aPos: TdfVec2f);
+    function GetScale(): TdfVec2f;
+    procedure SetScale(const aScale: TdfVec2f);
+    function GetRot(): Single;
+    procedure SetRot(const aRot: Single);
+    function GetPivot(): Tdf2DPivotPoint;
+    procedure SetPivot(const aPivot: Tdf2DPivotPoint);
     {$ENDREGION}
     property Width: Single read GetWidth write SetWidth;
     property Height: Single read GetHeight write SetHeight;
 
-    {debug - для проверки смещения вывода спрайта}
-    procedure AddX(aX: Integer);
-    procedure AddY(aY: Integer);
-    function GetX: Integer;
-    function GetY: Integer;
-  end;
-
-  IdfScene = interface
-    ['{5E52434E-3A00-478E-AE73-BA45C77BD2AC}']
-    {$REGION '[private]'}
-    function GetRoot: IdfNode;
-    procedure SetRoot(const aRoot: IdfNode);
-    {$ENDREGION}
-    property RootNode: IdfNode read GetRoot write SetRoot;
+    //TdfVec3f - для глубины? Как реализовать?
+    property Position: TdfVec2f read GetPos write SetPos;
+    property Scale: TdfVec2f read GetScale write SetScale;
+    procedure ScaleMult(const aScale: TdfVec2f);
+    property Rotation: Single read GetRot write SetRot;
+    property PivotPoint: Tdf2DPivotPoint read GetPivot write SetPivot;
   end;
 
   procedure LoadRendererLib();
@@ -278,6 +321,7 @@ implementation
 procedure LoadRendererLib();
 begin
   dllHandle := LoadLibrary(dllname);
+  Assert(dllHandle <> 0, 'Ошибка загрузки библиотеки: вероятно библиотека не найдена');
   dfCreateRenderer := GetProcAddress(dllHandle, 'CreateRenderer');
   dfCreateNode := GetProcAddress(dllHandle, 'CreateNode');
   dfCreateHUDSprite := GetProcAddress(dllHandle, 'CreateHUDSprite');

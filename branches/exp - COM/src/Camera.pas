@@ -15,6 +15,7 @@ type
     FTargetPoint: TdfVec3f;
     FTarget: IdfNode;
     FFOV, FZNear, FZFar: Single;
+    FX, FY, FW, FH: Integer;
   public
     procedure Viewport(x, y, w, h: Integer; FOV, ZNear, ZFar: Single);
     procedure ViewportOnly(x, y, w, h: Integer);
@@ -40,16 +41,24 @@ begin
   FFOV := FOV;
   FZNear := ZNear;
   FZFar := ZFar;
-  gl.Viewport(x, y, w, h);
+  FX := x;
+  FY := y;
+  FW := w;
+  FH := h;
+  gl.Viewport(FX, FY, FW, FH);
   FProjMatrix.Identity;
-  FProjMatrix.Perspective(FOV, w / h, ZNear, ZFar);
+  FProjMatrix.Perspective(FOV, FW / FH, ZNear, ZFar);
   gl.MatrixMode(GL_PROJECTION);
   gl.LoadMatrixf(FProjMatrix);
 end;
 
 procedure TdfCamera.ViewportOnly(x, y, w, h: Integer);
 begin
-  gl.Viewport(x, y, w, h);
+  FX := x;
+  FY := y;
+  FW := w;
+  FH := h;
+  gl.Viewport(FX, FY, FW, FH);
   FProjMatrix.Identity;
   FProjMatrix.Perspective(FFOV, w / h, FZNear, FZFar);
   gl.MatrixMode(GL_PROJECTION);

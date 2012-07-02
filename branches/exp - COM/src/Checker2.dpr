@@ -38,6 +38,37 @@ var
     end;
   end;
 
+  procedure OnMouseDown(X, Y: Integer; MouseButton: TdfMouseButton; Shift: TdfMouseShiftState);
+  begin
+    case IdfSprite(NewNode.Renderable).PivotPoint of
+      ppTopLeft:
+      begin
+        IdfSprite(NewNode.Renderable).PivotPoint := ppTopRight;
+        R.WindowCaption := 'TopRight';
+      end;
+      ppTopRight:
+      begin
+        IdfSprite(NewNode.Renderable).PivotPoint := ppBottomLeft;
+        R.WindowCaption := 'BottomLeft';
+      end;
+      ppBottomLeft:
+      begin
+        IdfSprite(NewNode.Renderable).PivotPoint := ppBottomRight;
+        R.WindowCaption := 'BottomRight';
+      end;
+      ppBottomRight:
+      begin
+        IdfSprite(NewNode.Renderable).PivotPoint := ppCenter;
+        R.WindowCaption := 'Center';
+      end;
+      ppCenter:
+      begin
+        IdfSprite(NewNode.Renderable).PivotPoint := ppTopLeft;
+        R.WindowCaption := 'TopLeft';
+      end;
+    end;
+  end;
+
 begin
   WriteLn(' ========= Demonstration 2 ======== ');
   WriteLn(' ====== Press ESCAPE to EXIT ====== ');
@@ -46,7 +77,8 @@ begin
 
   R := dfCreateRenderer();
   R.Init('settings.txt');
-  R.OnMouseMove := OnMouseMove;
+//  R.OnMouseMove := OnMouseMove;
+  R.OnMouseDown := OnMouseDown;
   h := R.WindowHandle;
 
   NewNode := R.RootNode.AddNewChild();
@@ -55,8 +87,9 @@ begin
 
   with IdfSprite(NewNode.Renderable) do
   begin
-    Width := 800;
-    Height := 600;
+    Width := 200;
+    Height := 100;
+    Position := dfVec2f(300, 300);
   end;
 
   NewNode.Position := dfVec3f(0, 0, 0);
