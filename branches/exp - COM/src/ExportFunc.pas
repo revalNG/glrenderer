@@ -3,11 +3,13 @@ unit ExportFunc;
 interface
 
 uses
-  Main, dfHRenderer, Node, Sprites;
+  Main, dfHRenderer, Node, Sprites, uTextures, uMaterial;
 
   function CreateRenderer(): IdfRenderer; stdcall;
   function CreateNode(aParent: IdfNode): IdfNode; stdcall;
   function CreateHUDSprite(): IdfSprite; stdcall;
+  function CreateMaterial: IdfMaterial; stdcall;
+  function CreateTexture(): IdfTexture; stdcall;
 
 implementation
 
@@ -34,6 +36,16 @@ end;
 function CreateHUDSprite(): IdfSprite;
 begin
   Result := TdfHUDSprite.Create();
+end;
+
+function CreateMaterial(): IdfMaterial;
+begin
+  Result := TdfMaterial.Create();
+end;
+
+function CreateTexture(): IdfTexture;
+begin
+  Result := TdfTexture.Create();
 end;
 
 end.

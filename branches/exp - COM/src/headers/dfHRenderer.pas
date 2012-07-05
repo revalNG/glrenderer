@@ -33,7 +33,8 @@ type
 
     {debug procedure
      Переделать на загрузку из Stream через ResourceManager}
-    procedure Load(const aFileName: String);
+    procedure Load(const aFileName: String); overload;
+//    procedure Load();
   end;
 
   IdfShader = interface
@@ -57,11 +58,11 @@ type
     ['{DE277592-0C48-4DA0-971F-780470FCCA04}']
     {$REGION '[private]'}
     function GetTexture: IdfTexture;
-    procedure SetTexture(const aTexture: IdfTexture);
+    procedure SetTexture(aTexture: IdfTexture);
     function GetShader(): IdfShaderProgram;
-    procedure SetShader(const aShader: IdfShaderProgram);
+    procedure SetShader(aShader: IdfShaderProgram);
     function GetOptions(): IdfMaterialOptions;
-    procedure SetOptions(const aOptions: IdfMaterialOptions);
+    procedure SetOptions(aOptions: IdfMaterialOptions);
     {$ENDREGION}
 
     property Texture: IdfTexture read GetTexture write SetTexture;
@@ -314,6 +315,8 @@ var
   dfCreateRenderer: function(): IdfRenderer; stdcall;
   dfCreateNode: function(aParent: IdfNode): IdfNode; stdcall;
   dfCreateHUDSprite: function(): IdfSprite; stdcall;
+  dfCreateMaterial: function(): IdfMaterial; stdcall;
+  dfCreateTexture: function(): IdfTexture; stdcall;
   dllHandle: THandle;
 
 implementation
@@ -325,6 +328,8 @@ begin
   dfCreateRenderer := GetProcAddress(dllHandle, 'CreateRenderer');
   dfCreateNode := GetProcAddress(dllHandle, 'CreateNode');
   dfCreateHUDSprite := GetProcAddress(dllHandle, 'CreateHUDSprite');
+  dfCreateMaterial := GetProcAddress(dllHandle, 'CreateMaterial');
+  dfCreateTexture := GetProcAddress(dllHandle, 'CreateTexture');
 end;
 
 procedure UnLoadRendererLib();

@@ -62,9 +62,9 @@ type
     function GetRenderReady(): Boolean;
     function GetFPS(): Single;
     function GetCamera(): IdfCamera;
-    procedure SetCamera(const aCamera: IdfCamera);
+    procedure SetCamera(aCamera: IdfCamera);
     function GetRoot: IdfNode;
-    procedure SetRoot(const aRoot: IdfNode);
+    procedure SetRoot(aRoot: IdfNode);
 
     procedure SetOnMouseDown(aProc: TdfOnMouseDownProc);
     procedure SetOnMouseUp(aProc: TdfOnMouseUpProc);
@@ -321,7 +321,7 @@ begin
   Result := FCamera;
 end;
 
-procedure TdfRenderer.SetCamera(const aCamera: IdfCamera);
+procedure TdfRenderer.SetCamera(aCamera: IdfCamera);
 begin
   FCamera := aCamera;
 end;
@@ -346,7 +346,7 @@ begin
   FOnMouseWheel := aProc;
 end;
 
-procedure TdfRenderer.SetRoot(const aRoot: IdfNode);
+procedure TdfRenderer.SetRoot(aRoot: IdfNode);
 begin
   FRootNode := aRoot;
 end;
@@ -890,15 +890,15 @@ begin
       FLight.Render(deltaTime);
       FRootNode.Render(deltaTime);
 
-      if dfInput.IsKeyDown(VK_MOUSEWHEELUP) then
-      begin
-        FCamera.Scale(0.9);
-      end;
-
-      if dfInput.IsKeyDown(VK_MOUSEWHEELDOWN) then
-      begin
-        FCamera.Scale(1.1);
-      end;
+//      if dfInput.IsKeyDown(VK_MOUSEWHEELUP) then
+//      begin
+//        FCamera.Scale(0.9);
+//      end;
+//
+//      if dfInput.IsKeyDown(VK_MOUSEWHEELDOWN) then
+//      begin
+//        FCamera.Scale(1.1);
+//      end;
     gl.PopMatrix();
     Windows.SwapBuffers(FWDC);
   except

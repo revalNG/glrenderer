@@ -142,6 +142,8 @@ begin
   gl.BindTexture(GL_TEXTURE_2D, 0);
   logWriteMessage('Загрузка текстуры завершена. ID = ' + IntToStr(FTex) +' Размер текстуры: ' + IntToStr(W) + 'x' + IntToStr(H) + '; ' + IntToStr(SizeOfP(Data)) + ' байт');
   Dispose(Data);
+
+  FLoaded := True;
 end;
 
 procedure TdfTexture.Unbind;

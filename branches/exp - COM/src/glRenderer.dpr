@@ -75,6 +75,6 @@ uses
   uMaterial in 'uMaterial.pas';
 
 exports
-  CreateRenderer, CreateNode, CreateHUDSprite;
+  CreateRenderer, CreateNode, CreateHUDSprite, CreateMaterial, CreateTexture;
 begin
 end.

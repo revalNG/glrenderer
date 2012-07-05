@@ -7,7 +7,7 @@ program Checker1;
 {$APPTYPE CONSOLE}
 uses
   Windows,
-  SysUtils, //debug для IntoToStr
+  SysUtils,
   dfHRenderer in 'headers\dfHRenderer.pas',
   dfMath in 'common\dfMath.pas',
   dfHEngine in 'common\dfHEngine.pas';

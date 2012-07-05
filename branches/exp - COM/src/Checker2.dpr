@@ -92,7 +92,9 @@ begin
     Position := dfVec2f(300, 300);
   end;
 
-  NewNode.Position := dfVec3f(0, 0, 0);
+  NewNode.Renderable.Material := dfCreateMaterial();
+  NewNode.Renderable.Material.Texture := dfCreateTexture();
+  NewNode.Renderable.Material.Texture.Load('data\tile.bmp');
 
   repeat
     if PeekMessage(msg, 0, 0, 0, PM_NOREMOVE) then
