@@ -1,5 +1,5 @@
 #summary Направление работ и конкретное TODO по каждому
-#labels Featured,Phase-Requirements
+#labels Deprecated,Phase-Requirements
  = Направление работ и конкретное TODO по каждому =
 В порядке приоритета их исполнения:
   #  *~~Оптимизация под научную деятельность Трухманова Д.~~* 
