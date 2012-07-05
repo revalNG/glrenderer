@@ -1,4 +1,4 @@
-unit Logger;
+unit uLogger;
 
 interface
 
@@ -74,7 +74,7 @@ end;
 function LogInit(): Integer;
 begin
   LoggerAddLog(LOGFILE);
-  Logger.iLog := LoggerFindLog(LOGFILE);
+  uLogger.iLog := LoggerFindLog(LOGFILE);
   LoggerWriteHeader(iLog, 'Старт логгирования');
 
   Result := 0;

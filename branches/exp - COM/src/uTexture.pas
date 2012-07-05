@@ -4,7 +4,7 @@
   ”меть загружать нужные текстуры, активировать их
 }
 
-unit uTextures;
+unit uTexture;
 
 interface
 
@@ -39,7 +39,7 @@ type
 implementation
 
 uses
-  dfHGL, dfHEngine, TexLoad, Logger, SysUtils;
+  dfHGL, dfHEngine, TexLoad, uLogger, SysUtils;
 {
 function renderTexLoad(FileName: PAnsiChar): Integer; stdcall;
 var

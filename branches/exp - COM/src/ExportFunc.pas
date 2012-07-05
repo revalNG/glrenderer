@@ -3,7 +3,7 @@ unit ExportFunc;
 interface
 
 uses
-  Main, dfHRenderer, Node, Sprites, uTextures, uMaterial;
+  dfHRenderer;
 
   function CreateRenderer(): IdfRenderer; stdcall;
   function CreateNode(aParent: IdfNode): IdfNode; stdcall;
@@ -12,6 +12,9 @@ uses
   function CreateTexture(): IdfTexture; stdcall;
 
 implementation
+
+uses
+  uRenderer, uNode, uSprite, uTexture, uMaterial;
 
 function CreateRenderer(): IdfRenderer;
 begin

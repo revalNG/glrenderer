@@ -4,12 +4,12 @@
          3) Анимация источника света
          4) Описание к функциям
 }
-unit Light;
+unit uLight;
 
 interface
 
 uses
-  dfHRenderer, Node,
+  dfHRenderer, uNode,
   dfMath;
 
 const

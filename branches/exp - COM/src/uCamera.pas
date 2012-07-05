@@ -1,9 +1,9 @@
-unit Camera;
+unit uCamera;
 
 interface
 
 uses
-  dfMath, dfHGL, dfHEngine, dfHInput, dfHRenderer, Node;
+  dfMath, dfHGL, dfHEngine, dfHInput, dfHRenderer, uNode;
 
 type
   TdfCameraTargetMode = (mPoint, mTarget, mFree);

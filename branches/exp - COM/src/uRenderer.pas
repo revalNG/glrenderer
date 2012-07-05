@@ -1,11 +1,11 @@
-unit Main;
+unit uRenderer;
 
 interface
 
 uses
   Windows, Messages, SysUtils, Classes,
   dfHGL, dfHRenderer, dfMath,
-  Camera;
+  uCamera;
 
 type
   TdfRenderer = class(TInterfacedObject, IdfRenderer)
@@ -125,8 +125,8 @@ var
 implementation
 
 uses
-  Light, Sprites, uTextures, Shaders, Node,
-  dfHInput, dfHEngine, Logger;
+  uLight, uSprite, uTexture, uShader, uNode,
+  dfHInput, dfHEngine, uLogger;
 
 
 const
@@ -528,7 +528,7 @@ var
   bDrawLight, bVSync: Boolean;
 
 begin
-  Logger.LogInit();
+  uLogger.LogInit();
 
   FWWidth := cDefWindowW;
   FWHeight := cDefWindowH;
@@ -976,7 +976,7 @@ begin
     CloseWindow(FWHandle);
     DestroyWindow(FWHandle);
     FWHandle := 0;
-    Logger.LogDeinit();
+    uLogger.LogDeinit();
   except
     Result := -1;
     Exit;

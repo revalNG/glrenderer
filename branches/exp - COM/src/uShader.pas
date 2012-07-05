@@ -1,4 +1,4 @@
-unit Shaders;
+unit uShader;
 
 interface
 
@@ -63,7 +63,7 @@ implementation
 
 uses
   SysUtils,
-  Logger;
+  uLogger;
 
 //var
 //  slog: Integer;

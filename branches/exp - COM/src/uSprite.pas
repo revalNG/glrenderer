@@ -1,7 +1,7 @@
 {
 
 }
-unit Sprites;
+unit uSprite;
 
 interface
 
