@@ -81,41 +81,50 @@ begin
   gl.LoadIdentity();
   //Как получить размеры экрана??
   gl.Ortho(0, 800, 600, 0, -1, 1);
-//  gl.Ortho(-8, 800, 630, 22, -1, 1);
   gl.MatrixMode(GL_MODELVIEW);
   gl.LoadIdentity();
   gl.Translatef(FPos.x, FPos.y, 0);
+  gl.Rotatef(FRot, 0, 0, 1);
   gl.Disable(GL_DEPTH_TEST);
   gl.Disable(GL_LIGHTING);
-//  gl.Color3f(1, 0, 0);
-  gl.Beginp(GL_TRIANGLES);
+  gl.Beginp(GL_TRIANGLE_STRIP);
     gl.TexCoord2f(1, 1);
     gl.Vertex2fv(FCoords[0]);
     gl.TexCoord2f(1, 0);
     gl.Vertex2fv(FCoords[1]);
     gl.TexCoord2f(0, 0);
     gl.Vertex2fv(FCoords[2]);
-    gl.TexCoord2f(1, 1);
-    gl.Vertex2fv(FCoords[0]);
-    gl.TexCoord2f(0, 0);
-    gl.Vertex2fv(FCoords[2]);
     gl.TexCoord2f(0, 1);
     gl.Vertex2fv(FCoords[3]);
-//    gl.Vertex2f(FWidth, FHeight);
-//    gl.Vertex2f(FWidth, 0);
-//    gl.Vertex2f(0, 0);
-//    gl.Vertex2f(0, FHeight);
-//    gl.Vertex2f(FWidth, FHeight);
+    gl.TexCoord2f(1, 1);
+    gl.Vertex2fv(FCoords[0]);
+
+    // - GL_TRIANGLES
+//    gl.TexCoord2f(1, 1);
+//    gl.Vertex2fv(FCoords[0]);
+//    gl.TexCoord2f(1, 0);
+//    gl.Vertex2fv(FCoords[1]);
+//    gl.TexCoord2f(0, 0);
+//    gl.Vertex2fv(FCoords[2]);
+//    gl.TexCoord2f(1, 1);
+//    gl.Vertex2fv(FCoords[0]);
+//    gl.TexCoord2f(0, 0);
+//    gl.Vertex2fv(FCoords[2]);
+//    gl.TexCoord2f(0, 1);
+//    gl.Vertex2fv(FCoords[3]);
 
   gl.Endp();
 
   {Debug - выводим pivot point}
+{
   gl.PointSize(5);
   gl.Color3f(1, 1, 1);
   gl.Translatef(-FPos.x, -FPos.y, 0);
   gl.Beginp(GL_POINTS);
     gl.Vertex2fv(FPos);
   gl.Endp();
+
+}
 
   gl.Enable(GL_LIGHTING);
   gl.Enable(GL_DEPTH_TEST);

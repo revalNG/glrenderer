@@ -26,8 +26,28 @@ type
 
   {$REGION ' Texture, shaders and material '}
 
+  //Вид текстуры
+  TdfTextureTarget = (ttTexture1D, ttTexture2D, ttTexture3D, ttTextureRectangle,
+                ttTextureRectangleNV,
+                ttCubemap, ttCubemapPX, ttCubemapPY, ttCubemapNX, ttCubemapNY,
+                ttCubemapPZ, ttCubemapNZ, tt1DArray, tt2DArray, ttCubeMapArray);
+  //Режим враппинга (повторения и рамок)
+  TdfTextureWraps = (twClamp, twRepeat, twClampToEdge, twClampToBorder, twMirrorRepeat);
+//  TdfTexGens = (tgDisable,tgObjectLinear,tgEyeLinear,tgSphereMap,tgNormalMap,tgReflectionMap);
+  //маг и мин фильтры
+  TdfMagFilter = (mgNearest, mgLinear);
+  TdfMinFilter = (mnNearest, mnLinear, mnNearestMipmapNearest, mnNearestMipmapLinear,
+                mnLinearMipmapNearest, mnLinearMipmapLinear);
+  //Режимы прозрачности
+  TdfTextureBlendingModes = (tbmOpaque, tbmTransparency, tbmAdditive, tbmAlphaTest50,
+                    tbmAlphaTest100, tbmModulate, tbmMesh);
+  //Режимы смешивания с цветом
+  TTextureCombines = (tcDecal, tcModulate, tcBlend, tcReplace, tcAdd);
+
+
   IdfTexture = interface
     ['{3D75E1EB-E4C8-4856-BA55-B98020407605}']
+
     procedure Bind;
     procedure Unbind;
 
@@ -39,19 +59,23 @@ type
 
   IdfShader = interface
     ['{5C020C83-273C-4351-A41E-3AE8D12C8A90}']
-    procedure Use;
-    procedure Unuse;
   end;
 
   IdfShaderProgram = interface
     ['{B31B84F3-D71D-4117-B5D7-3BEAD6E5D5E2}']
+    procedure Use;
+    procedure Unuse;
   end;
 
   IdfMaterialOptions = interface
     ['{8FE8BC07-F1A4-481A-9E24-966941969FCB}']
-
-//    property Ambient:
-//    property Diffuse
+    {$REGION '[private]'}
+    function GetDif(): TdfVec4f;
+    procedure SetDif(const aDif: TdfVec4f);
+    {$ENDREGION}
+    procedure Apply();
+    procedure UnApply();
+    property Diffuse: TdfVec4f read GetDif write SetDif;
   end;
 
   IdfMaterial = interface
@@ -218,6 +242,8 @@ type
     property DebugRender: Boolean read GetDR write SetDR;
   end;
 
+  TdfOnUpdateProc = procedure(const dt: Double);
+
   TdfMouseShiftState = set of (ssLeft, ssRight, ssMiddle, ssDouble);
   TdfMouseButton = (mbLeft, mbRight, mbMiddle);
 
@@ -249,6 +275,9 @@ type
     function GetOnMouseUp(): TdfOnMouseUpProc;
     function GetOnMouseMove(): TdfOnMouseMoveProc;
     function GetOnMouseWheel() : TdfOnMouseWheelProc;
+
+    function GetOnUpdate(): TdfOnUpdateProc;
+    procedure SetOnUpdate(aProc: TdfOnUpdateProc);
     {$ENDREGION}
 
     function Init(FileName: PAnsiChar): Integer;
@@ -261,10 +290,13 @@ type
     property RenderReady: Boolean read GetRenderReady;
     property FPS: Single read GetFPS;
 
+    {Вероятно, вынести в класс TdfWindow?}
     property OnMouseDown: TdfOnMouseDownProc read GetOnMouseDown write SetOnMouseDown;
     property OnMouseUp: TdfOnMouseUpProc read GetOnMouseUp write SetOnMouseUp;
     property OnMouseMove: TdfOnMouseMoveProc read GetOnMouseMove write SetOnMouseMove;
     property OnMouseWheel: TdfOnMouseWheelProc read GetOnMouseWheel write SetOnMouseWheel;
+
+    property OnUpdate: TdfOnUpdateProc read GetOnUpdate write SetOnUpdate;
 
     property Camera: IdfCamera read GetCamera write SetCamera;
 

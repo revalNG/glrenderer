@@ -98,6 +98,7 @@ function TdfNode.AddNewChild: IdfNode;
 begin
   Result := TdfNode.Create;
   Result.Parent := Self;
+  Self._Release();
   FChilds.Add(Result);
 //  Left := dfVec3f(5, 5, 2);
 end;
@@ -114,8 +115,8 @@ destructor TdfNode.Destroy;
 var
   i: Integer;
 begin
-  for i := 0 to FChilds.Count - 1 do
-    IdfNode(FChilds[i]).Parent := nil;
+//  for i := 0 to FChilds.Count - 1 do
+//    IdfNode(FChilds[i]).Parent := nil;
   FChilds.Free; //InterfaceList зануляет ссылки
   FChilds := nil;
   inherited;

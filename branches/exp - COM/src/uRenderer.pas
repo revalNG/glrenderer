@@ -56,6 +56,9 @@ type
     FOnMouseMove: TdfOnMouseMoveProc;
     FOnMouseWheel: TdfOnMouseWheelProc;
 
+    //Коллбэк на апдейт
+    FOnUpdate: TdfOnUpdateProc;
+
     function GetWindowHandle(): Integer;
     function GetWindowCaption(): PWideChar;
     procedure SetWindowCaption(aCaption: PWideChar);
@@ -75,6 +78,9 @@ type
     function GetOnMouseUp(): TdfOnMouseUpProc;
     function GetOnMouseMove(): TdfOnMouseMoveProc;
     function GetOnMouseWheel() : TdfOnMouseWheelProc;
+
+    function GetOnUpdate(): TdfOnUpdateProc;
+    procedure SetOnUpdate(aProc: TdfOnUpdateProc);
 
     procedure WMLButtonDown    (var Msg: TMessage); message WM_LBUTTONDOWN;
     procedure WMLButtonUp      (var Msg: TMessage); message WM_LBUTTONUP;
@@ -114,6 +120,8 @@ type
     property OnMouseUp: TdfOnMouseUpProc read GetOnMouseUp write SetOnMouseUp;
     property OnMouseMove: TdfOnMouseMoveProc read GetOnMouseMove write SetOnMouseMove;
     property OnMouseWheel: TdfOnMouseWheelProc read GetOnMouseWheel write SetOnMouseWheel;
+
+    property OnUpdate: TdfOnUpdateProc read GetOnUpdate write SetOnUpdate;
   end;
 
 
@@ -316,6 +324,11 @@ begin
   Result := FOnMouseWheel;
 end;
 
+function TdfRenderer.GetOnUpdate: TdfOnUpdateProc;
+begin
+  Result := FOnUpdate;
+end;
+
 function TdfRenderer.GetCamera(): IdfCamera;
 begin
   Result := FCamera;
@@ -344,6 +357,11 @@ end;
 procedure TdfRenderer.SetOnMouseWheel(aProc: TdfOnMouseWheelProc);
 begin
   FOnMouseWheel := aProc;
+end;
+
+procedure TdfRenderer.SetOnUpdate(aProc: TdfOnUpdateProc);
+begin
+  FOnUpdate := aProc;
 end;
 
 procedure TdfRenderer.SetRoot(aRoot: IdfNode);
@@ -878,6 +896,10 @@ function TdfRenderer.Step(deltaTime: Double): Integer;
 
 begin
   Result := 0;
+
+  if Assigned(FOnUpdate) then
+    FOnUpdate(deltaTime);
+
   try
     gl.Clear(GL_COLOR_BUFFER_BIT);
     gl.Clear(GL_DEPTH_BUFFER_BIT);
@@ -959,9 +981,10 @@ begin
     FLight := nil;
 
     //Необходимо для успешного удаления без утечек
-    with FRootNode do
-      for i := 0 to ChildsCount - 1 do
-        IdfNode(Childs[i]).Parent := nil;
+//    with FRootNode do
+//      for i := 0 to ChildsCount - 1 do
+//        IdfNode(Childs[i]).Parent := nil;
+//    FRootNode._Release();
     FRootNode := nil;
 
 //    Camera.CameraDeInit();
