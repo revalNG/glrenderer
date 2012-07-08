@@ -27,33 +27,60 @@ type
   {$REGION ' Texture, shaders and material '}
 
   //Вид текстуры
-  TdfTextureTarget = (ttTexture1D, ttTexture2D, ttTexture3D, ttTextureRectangle,
+  TdfTextureTarget = (ttTexture1D, ttTexture2D, ttTexture3D{, ttTextureRectangle,
                 ttTextureRectangleNV,
                 ttCubemap, ttCubemapPX, ttCubemapPY, ttCubemapNX, ttCubemapNY,
-                ttCubemapPZ, ttCubemapNZ, tt1DArray, tt2DArray, ttCubeMapArray);
+                ttCubemapPZ, ttCubemapNZ, tt1DArray, tt2DArray, ttCubeMapArray});
   //Режим враппинга (повторения и рамок)
-  TdfTextureWraps = (twClamp, twRepeat, twClampToEdge, twClampToBorder, twMirrorRepeat);
+  TdfTextureWrap = (twClamp, twRepeat, twClampToEdge, twClampToBorder, twMirrorRepeat);
 //  TdfTexGens = (tgDisable,tgObjectLinear,tgEyeLinear,tgSphereMap,tgNormalMap,tgReflectionMap);
   //маг и мин фильтры
-  TdfMagFilter = (mgNearest, mgLinear);
-  TdfMinFilter = (mnNearest, mnLinear, mnNearestMipmapNearest, mnNearestMipmapLinear,
-                mnLinearMipmapNearest, mnLinearMipmapLinear);
+  TdfTextureMagFilter = (tmgNearest, tmgLinear);
+  TdfTextureMinFilter = (tmnNearest, tmnLinear, tmnNearestMipmapNearest, tmnNearestMipmapLinear,
+                tmnLinearMipmapNearest, tmnLinearMipmapLinear);
   //Режимы прозрачности
-  TdfTextureBlendingModes = (tbmOpaque, tbmTransparency, tbmAdditive, tbmAlphaTest50,
+  TdfTextureBlendingMode = (tbmOpaque, tbmTransparency, tbmAdditive, tbmAlphaTest50,
                     tbmAlphaTest100, tbmModulate, tbmMesh);
   //Режимы смешивания с цветом
-  TTextureCombines = (tcDecal, tcModulate, tcBlend, tcReplace, tcAdd);
+  TdfTextureCombineMode = (tcmDecal, tcmModulate, tcmBlend, tcmReplace, tcmAdd);
 
 
   IdfTexture = interface
     ['{3D75E1EB-E4C8-4856-BA55-B98020407605}']
+    {$REGION '[private]'}
+    function GetTexTarget(): TdfTextureTarget;
+    function GetTexWrapS(): TdfTextureWrap;
+    function GetTexWrapT(): TdfTextureWrap;
+    function GetTexWrapR(): TdfTextureWrap;
+    function GetTexMinFilter(): TdfTextureMinFilter;
+    function GetTexMagFilter(): TdfTextureMagFilter;
+    function GetTexBlendingMode(): TdfTextureBlendingMode;
+    function GetTexCombineMode(): TdfTextureCombineMode;
 
+    procedure SetTexWrapS(aWrap: TdfTextureWrap);
+    procedure SetTexWrapT(aWrap: TdfTextureWrap);
+    procedure SetTexWrapR(aWrap: TdfTextureWrap);
+    procedure SetTexMinFilter(aFilter: TdfTextureMinFilter);
+    procedure SetTexMagFilter(aFilter: TdfTextureMagFilter);
+    procedure SetTexBlendingMode(aMode: TdfTextureBlendingMode);
+    procedure SetTexCombineMode(aMode: TdfTextureCombineMode);
+    {$ENDREGION}
     procedure Bind;
     procedure Unbind;
 
     {debug procedure
      Переделать на загрузку из Stream через ResourceManager}
-    procedure Load(const aFileName: String); overload;
+    procedure Load2D(const aFileName: String); overload;
+
+    property Target: TdfTextureTarget read GetTexTarget;
+    property WrapS: TdfTextureWrap read GetTexWrapS write SetTexWrapS;
+    property WrapT: TdfTextureWrap read GetTexWrapT write SetTexWrapT;
+    property WrapR: TdfTextureWrap read GetTexWrapR write SetTexWrapR;
+    property MinFilter: TdfTextureMinFilter read GetTexMinFilter write SetTexMinFilter;
+    property MagFilter: TdfTextureMagFilter read GetTexMagFilter write SetTexMagFilter;
+    property BlendingMode: TdfTextureBlendingMode read GetTexBlendingMode write SetTexBlendingMode;
+    property CombineMode: TdfTextureCombineMode read GetTexCombineMode write SetTexCombineMode;
+
 //    procedure Load();
   end;
 

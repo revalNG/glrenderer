@@ -20,14 +20,6 @@ uses
   UPhysics2DControllers in 'box2d\UPhysics2DControllers.pas',
   UPhysics2DTypes in 'box2d\UPhysics2DTypes.pas';
 
-//type
-//  TdfContactListener = class(Tb2ContactListener)
-//  private
-//  public
-//    procedure BeginContact(var contact: Tb2Contact); override;
-//    procedure EndContact(var contact: Tb2Contact); override;
-//  end;
-
   procedure OnUpdate(const dt: Double);
   begin
     if dfInput.IsKeyDown(VK_RIGHT) then
@@ -38,10 +30,6 @@ uses
     b2World.Update(dt);
     SyncObjects(b2Sprite, Sprite);
   end;
-
-//var
-//  u: Integer;
-//  n1, n2: IdfNode;
 
 begin
   WriteLn(' ========= TRACTOR VERSUS ZOMBIES');
@@ -54,8 +42,6 @@ begin
   R.Init('settings_TvsZ.txt');
 
   InitPhysics();
-//  n1 := R.RootNode.AddNewChild();
-//  n2 := R.RootNode.AddNewChild();
   InitSprite();
   InitEarth();
 
@@ -68,5 +54,4 @@ begin
   DeInitEarth();
   DeInitPhysics();
   UnLoadRendererLib();
-//  readln(u);
 end.

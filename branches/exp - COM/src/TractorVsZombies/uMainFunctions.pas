@@ -16,7 +16,6 @@ var
 
   b2World: Tdfb2World;
   t: Double;
-//  b2ContactListener: TdfContactListener;
   iPlayerContacts: Integer;
   b2Earth, b2Sprite: Tb2Body;
 
@@ -60,7 +59,9 @@ procedure InitPhysics();
     Sprite.Height := 50;
     Sprite.Material.MaterialOptions.Diffuse := dfVec4f(1, 1, 1, 1);
     Sprite.Material.Texture := dfCreateTexture();
-    Sprite.Material.Texture.Load('data\tractor.bmp');
+    Sprite.Material.Texture.Load2D('data\tractor.tga');
+    Sprite.Material.Texture.BlendingMode := tbmTransparency;
+    Sprite.Material.Texture.CombineMode := tcmModulate;
 
     MainNode := R.RootNode.AddNewChild();
     MainNode.Renderable := Sprite;
@@ -105,7 +106,7 @@ procedure InitPhysics();
     SpriteEarth.PivotPoint := ppCenter;
     SpriteEarth.Width := 400;
     SpriteEarth.Height := 20;
-    SpriteEarth.Material.MaterialOptions.Diffuse := dfVec4f(0.3, 0.3, 0.3, 1);
+    SpriteEarth.Material.MaterialOptions.Diffuse := dfVec4f(0.3, 0.8, 0.3, 1);
     SpriteEarth.Rotation := 0.3 * rad2deg;
 
     EarthNode := R.RootNode.AddNewChild();

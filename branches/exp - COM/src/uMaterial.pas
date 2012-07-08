@@ -8,9 +8,11 @@ uses
 type
   TdfMaterialOptions = class(TInterfacedObject, IdfMaterialOptions)
   private
-    FDifColor: TdfVec4f;
+    FAmbColor, FDifColor: TdfVec4f;
     function GetDif(): TdfVec4f;
     procedure SetDif(const aDif: TdfVec4f);
+    function GetAmb: TdfVec4f;
+    procedure SetAmb(const aAmb: TdfVec4f);
   protected
   public
     constructor Create(); virtual;
@@ -19,6 +21,7 @@ type
     procedure Apply();
     procedure UnApply();
 
+    property Ambient: TdfVec4f read GetAmb write SetAmb;
     property Diffuse: TdfVec4f read GetDif write SetDif;
   end;
 
@@ -137,10 +140,21 @@ begin
   inherited;
 end;
 
+function TdfMaterialOptions.GetAmb: TdfVec4f;
+begin
+  Result := FAmbColor;
+end;
+
 function TdfMaterialOptions.GetDif: TdfVec4f;
 begin
   Result := FDifColor;
 end;
+
+procedure TdfMaterialOptions.SetAmb(const aAmb: TdfVec4f);
+begin
+  FAmbColor := aAmb;
+end;
+
 
 procedure TdfMaterialOptions.SetDif(const aDif: TdfVec4f);
 begin

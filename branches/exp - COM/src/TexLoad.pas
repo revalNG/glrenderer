@@ -1,5 +1,8 @@
 {
  Pirate copy from Fantom's project glsnewton from code.google
+
+ Куча говнокода, в который не вникал.
+
  =)
 }
 
@@ -8,15 +11,47 @@ unit TexLoad;
 interface
 
 uses
-  Windows, Graphics, Classes, JPEG, SysUtils;
+  dfHGL,
+  Windows, Graphics, Classes, SysUtils;
 
-function LoadTexture(Filename: String; var Format: Cardinal; var Width, Height: integer; LoadFromRes : Boolean=false) : pointer;
+function LoadTexture(Filename: String; var Format: TGLConst; var Width, Height: Integer): Pointer;overload;
+function LoadTexture(Filename: String; var iFormat,cFormat,dType: TGLConst; var pSize: Integer; var Width, Height: Integer): Pointer; overload;
 
 implementation
 
-Const
-   GL_RGB  = $1907;
-   GL_RGBA = $1908;
+//const
+//  GL_LUMINANCE = $1909;
+//  GL_BGR = $80E0;
+//  GL_LUMINANCE8 = $8040;
+//  GL_RGB8 = $8051;
+//  GL_UNSIGNED_SHORT = $1403;
+//  GL_UNSIGNED_BYTE = $1401;
+//  GL_LUMINANCE16 = $8042;
+//  GL_LUMINANCE_ALPHA = $190A;
+//  GL_LUMINANCE16_ALPHA16 = $8048;
+//  GL_LUMINANCE8_ALPHA8 = $8045;
+//  GL_RGB   = $1907;
+//  GL_RGB16 = $8054;
+//  GL_RGBA  = $1908;
+//  GL_RGBA16 = $805B;
+//  GL_RGBA8 = $8058;
+//  GL_BGRA  = $80E1;
+
+Type
+   TTGAHeader = packed record
+      IDLength          : Byte;
+      ColorMapType      : Byte;
+      ImageType         : Byte;
+      ColorMapOrigin    : Word;
+      ColorMapLength    : Word;
+      ColorMapEntrySize : Byte;
+      XOrigin           : Word;
+      YOrigin           : Word;
+      Width             : Word;
+      Height            : Word;
+      PixelSize         : Byte;
+      ImageDescriptor   : Byte;
+  end;
 
 {------------------------------------------------------------------}
 {  Swap bitmap format from BGR to RGB                              }
@@ -36,11 +71,36 @@ asm
   jnz @@loop
 end;
 
+procedure flipSurface(chgData: Pbyte; w, h, pSize: integer);
+var
+  lineSize: integer;
+  sliceSize: integer;
+  tempBuf: Pbyte;
+  j: integer;
+  top, bottom: Pbyte;
+begin
+  lineSize := pSize * w;
+  sliceSize := lineSize * h;
+  GetMem(tempBuf, lineSize);
+
+  top := chgData;
+  bottom := top;
+  Inc(bottom, sliceSize - lineSize);
+
+  for j := 0 to (h div 2) - 1 do begin
+    Move(top^, tempBuf^, lineSize);
+    Move(bottom^, top^, lineSize);
+    Move(tempBuf^, bottom^, lineSize);
+    Inc(top, lineSize);
+    Dec(bottom, lineSize);
+  end;
+  FreeMem(tempBuf);
+end;
 
 {------------------------------------------------------------------}
 {  Load BMP textures                                               }
 {------------------------------------------------------------------}
-function LoadBMPTexture(Filename: String; var Format : Cardinal; var Width, Height: integer; LoadFromResource : Boolean) : pointer;
+function LoadBMPTexture(Filename: String; var Format : TGLConst; var Width, Height: Integer): Pointer;
 var
   FileHeader: BITMAPFILEHEADER;
   InfoHeader: BITMAPINFOHEADER;
@@ -50,47 +110,17 @@ var
   PaletteLength: LongWord;
   ReadBytes: LongWord;
   pData : Pointer;
-
-  // used for loading from resource
-  ResStream : TResourceStream;
+  //For 256 color bitmap
+  bmp: TBitmap;
+  bpp:byte;
+  i,j, offs: integer;
+  p: PByteArray;
+  sLength: integer;
+  fLength,temp: integer;
 begin
   result :=nil;
-
-  if LoadFromResource then // Load from resource
-  begin
-    try
-      ResStream := TResourceStream.Create(hInstance, PChar(copy(Filename, 1, Pos('.', Filename)-1)), 'BMP');
-      ResStream.ReadBuffer(FileHeader, SizeOf(FileHeader));  // FileHeader
-      ResStream.ReadBuffer(InfoHeader, SizeOf(InfoHeader));  // InfoHeader
-      PaletteLength := InfoHeader.biClrUsed;
-      SetLength(Palette, PaletteLength);
-      ResStream.ReadBuffer(Palette, PaletteLength);          // Palette
-
-      Width := InfoHeader.biWidth;
-      Height := InfoHeader.biHeight;
-
-      BitmapLength := InfoHeader.biSizeImage;
-      if BitmapLength = 0 then
-        BitmapLength := Width * Height * InfoHeader.biBitCount Div 8;
-
-      GetMem(pData, BitmapLength);
-      ResStream.ReadBuffer(pData^, BitmapLength);            // Bitmap Data
-      ResStream.Free;
-    except on
-      EResNotFound do
-      begin
-        MessageBox(0, PChar('File not found in resource - ' + Filename), PChar('BMP Texture'), MB_OK);
-        Exit;
-      end
-      else
-      begin
-        MessageBox(0, PChar('Unable to read from resource - ' + Filename), PChar('BMP Unit'), MB_OK);
-        Exit;
-      end;
-    end;
-  end
-  else
-  begin   // Load image from file
+  Width:=-1; Height:=-1;
+  // Load image from file
     BitmapFile := CreateFile(PChar(Filename), GENERIC_READ, FILE_SHARE_READ, nil, OPEN_EXISTING, 0, 0);
     if (BitmapFile = INVALID_HANDLE_VALUE) then begin
       MessageBox(0, PChar('Error opening ' + Filename), PChar('BMP Unit'), MB_OK);
@@ -100,123 +130,58 @@ begin
     // Get header information
     ReadFile(BitmapFile, FileHeader, SizeOf(FileHeader), ReadBytes, nil);
     ReadFile(BitmapFile, InfoHeader, SizeOf(InfoHeader), ReadBytes, nil);
-
-    // Get palette
-    PaletteLength := InfoHeader.biClrUsed;
-    SetLength(Palette, PaletteLength);
-    ReadFile(BitmapFile, Palette, PaletteLength, ReadBytes, nil);
-    if (ReadBytes <> PaletteLength) then begin
-      MessageBox(0, PChar('Error reading palette'), PChar('BMP Unit'), MB_OK);
-      Exit;
-    end;
-
     Width  := InfoHeader.biWidth;
     Height := InfoHeader.biHeight;
-    BitmapLength := InfoHeader.biSizeImage;
-    if BitmapLength = 0 then
-      BitmapLength := Width * Height * InfoHeader.biBitCount Div 8;
 
+    if InfoHeader.biClrUsed<>0 then begin
+       CloseHandle(BitmapFile);
+       bmp:=TBitmap.Create; bmp.LoadFromFile(Filename);
+       bmp.PixelFormat:=pf24bit; bpp:=3;
+       getmem(pData,bmp.Width*bmp.Height*bpp);
+       for i:=bmp.Height-1 downto 0 do begin
+         p:=bmp.ScanLine[i]; offs:=i*bmp.Width*bpp;
+         for j:=0 to bmp.Width-1 do begin
+            PByteArray(pData)[offs+j*bpp]:=p[j*bpp+2];
+            PByteArray(pData)[offs+j*bpp+1]:=p[j*bpp+1];
+            PByteArray(pData)[offs+j*bpp+2]:=p[j*bpp];
+         end;
+       end; Width:=bmp.Width; Height:=bmp.Height;
+       result:=pData; Format:=GL_RGB; exit;
+    end;
+
+    //BitmapLength := InfoHeader.biSizeImage;
+    //if BitmapLength = 0 then
+    bpp:=InfoHeader.biBitCount Div 8;
+    BitmapLength := Width * Height * bpp;
+    sLength:=Width*bpp; fLength:=0;
+    if frac(sLength/4)>0 then fLength:=((sLength div 4)+1)*4-sLength;
     // Get the actual pixel data
     GetMem(pData, BitmapLength);
-    ReadFile(BitmapFile, pData^, BitmapLength, ReadBytes, nil);
+    result:=pData;
+    for i:=0 to Height-1 do begin
+      ReadFile(BitmapFile, pData^, sLength , ReadBytes, nil);
+      ReadFile(BitmapFile, Temp, fLength , ReadBytes, nil);
+      inc(integer(pData),sLength);
+    end;
+{    ReadFile(BitmapFile, pData^, BitmapLength, ReadBytes, nil);
     if (ReadBytes <> BitmapLength) then begin
       MessageBox(0, PChar('Error reading bitmap data'), PChar('BMP Unit'), MB_OK);
       Exit;
     end;
+}
     CloseHandle(BitmapFile);
-  end;
 
   // Bitmaps are stored BGR and not RGB, so swap the R and B bytes.
-  SwapRGB(pData, Width*Height);
+  if bpp=3 then begin SwapRGB(Result, Width*Height); Format:=GL_RGB; end;
+  if bpp=4 then begin Format:=GL_BGRA; end;
 
-//  Texture :=CreateTexture(Width, Height, GL_RGB, pData);
-  result:=pData; Format:=GL_RGB;
-//  FreeMem(pData);
-end;
-
-
-{------------------------------------------------------------------}
-{  Load JPEG textures                                              }
-{------------------------------------------------------------------}
-function LoadJPGTexture(Filename: String; var Format: Cardinal; var Width, Height: integer; LoadFromResource : Boolean): pointer;
-var
-  Data : Array of LongWord;
-  W : Integer;
-  H : Integer;
-  BMP : TBitmap;
-  JPG : TJPEGImage;
-  C : LongWord;
-  Line : ^LongWord;
-  ResStream : TResourceStream;      // used for loading from resource
-begin
-  result := nil;
-  JPG:=TJPEGImage.Create;
-
-  if LoadFromResource then // Load from resource
-  begin
-    try
-      ResStream := TResourceStream.Create(hInstance, PChar(copy(Filename, 1, Pos('.', Filename)-1)), 'JPEG');
-      JPG.LoadFromStream(ResStream);
-      ResStream.Free;
-    except on
-      EResNotFound do
-      begin
-        MessageBox(0, PChar('File not found in resource - ' + Filename), PChar('JPG Texture'), MB_OK);
-        Exit;
-      end
-      else
-      begin
-        MessageBox(0, PChar('Couldn''t load JPG Resource - "'+ Filename +'"'), PChar('BMP Unit'), MB_OK);
-        Exit;
-      end;
-    end;
-  end
-  else
-  begin
-    try
-      JPG.LoadFromFile(Filename);
-    except
-      MessageBox(0, PChar('Couldn''t load JPG - "'+ Filename +'"'), PChar('BMP Unit'), MB_OK);
-      Exit;
-    end;
-  end;
-
-  // Create Bitmap
-  BMP:=TBitmap.Create;
-  BMP.pixelformat:=pf32bit;
-  BMP.width:=JPG.width;
-  BMP.height:=JPG.height;
-  BMP.canvas.draw(0,0,JPG);        // Copy the JPEG onto the Bitmap
-
-  //  BMP.SaveToFile('D:\test.bmp');
-  Width :=BMP.Width;
-  Height :=BMP.Height;
-  SetLength(Data, Width*Height);
-
-  For H:=0 to Height-1 do
-  Begin
-    Line :=BMP.scanline[Height-H-1];   // flip JPEG
-    For W:=0 to Width-1 do
-    Begin
-      c:=Line^ and $FFFFFF; // Need to do a color swap
-      Data[W+(H*Width)] :=(((c and $FF) shl 16)+(c shr 16)+(c and $FF00)) or $FF000000;  // 4 channel.
-      inc(Line);
-    End;
-  End;
-
-  BMP.free;
-  JPG.free;
-
-  //Texture :=CreateTexture(Width, Height, GL_RGBA, addr(Data[0]));
-  result := addr(Data[0]);
-  Format := GL_RGBA
 end;
 
 
 {------------------------------------------------------------------}
 {  Loads 24 and 32bpp (alpha channel) TGA textures                 }
 {------------------------------------------------------------------}
-function LoadTGATexture(Filename: String; var Format: Cardinal; var Width, Height: integer; LoadFromResource : Boolean): pointer;
+function LoadTGATexture(Filename: String; var Format: TGLConst; var Width, Height: integer): pointer;
 var
   TGAHeader : packed record   // Header type for TGA images
     FileType     : Byte;
@@ -262,43 +227,19 @@ var
   end;
 var loaded: boolean;
 begin
-  result :=nil; loaded:=false;
-  GetMem(Image, 0);
-  if LoadFromResource then // Load from resource
-  begin
-    try
-      ResStream := TResourceStream.Create(hInstance, PChar(copy(Filename, 1, Pos('.', Filename)-1)), 'TGA');
-      ResStream.ReadBuffer(TGAHeader, SizeOf(TGAHeader));  // FileHeader
-      loaded:=true;
-    except on
-      EResNotFound do
-      begin
-        MessageBox(0, PChar('File not found in resource - ' + Filename), PChar('TGA Texture'), MB_OK);
-        Exit;
-      end
-      else
-      begin
-        MessageBox(0, PChar('Unable to read from resource - ' + Filename), PChar('BMP Unit'), MB_OK);
-        Exit;
-      end;
-    end;
+  result :=nil;
+  if FileExists(Filename) then begin
+    AssignFile(TGAFile, Filename);
+    Reset(TGAFile, 1);
+
+    // Read in the bitmap file header
+    BlockRead(TGAFile, TGAHeader, SizeOf(TGAHeader));
+    loaded:=true;
   end
   else
   begin
-    if FileExists(Filename) then
-    begin
-      AssignFile(TGAFile, Filename);
-      Reset(TGAFile, 1);
-
-      // Read in the bitmap file header
-      BlockRead(TGAFile, TGAHeader, SizeOf(TGAHeader));
-      loaded:=true;
-    end
-    else
-    begin
-      MessageBox(0, PChar('File not found  - ' + Filename), PChar('TGA Texture'), MB_OK);
-      Exit;
-    end;
+    MessageBox(0, PChar('File not found  - ' + Filename), PChar('TGA Texture'), MB_OK);
+    Exit;
   end;
 
   if loaded then begin
@@ -339,36 +280,18 @@ begin
 
     GetMem(Image, ImageSize);
 
-    if TGAHeader.ImageType = 2 then   // Standard 24, 32 bit TGA file
-    begin
-      if LoadFromResource then // Load from resource
-      begin
-        try
-          ResStream.ReadBuffer(Image^, ImageSize);
-          ResStream.Free;
-        except
-          MessageBox(0, PChar('Unable to read from resource - ' + Filename), PChar('BMP Unit'), MB_OK);
-          Exit;
-        end;
-      end
-      else         // Read in the image from file
-      begin
+    if TGAHeader.ImageType = 2 then begin  // Standard 24, 32 bit TGA file
         BlockRead(TGAFile, image^, ImageSize, bytesRead);
-        if bytesRead <> ImageSize then
-        begin
+        if bytesRead <> ImageSize then begin
           Result := nil;
           CloseFile(TGAFile);
           MessageBox(0, PChar('Couldn''t read file "'+ Filename +'".'), PChar('TGA File Error'), MB_OK);
           Exit;
-        end
-      end;
-
+        end;
       // TGAs are stored BGR and not RGB, so swap the R and B bytes.
       // 32 bit TGA files have alpha channel and gets loaded differently
-      if TGAHeader.BPP = 24 then
-      begin
-        for I :=0 to Width * Height - 1 do
-        begin
+      if TGAHeader.BPP = 24 then begin
+        for I :=0 to Width * Height - 1 do begin
           Front := Pointer(Integer(Image) + I*3);
           Back := Pointer(Integer(Image) + I*3 + 2);
           Temp := Front^;
@@ -376,12 +299,8 @@ begin
           Back^ := Temp;
         end;
         Result := Image; Format := GL_RGB;
-//        Texture :=CreateTexture(Width, Height, GL_RGB, Image);
-      end
-      else
-      begin
-        for I :=0 to Width * Height - 1 do
-        begin
+      end else begin
+        for I :=0 to Width * Height - 1 do begin
           Front := Pointer(Integer(Image) + I*4);
           Back := Pointer(Integer(Image) + I*4 + 2);
           Temp := Front^;
@@ -389,31 +308,16 @@ begin
           Back^ := Temp;
         end;
         Result := Image; Format := GL_RGBA;
-//        Texture :=CreateTexture(Width, Height, GL_RGBA, Image);
       end;
     end;
 
     // Compressed 24, 32 bit TGA files
-    if TGAHeader.ImageType = 10 then
-    begin
+    if TGAHeader.ImageType = 10 then begin
       ColorDepth :=ColorDepth DIV 8;
       CurrentByte :=0;
       CurrentPixel :=0;
       BufferIndex :=0;
 
-      if LoadFromResource then // Load from resource
-      begin
-        try
-          GetMem(CompImage, ResStream.Size-sizeOf(TGAHeader));
-          ResStream.ReadBuffer(CompImage^, ResStream.Size-sizeOf(TGAHeader));   // load compressed date into memory
-          ResStream.Free;
-        except
-          MessageBox(0, PChar('Unable to read from resource - ' + Filename), PChar('BMP Unit'), MB_OK);
-          Exit;
-        end;
-      end
-      else
-      begin
         GetMem(CompImage, FileSize(TGAFile)-sizeOf(TGAHeader));
         BlockRead(TGAFile, CompImage^, FileSize(TGAFile)-sizeOf(TGAHeader), BytesRead);   // load compressed data into memory
         if bytesRead <> FileSize(TGAFile)-sizeOf(TGAHeader) then
@@ -422,27 +326,21 @@ begin
           CloseFile(TGAFile);
           MessageBox(0, PChar('Couldn''t read file "'+ Filename +'".'), PChar('TGA File Error'), MB_OK);
           Exit;
-        end
-      end;
+        end;
 
       // Extract pixel information from compressed data
       repeat
         Front := Pointer(Integer(CompImage) + BufferIndex);
         Inc(BufferIndex);
-        if Front^ < 128 then
-        begin
-          For I := 0 to Front^ do
-          begin
+        if Front^ < 128 then begin
+          for I := 0 to Front^ do begin
             CopySwapPixel(Pointer(Integer(CompImage)+BufferIndex+I*ColorDepth), Pointer(Integer(image)+CurrentByte));
             CurrentByte := CurrentByte + ColorDepth;
             inc(CurrentPixel);
           end;
           BufferIndex :=BufferIndex + (Front^+1)*ColorDepth
-        end
-        else
-        begin
-          For I := 0 to Front^ -128 do
-          begin
+        end else begin
+          for I := 0 to Front^ -128 do begin
             CopySwapPixel(Pointer(Integer(CompImage)+BufferIndex), Pointer(Integer(image)+CurrentByte));
             CurrentByte := CurrentByte + ColorDepth;
             inc(CurrentPixel);
@@ -452,26 +350,89 @@ begin
       until CurrentPixel >= Width*Height;
       Result := Image;
       if ColorDepth = 3 then Format := GL_RGB
-//        Texture :=CreateTexture(Width, Height, GL_RGB, Image)
       else Format := GL_RGBA;
-//        Texture :=CreateTexture(Width, Height, GL_RGBA, Image);
     end;
-//    FreeMem(Image);
   end;
 end;
 
 
+
+var
+
+  LoadPNG: procedure (var Data: pointer; FileName: PWideChar;
+    var IntFormat,ColorFormat,DataType: TGLConst; var ElementSize: Integer;
+    var width,height: integer);
+  ImgLibHandle: THandle = 0;
+
 {------------------------------------------------------------------}
 {  Determines file type and sends to correct function              }
 {------------------------------------------------------------------}
-function LoadTexture(Filename: String; var Format: Cardinal; var Width, Height: integer; LoadFromRes : Boolean=false) : pointer;
+function LoadTexture(Filename: String; var Format: TGLConst;
+  var Width, Height: integer): Pointer; overload;
+var
+  ext: string;
+  ColorFormat,DataType: TGLConst;
+  eSize: Integer;
 begin
-  if copy(Uppercase(filename), length(filename)-3, 4) = '.BMP' then
-    result:=LoadBMPTexture(Filename, Format, Width, Height, LoadFromRes);
-  if copy(Uppercase(filename), length(filename)-3, 4) = '.JPG' then
-    result:=LoadJPGTexture(Filename, Format, Width, Height, LoadFromRes);
-  if copy(Uppercase(filename), length(filename)-3, 4) = '.TGA' then
-    result:=LoadTGATexture(Filename, Format, Width, Height, LoadFromRes);
+  Result := nil;
+  ext := copy(Uppercase(filename), length(filename) - 3, 4);
+  if ext = '.BMP' then
+    Result := LoadBMPTexture(Filename, Format, Width, Height);
+  if ext = '.TGA' then
+    Result := LoadTGATexture(Filename, Format, Width, Height);
+  if ext = '.PNG' then
+  begin
+    LoadPNG(result,PWideChar(FileName),ColorFormat,Format,DataType,eSize,Width,Height);
+  end;
+
+//  flipSurface(result,Width,Height,eSize);
+end;
+
+function LoadTexture(Filename: String; var iFormat,cFormat,dType: TGLConst; var pSize: Integer;
+  var Width, Height: integer): pointer; overload;
+var
+  ext: String;
+begin
+  Result := nil;
+  ext := copy(Uppercase(filename), length(filename) - 3, 4);
+  if ext = '.BMP' then
+  begin
+    Result := LoadBMPTexture(Filename, cFormat, Width, Height);
+    if cFormat = GL_BGRA then
+    begin
+      iFormat := GL_RGBA8;
+      dType := GL_UNSIGNED_BYTE;
+      pSize := 4;
+    end
+    else
+    begin
+      iFormat := GL_RGB8;
+      dType := GL_UNSIGNED_BYTE;
+      pSize := 3;
+    end;
+  end;
+  if ext = '.TGA' then
+  begin
+    Result := LoadTGATexture(Filename, cFormat, Width, Height);
+    if cFormat = GL_RGB then
+    begin
+      iFormat := GL_RGB8;
+      pSize := 3;
+    end
+    else
+    begin
+      iFormat := GL_RGBA8;
+      pSize := 4;
+    end;
+    dType := GL_UNSIGNED_BYTE;
+  end;
+
+  if ext = '.PNG' then
+  begin
+    LoadPNG(result,PWideChar(FileName),iFormat,cFormat,dType,pSize,Width,Height);
+  end;
+
+  flipSurface(result,Width,Height,pSize)
 end;
 
 
