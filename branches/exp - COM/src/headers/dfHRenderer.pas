@@ -48,6 +48,9 @@ type
   IdfTexture = interface
     ['{3D75E1EB-E4C8-4856-BA55-B98020407605}']
     {$REGION '[private]'}
+    function GetWidth(): Integer;
+    function GetHeight(): Integer;
+
     function GetTexTarget(): TdfTextureTarget;
     function GetTexWrapS(): TdfTextureWrap;
     function GetTexWrapT(): TdfTextureWrap;
@@ -80,6 +83,9 @@ type
     property MagFilter: TdfTextureMagFilter read GetTexMagFilter write SetTexMagFilter;
     property BlendingMode: TdfTextureBlendingMode read GetTexBlendingMode write SetTexBlendingMode;
     property CombineMode: TdfTextureCombineMode read GetTexCombineMode write SetTexCombineMode;
+
+    property Width: Integer read GetWidth;
+    property Height: Integer read GetHeight;
 
 //    procedure Load();
   end;

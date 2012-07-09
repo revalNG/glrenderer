@@ -47,6 +47,9 @@ type
 
     procedure _SetBlendingMode();
   protected
+    function GetWidth(): Integer;
+    function GetHeight(): Integer;
+
     function GetTexTarget(): TdfTextureTarget;
     function GetTexWrapS(): TdfTextureWrap;
     function GetTexWrapT(): TdfTextureWrap;
@@ -80,6 +83,9 @@ type
     property MagFilter: TdfTextureMagFilter read GetTexMagFilter write SetTexMagFilter;
     property BlendingMode: TdfTextureBlendingMode read GetTexBlendingMode write SetTexBlendingMode;
     property CombineMode: TdfTextureCombineMode read GetTexCombineMode write SetTexCombineMode;
+
+    property Width: Integer read GetWidth;
+    property Height: Integer read GetHeight;
   end;
 
 implementation
@@ -137,6 +143,11 @@ begin
   inherited;
 end;
 
+function TdfTexture.GetHeight: Integer;
+begin
+  Result := FTex.Height;
+end;
+
 function TdfTexture.GetTexBlendingMode: TdfTextureBlendingMode;
 begin
   Result := FBlendingMode;
@@ -181,6 +192,11 @@ end;
 function TdfTexture.GetTexWrapT: TdfTextureWrap;
 begin
   Result := FWrapT;
+end;
+
+function TdfTexture.GetWidth: Integer;
+begin
+  Result := FTex.Width;
 end;
 
 procedure TdfTexture.Load2D(const aFileName: String);

@@ -54,6 +54,8 @@
 			<DCCReference Include="box2d\UPhysics2D.pas"/>
 			<DCCReference Include="box2d\UPhysics2DControllers.pas"/>
 			<DCCReference Include="box2d\UPhysics2DTypes.pas"/>
+			<DCCReference Include="uTractor.pas"/>
+			<DCCReference Include="uUtils.pas"/>
 			<BuildConfiguration Include="Base">
 				<Key>Base</Key>
 			</BuildConfiguration>

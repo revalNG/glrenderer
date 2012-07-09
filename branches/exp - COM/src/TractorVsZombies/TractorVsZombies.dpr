@@ -4,31 +4,69 @@ program TractorVsZombies;
 
 uses
   Windows,
-
-  //glrenderer headers
   dfHRenderer in '..\headers\dfHRenderer.pas',
   dfHEngine in '..\common\dfHEngine.pas',
   dfHInput in '..\common\dfHInput.pas',
   dfMath in '..\common\dfMath.pas',
-
-  //game modules
   uMainFunctions in 'uMainFunctions.pas',
-
-  //box2d
   uMyWorld in 'box2d\uMyWorld.pas',
   UPhysics2D in 'box2d\UPhysics2D.pas',
   UPhysics2DControllers in 'box2d\UPhysics2DControllers.pas',
-  UPhysics2DTypes in 'box2d\UPhysics2DTypes.pas';
+  UPhysics2DTypes in 'box2d\UPhysics2DTypes.pas',
+  uTractor in 'uTractor.pas',
+  uUtils in 'uUtils.pas';
+
+  procedure OnBeforeSimulation(const dt: Double);
+  begin
+    if dfInput.IsKeyDown(VK_RIGHT) then
+    begin
+//      b2wheel_big.ApplyTorque(10*dt);
+      b2Sprite.LinearDamping := 0.1;
+      joint1.EnableMotor(True);
+      joint1.SetMotorSpeed(-5);
+      joint1.SetMaxMotorTorque(200);
+
+//      joint2.EnableMotor(True);
+//      joint2.SetMotorSpeed(-4);
+//      joint2.SetMaxMotorTorque(400);
+    end
+    else if dfInput.IsKeyDown(VK_LEFT) then
+    begin
+      b2Sprite.LinearDamping := 0.1;
+      joint1.EnableMotor(True);
+      joint1.SetMotorSpeed(5);
+      joint1.SetMaxMotorTorque(200);
+
+//      joint2.EnableMotor(True);
+//      joint2.SetMotorSpeed(4);
+//      joint2.SetMaxMotorTorque(400);
+    end
+    else if dfInput.IsKeyDown(VK_DOWN) then
+    begin
+      joint1.EnableMotor(True);
+      joint1.SetMotorSpeed(0);
+      joint1.SetMaxMotorTorque(0.5);
+
+      joint2.EnableMotor(True);
+      joint2.SetMotorSpeed(0);
+      joint2.SetMaxMotorTorque(0.1);
+      b2Sprite.LinearDamping := 1;
+    end
+    else
+    begin
+      b2Sprite.LinearDamping := 0.1;
+      joint1.EnableMotor(False);
+      joint2.EnableMotor(False);
+      joint1.SetMaxMotorTorque(200);
+    end;
+  end;
 
   procedure OnUpdate(const dt: Double);
   begin
-    if dfInput.IsKeyDown(VK_RIGHT) then
-      Sprite.Position := Sprite.Position + dfVec2f(50 * dt, 0)
-    else if dfInput.IsKeyDown(VK_LEFT) then
-      Sprite.Position := Sprite.Position + dfVec2f(-50 * dt, 0);
-
     b2World.Update(dt);
-    SyncObjects(b2Sprite, Sprite);
+//    SyncObjects(b2Sprite, Sprite);
+//    SyncObjects(b2wheel_big, wheel_big);
+//    SyncObjects(b2wheel_small, wheel_small);
   end;
 
 begin
@@ -42,10 +80,12 @@ begin
   R.Init('settings_TvsZ.txt');
 
   InitPhysics();
-  InitSprite();
+//  InitSprite();
+//  InitJoints();
   InitEarth();
 
   R.OnUpdate := OnUpdate;
+  b2World.OnBeforeSimulation := OnBeforeSimulation;
 
   R.Start(); //Прерывание по Escape задано внутри модуля
 
