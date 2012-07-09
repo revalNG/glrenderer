@@ -103,26 +103,6 @@ begin
   dfLoadSprite(FGLWheelBig, WheelBigTexture, aPos + aParams.WheelBigOffset, 0);
   dfLoadSprite(FGLWheelSmall, WheelSmallTexture, aPos + aParams.WheelSmallOffset, 0);
 
-//  fsusp1 := dfNewSpriteWithNode(RootNode);
-//  with fsusp1 do
-//  begin
-//    Width := 10;
-//    Height := 10;
-//    Position := FGLBody.Position + aParams.Susp1Offset;
-//    PivotPoint := ppCenter;
-//  end;
-//
-//  fsusp2 := dfNewSpriteWithNode(RootNode);
-//  with fsusp2 do
-//  begin
-//    Width := 10;
-//    Height := 10;
-//    Position := FGLBody.Position + aParams.Susp2Offset;
-//    PivotPoint := ppCenter;
-//  end;
-
-
-
   Ftp := aParams;
   Restart(aPos);
 end;
@@ -157,23 +137,16 @@ begin
   Fb2Body.GetMassData(mass);
   Fb2Body.AngularDamping := 1;
   mass.center.SetValue(Ftp.MassCenterOffset.x * C_COEF, Ftp.MassCenterOffset.y * C_COEF);
-//  mass.I := 15;
   Fb2Body.SetMassData(mass);
 
   Fb2WheelBig := dfb2InitCircle(Fb2World, FGLWheelBig, Ftp.WheelBigD, Ftp.WheelBigF, Ftp.WheelBigR, $0002, $0004);
   Fb2WheelBig.GetMassData(mass); mass.I := 0.1; Fb2WheelBig.SetMassData(mass);
 
   Fb2WheelSmall := dfb2InitCircle(Fb2World, FGLWheelSmall, Ftp.WheelSmallD, Ftp.WheelSmallF, Ftp.WheelSmallR, $0002, $0004);
-//  Fb2WheelSmall.GetMassData(mass); mass.I := 0.5; Fb2WheelSmall.SetMassData(mass);
+  Fb2WheelSmall.GetMassData(mass); mass.I := 0.1; Fb2WheelSmall.SetMassData(mass);
 
-//  Fb2Susp1 := dfb2InitCircle(b2World, fsusp1, aParams.SuspD, aParams.SuspF, aParams.SuspR, $0002, $0004);
   Fb2Susp1 := dfb2InitCircle(Fb2World, 10, FGLBody.Position + Ftp.Susp1Offset, Ftp.SuspD, Ftp.SuspF, Ftp.SuspR, $0002, $0004);
-//  Fb2Susp1.GetMassData(mass); mass.I := 5; Fb2Susp1.SetMassData(mass);
-
-//  Fb2Susp2 := dfb2InitCircle(b2World, fsusp2, aParams.SuspD, aParams.SuspF, aParams.SuspR, $0002, $0004);
   Fb2Susp2 := dfb2InitCircle(Fb2World, 10, FGLBody.Position + Ftp.Susp2Offset, Ftp.SuspD, Ftp.SuspF, Ftp.SuspR, $0002, $0004);
-//  Fb2Susp2.GetMassData(mass); mass.I := 5; Fb2Susp2.SetMassData(mass);
-
 
   //=====JOINTS=====
 
@@ -204,12 +177,10 @@ begin
 
   rev_def := Tb2RevoluteJointDef.Create;
   rev_def.Initialize(Fb2WheelBig, Fb2Susp1, Fb2WheelBig.GetPosition);
-//  rev_def.enableLimit := False;
   Fb2WheelJoint1 := Tb2RevoluteJoint(b2World.CreateJoint(rev_def));
 
   rev_def := Tb2RevoluteJointDef.Create;
   rev_def.Initialize(Fb2WheelSmall, Fb2Susp2, Fb2WheelSmall.GetPosition);
-//  rev_def.enableLimit := False;
   Fb2WheelJoint2 := Tb2RevoluteJoint(b2World.CreateJoint(rev_def));
 end;
 
@@ -265,8 +236,6 @@ begin
   SyncObjects(Fb2WheelBig, FGLWheelBig);
   SyncObjects(Fb2WheelSmall, FGLWheelSmall);
 
-//  SyncObjects(Fb2Susp1, fsusp1);
-//  SyncObjects(Fb2Susp2, fsusp2);
   TractorHandling(dt);
 end;
 
