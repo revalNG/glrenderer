@@ -82,6 +82,8 @@ type
     function GetOnUpdate(): TdfOnUpdateProc;
     procedure SetOnUpdate(aProc: TdfOnUpdateProc);
 
+    function GetSelfVersion(): String;
+
     procedure WMLButtonDown    (var Msg: TMessage); message WM_LBUTTONDOWN;
     procedure WMLButtonUp      (var Msg: TMessage); message WM_LBUTTONUP;
     procedure WMLButtonDblClick(var Msg: TMessage); message WM_LBUTTONDBLCLK;
@@ -297,6 +299,33 @@ end;
 function TdfRenderer.GetRoot: IdfNode;
 begin
   Result := FRootNode;
+end;
+
+function TdfRenderer.GetSelfVersion: String;
+var
+  FileName: String;
+  VerInfoSize: Cardinal;
+  VerValueSize: Cardinal;
+  Dummy: Cardinal;
+  PVerInfo: Pointer;
+  PVerValue: PVSFixedFileInfo;
+begin
+  FileName := dfHRenderer.dllName;
+  Result := '';
+  VerInfoSize := GetFileVersionInfoSize(PChar(FileName), Dummy);
+  GetMem(PVerInfo, VerInfoSize);
+  try
+    if GetFileVersionInfo(PChar(FileName), 0, VerInfoSize, PVerInfo) then
+      if VerQueryValue(PVerInfo, '\', Pointer(PVerValue), VerValueSize) then
+        with PVerValue^ do
+          Result := Format('v%d.%d.%d build %d', [
+            HiWord(dwFileVersionMS), //Major
+            LoWord(dwFileVersionMS), //Minor
+            HiWord(dwFileVersionLS), //Release
+            LoWord(dwFileVersionLS)]); //Build
+  finally
+    FreeMem(PVerInfo, VerInfoSize);
+  end;
 end;
 
 function TdfRenderer.GetFPS(): Single;
@@ -522,8 +551,7 @@ constructor TdfRenderer.Create;
 begin
   FRenderReady := False;
   FWHandle := 0;
-  FWCaption := '';
-  WindowCaption := cDefWindowCaption;
+  FWCaption := cDefWindowCaption;
 
   FRootNode := TdfNode.Create();
 end;
@@ -544,7 +572,7 @@ var
   atomColor: TdfVec3f;
   cFOV, cZNear, cZFar: Single;
   bDrawLight, bVSync: Boolean;
-
+  tmpString: String;
 begin
   uLogger.LogInit();
 
@@ -601,6 +629,11 @@ begin
         FWX := par.TokenInt;
         par.NextToken;
         FWY := par.TokenInt;
+      end
+      else if par.TokenString = 'caption' then
+      begin
+        par.NextToken;
+        FWCaption := PWideChar(par.TokenString);
       end
       else if par.TokenString = 'backgroundColor' then
       begin
@@ -765,7 +798,8 @@ begin
     FhHandCursor := LoadCursor(0, IDC_HAND);
 
     Windows.RegisterClass(FWndClass);
-    FWHandle := CreateWindow('TdfWindow', cDefWindowCaption, FWStyle,
+    tmpString := FWCaption + ' [glRenderer ' + GetSelfVersion + ']';
+    FWHandle := CreateWindow('TdfWindow', PChar(tmpString), FWStyle,
                             FWX, FWY, FdesRect.Right - FdesRect.Left, FdesRect.Bottom - FdesRect.Top, 0, 0, FWndClass.hInstance, nil);
     if FWHandle = 0 then
     begin
