@@ -16,57 +16,43 @@ uses
   uTractor in 'uTractor.pas',
   uUtils in 'uUtils.pas';
 
+var
+  tp: TtzTractorParams = (
+    BodyR:       0.0; BodyD:       1.0; BodyF:        0.5;
+    WheelBigR:   0.0; WheelBigD:   0.1; WheelBigF:    5.0;
+    WheelSmallR: 0.0; WheelSmallD: 0.1; WheelSmallF:  5.0;
+    SuspR:       0.0; SuspD:       1.0; SuspF:        0.0;
+
+    MassCenterOffset: (X: 0; Y: 0);
+
+    WheelBigOffset: (X: -23; Y: 20);
+    WheelSmallOffset: (X: 35; Y: 25);
+
+    Susp1Offset: (X: -23; Y: 17);
+    Susp2Offset: (X: 35; Y: 22);
+    Susp1Limits: (X: -2; Y: 3;);
+    Susp2Limits: (X: -1; Y: 1;);
+    Susp1MotorSpeed: 0.2; Susp2MotorSpeed: 0.1;
+    Susp1MaxMotorForce: 0.2; Susp2MaxMotorForce: 0.1);
+
+  Tractor: TtzTractor;
+  b_Enter: Boolean;
+
+
   procedure OnBeforeSimulation(const dt: Double);
   begin
-    if dfInput.IsKeyDown(VK_RIGHT) then
-    begin
-//      b2wheel_big.ApplyTorque(10*dt);
-      b2Sprite.LinearDamping := 0.1;
-      joint1.EnableMotor(True);
-      joint1.SetMotorSpeed(-5);
-      joint1.SetMaxMotorTorque(200);
-
-//      joint2.EnableMotor(True);
-//      joint2.SetMotorSpeed(-4);
-//      joint2.SetMaxMotorTorque(400);
-    end
-    else if dfInput.IsKeyDown(VK_LEFT) then
-    begin
-      b2Sprite.LinearDamping := 0.1;
-      joint1.EnableMotor(True);
-      joint1.SetMotorSpeed(5);
-      joint1.SetMaxMotorTorque(200);
-
-//      joint2.EnableMotor(True);
-//      joint2.SetMotorSpeed(4);
-//      joint2.SetMaxMotorTorque(400);
-    end
-    else if dfInput.IsKeyDown(VK_DOWN) then
-    begin
-      joint1.EnableMotor(True);
-      joint1.SetMotorSpeed(0);
-      joint1.SetMaxMotorTorque(0.5);
-
-      joint2.EnableMotor(True);
-      joint2.SetMotorSpeed(0);
-      joint2.SetMaxMotorTorque(0.1);
-      b2Sprite.LinearDamping := 1;
-    end
-    else
-    begin
-      b2Sprite.LinearDamping := 0.1;
-      joint1.EnableMotor(False);
-      joint2.EnableMotor(False);
-      joint1.SetMaxMotorTorque(200);
-    end;
+    Tractor.Update(dt);
   end;
 
   procedure OnUpdate(const dt: Double);
   begin
+//    Tractor.Update(dt);
     b2World.Update(dt);
-//    SyncObjects(b2Sprite, Sprite);
-//    SyncObjects(b2wheel_big, wheel_big);
-//    SyncObjects(b2wheel_small, wheel_small);
+    if dfInput.IsKeyPressed(VK_RETURN, @b_Enter) then
+    begin
+      Tractor.Restart(dfVec2f(70, 50));
+    end;
+
   end;
 
 begin
@@ -80,18 +66,22 @@ begin
   R.Init('settings_TvsZ.txt');
 
   InitPhysics();
-//  InitSprite();
-//  InitJoints();
   InitEarth();
+
+  Tractor := TtzTractor.Create;
+  Tractor.Init(uMainFunctions.b2World, R.RootNode, tp,
+    'data\tractor.tga', 'data\wheel_big.tga', 'data\wheel_small.tga', dfVec2f(70, 50));
 
   R.OnUpdate := OnUpdate;
   b2World.OnBeforeSimulation := OnBeforeSimulation;
 
   R.Start(); //Прерывание по Escape задано внутри модуля
 
-  R.DeInit();
-  DeInitSprite();
+
+  Tractor.Free;
   DeInitEarth();
   DeInitPhysics();
+
+  R.DeInit();
   UnLoadRendererLib();
 end.
