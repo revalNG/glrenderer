@@ -72,7 +72,9 @@ uses
   ExportFunc in 'ExportFunc.pas',
   TexLoad in 'TexLoad.pas',
   uRenderable in 'uRenderable.pas',
-  uMaterial in 'uMaterial.pas';
+  uMaterial in 'uMaterial.pas',
+  uFont in 'uFont.pas',
+  uText in 'uText.pas';
 
 exports
   CreateRenderer, CreateNode, CreateHUDSprite, CreateMaterial, CreateTexture;

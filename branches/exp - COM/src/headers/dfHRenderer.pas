@@ -342,12 +342,13 @@ type
 
   end;
 
+  {$REGION ' 2D-рендер '}
+
   {“очка отсчета дл€ рендера 2ƒ вещей}
   Tdf2DPivotPoint = (ppTopLeft, ppTopRight, ppBottomLeft, ppBottomRight, ppCenter);
 
-  { IdfSprite - двумерный спрайт, отображающийс€ на экране (HUD-sprite) без искажений }
-  IdfSprite = interface (IdfRenderable)
-    ['{C8048F34-9F3D-4E58-BC71-633F2413A9A5}']
+  {ќтличительные особенности - не использует матрицу Node, а собственные свойства}
+  Idf2DRenderable = interface(IdfRenderable)
     {$REGION '[private]'}
     function GetWidth(): Single;
     procedure SetWidth(const aWidth: Single);
@@ -362,16 +363,58 @@ type
     function GetPivot(): Tdf2DPivotPoint;
     procedure SetPivot(const aPivot: Tdf2DPivotPoint);
     {$ENDREGION}
-    property Width: Single read GetWidth write SetWidth;
-    property Height: Single read GetHeight write SetHeight;
 
-    //TdfVec3f - дл€ глубины?  ак реализовать?
     property Position: TdfVec2f read GetPos write SetPos;
     property Scale: TdfVec2f read GetScale write SetScale;
     procedure ScaleMult(const aScale: TdfVec2f);
     property Rotation: Single read GetRot write SetRot;
     property PivotPoint: Tdf2DPivotPoint read GetPivot write SetPivot;
+
+    property Width: Single read GetWidth write SetWidth;
+    property Height: Single read GetHeight write SetHeight;
   end;
+
+  { IdfSprite - двумерный спрайт, отображающийс€ на экране (HUD-sprite) без искажений }
+  IdfSprite = interface (Idf2DRenderable)
+    ['{C8048F34-9F3D-4E58-BC71-633F2413A9A5}']
+  end;
+
+  { IdfFont отвечает за хранение шрифта, которым может быть отрендерен текст }
+  IdfFont = interface
+    ['{C05DAC6F-ABC0-41BF-9752-6064395741D2}']
+    {$REGION '[private]'}
+    function GetTexture(): IdfTexture;
+//    procedure SetTexture(aTexture: IdfTexture);
+    {$ENDREGION}
+
+    procedure LoadFromTTF(aFile: String);
+    property Texture: IdfTexture read GetTexture;
+  end;
+
+  { IdfText - текст, отображающийс€ на экране без искажений и вне зависимости
+    от положени€ камеры (HUD-элемент)}
+  IdfText = interface (Idf2DRenderable)
+    ['{C0E53D75-7C6B-4218-AA3E-B6FE6076EA68}']
+    {$REGION '[private]'}
+    function GetFont(): IdfFont;
+    procedure SetFont(aFont: IdfFont);
+    function GetText(): String;
+    procedure SetText(aText: String);
+
+    function GetWidth(): Single;
+    procedure SetWidth(const aWidth: Single);
+    function GetHeight(): Single;
+    procedure SetHeight(const aHeight: Single);
+    {$ENDREGION}
+
+    property Font: IdfFont read GetFont write SetFont;
+    property Text: String read GetText write SetText;
+
+    property Width: Single read GetWidth write SetWidth;
+    property Height: Single read GetHeight write SetHeight;
+  end;
+
+  {$ENDREGION}
 
   procedure LoadRendererLib();
   procedure UnLoadRendererLib();

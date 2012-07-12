@@ -47,8 +47,8 @@ type
 
     {debug}
 //    FSprite: IdfSprite;
-    FLight: IdfLight;
-    bL, bR, bU, bD: Boolean;
+//    FLight: IdfLight;
+//    bL, bR, bU, bD: Boolean;
 
     //коллбэки для мыши
     FOnMouseDown: TdfOnMouseDownProc;
@@ -566,12 +566,12 @@ function TdfRenderer.Init(FileName: PAnsiChar): Integer;
 var
   strData: TFileStream;
   par: TParser;
-  camPos, camLook, camUp, lightPos: TdfVec3f;
-  lAmb, lDif, lSpec: TdfVec4f; //Цвет источника света
-  lConstAtten, lLinearAtten, lQuadroAtten: Single; //Параметры источника света
-  atomColor: TdfVec3f;
+  camPos, camLook, camUp{, lightPos}: TdfVec3f;
+//  lAmb, lDif, lSpec: TdfVec4f; //Цвет источника света
+//  lConstAtten, lLinearAtten, lQuadroAtten: Single; //Параметры источника света
+//  atomColor: TdfVec3f;
   cFOV, cZNear, cZFar: Single;
-  bDrawLight, bVSync: Boolean;
+  {bDrawLight, }bVSync: Boolean;
   tmpString: String;
 begin
   uLogger.LogInit();
@@ -580,9 +580,9 @@ begin
   FWHeight := cDefWindowH;
   FWX := cDefWindowX;
   FWY := cDefWindowY;
-  lConstAtten := cDefConstAtten;
-  lLinearAtten := cDefLinearAtten;
-  lQuadroAtten := cDefQuadroAtten;
+//  lConstAtten := cDefConstAtten;
+//  lLinearAtten := cDefLinearAtten;
+//  lQuadroAtten := cDefQuadroAtten;
 
   try
 
@@ -697,77 +697,77 @@ begin
         par.NextToken;
         camUp.z := par.TokenFloat;
       end
-      else if par.TokenString = 'lightPos' then
-      begin
-        par.NextToken;
-        lightPos.x := par.TokenFloat;
-        par.NextToken;
-        lightPos.y := par.TokenFloat;
-        par.NextToken;
-        lightPos.z := par.TokenFloat;
-      end
-      else if par.TokenString = 'lightAmbColor' then
-      begin
-        par.NextToken;
-        lAmb.x := par.TokenFloat;
-        par.NextToken;
-        lAmb.y := par.TokenFloat;
-        par.NextToken;
-        lAmb.z := par.TokenFloat;
-        par.NextToken;
-        lAmb.w := par.TokenFloat;
-      end
-      else if par.TokenString = 'lightDifColor' then
-      begin
-        par.NextToken;
-        lDif.x := par.TokenFloat;
-        par.NextToken;
-        lDif.y := par.TokenFloat;
-        par.NextToken;
-        lDif.z := par.TokenFloat;
-        par.NextToken;
-        lDif.w := par.TokenFloat;
-      end
-      else if par.TokenString = 'lightSpecColor' then
-      begin
-        par.NextToken;
-        lSpec.x := par.TokenFloat;
-        par.NextToken;
-        lSpec.y := par.TokenFloat;
-        par.NextToken;
-        lSpec.z := par.TokenFloat;
-        par.NextToken;
-        lSpec.w := par.TokenFloat;
-      end
-      else if par.TokenString = 'lightConstAtten' then
-      begin
-        par.NextToken;
-        lConstAtten := par.TokenFloat;
-      end
-      else if par.TokenString = 'lightLinearAtten' then
-      begin
-        par.NextToken;
-        lLinearAtten := par.TokenFloat;
-      end
-      else if par.TokenString = 'lightQuadroAtten' then
-      begin
-        par.NextToken;
-        lQuadroAtten := par.TokenFloat;
-      end
-      else if par.TokenString = 'lightDraw' then
-      begin
-        par.NextToken;
-        bDrawLight := (par.TokenString = 'true');
-      end
-      else if par.TokenString = 'atomColor' then
-      begin
-        par.NextToken;
-        atomColor.x := par.TokenFloat;
-        par.NextToken;
-        atomColor.y := par.TokenFloat;
-        par.NextToken;
-        atomColor.z := par.TokenFloat;
-      end;
+//      else if par.TokenString = 'lightPos' then
+//      begin
+//        par.NextToken;
+//        lightPos.x := par.TokenFloat;
+//        par.NextToken;
+//        lightPos.y := par.TokenFloat;
+//        par.NextToken;
+//        lightPos.z := par.TokenFloat;
+//      end
+//      else if par.TokenString = 'lightAmbColor' then
+//      begin
+//        par.NextToken;
+//        lAmb.x := par.TokenFloat;
+//        par.NextToken;
+//        lAmb.y := par.TokenFloat;
+//        par.NextToken;
+//        lAmb.z := par.TokenFloat;
+//        par.NextToken;
+//        lAmb.w := par.TokenFloat;
+//      end
+//      else if par.TokenString = 'lightDifColor' then
+//      begin
+//        par.NextToken;
+//        lDif.x := par.TokenFloat;
+//        par.NextToken;
+//        lDif.y := par.TokenFloat;
+//        par.NextToken;
+//        lDif.z := par.TokenFloat;
+//        par.NextToken;
+//        lDif.w := par.TokenFloat;
+//      end
+//      else if par.TokenString = 'lightSpecColor' then
+//      begin
+//        par.NextToken;
+//        lSpec.x := par.TokenFloat;
+//        par.NextToken;
+//        lSpec.y := par.TokenFloat;
+//        par.NextToken;
+//        lSpec.z := par.TokenFloat;
+//        par.NextToken;
+//        lSpec.w := par.TokenFloat;
+//      end
+//      else if par.TokenString = 'lightConstAtten' then
+//      begin
+//        par.NextToken;
+//        lConstAtten := par.TokenFloat;
+//      end
+//      else if par.TokenString = 'lightLinearAtten' then
+//      begin
+//        par.NextToken;
+//        lLinearAtten := par.TokenFloat;
+//      end
+//      else if par.TokenString = 'lightQuadroAtten' then
+//      begin
+//        par.NextToken;
+//        lQuadroAtten := par.TokenFloat;
+//      end
+//      else if par.TokenString = 'lightDraw' then
+//      begin
+//        par.NextToken;
+//        bDrawLight := (par.TokenString = 'true');
+//      end
+//      else if par.TokenString = 'atomColor' then
+//      begin
+//        par.NextToken;
+//        atomColor.x := par.TokenFloat;
+//        par.NextToken;
+//        atomColor.y := par.TokenFloat;
+//        par.NextToken;
+//        atomColor.z := par.TokenFloat;
+//      end;
     until par.NextToken = toEOF;
     par.Free;
     strData.Free;
@@ -872,18 +872,18 @@ begin
     FCamera.Viewport(0, 0, FWWidth, FWHeight, cFOV, cZNear, cZFar);
     FCamera.SetCamera(camPos, camLook, camUp);
 
-    FLight := TdfLight.Create;
-    with FLight do
-    begin
-      Position := lightPos;
-      Ambient := lAmb;
-      Diffuse := lDif;
-      Specular := lSpec;
-      ConstAtten := lConstAtten;
-      LinearAtten := lLinearAtten;
-      QuadraticAtten := lQuadroAtten;
-      DebugRender := bDrawLight;
-    end;
+//    FLight := TdfLight.Create;
+//    with FLight do
+//    begin
+//      Position := lightPos;
+//      Ambient := lAmb;
+//      Diffuse := lDif;
+//      Specular := lSpec;
+//      ConstAtten := lConstAtten;
+//      LinearAtten := lLinearAtten;
+//      QuadraticAtten := lQuadroAtten;
+//      DebugRender := bDrawLight;
+//    end;
 
 //    Light.LightInit();
 //    renderLightSet(lightPos.x, lightPos.y, lightpos.z,
@@ -943,7 +943,7 @@ begin
       if FDrawAxes then
         DrawAxes();
 
-      FLight.Render(deltaTime);
+//      FLight.Render(deltaTime);
       FRootNode.Render(deltaTime);
 
 //      if dfInput.IsKeyDown(VK_MOUSEWHEELUP) then
@@ -1004,15 +1004,15 @@ begin
 end;
 
 function TdfRenderer.DeInit(): Integer;
-var
-  i: Integer;
+//var
+//  i: Integer;
 begin
   Result := 0;
   logWriteMessage('Деинициализация рендера');
   try
     FRenderReady := False;
     FCamera := nil;
-    FLight := nil;
+//    FLight := nil;
 
     //Необходимо для успешного удаления без утечек
 //    with FRootNode do

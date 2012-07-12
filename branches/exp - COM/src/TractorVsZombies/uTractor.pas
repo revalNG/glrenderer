@@ -36,8 +36,6 @@ type
   private
     //Спрайты
     FGLBody, FGLWheelBig, FGLWheelSmall: IdfSprite;
-    //Ноды сцены
-//    FNodeBody, FNodeWheelBig, FNodeWheelSmall: IdfNode;
     //Тела box2d
     Fb2World: Tb2World;
     Fb2Body, Fb2WheelBig, Fb2WheelSmall, Fb2Susp1 {big}, Fb2Susp2 {small}: Tb2Body;
@@ -47,7 +45,6 @@ type
     //Сохраняем настройки
     Ftp: TtzTractorParams;
 
-//    fsusp1, fsusp2: IdfSprite;
 
     b_A, b_D: Boolean; //Для нажатия клавиш
   protected
@@ -143,10 +140,11 @@ begin
   Fb2WheelBig.GetMassData(mass); mass.I := 0.1; Fb2WheelBig.SetMassData(mass);
 
   Fb2WheelSmall := dfb2InitCircle(Fb2World, FGLWheelSmall, Ftp.WheelSmallD, Ftp.WheelSmallF, Ftp.WheelSmallR, $0002, $0004);
-  Fb2WheelSmall.GetMassData(mass); mass.I := 0.1; Fb2WheelSmall.SetMassData(mass);
+  Fb2WheelSmall.GetMassData(mass); mass.I := 0.05; Fb2WheelSmall.SetMassData(mass);
 
-  Fb2Susp1 := dfb2InitCircle(Fb2World, 10, FGLBody.Position + Ftp.Susp1Offset, Ftp.SuspD, Ftp.SuspF, Ftp.SuspR, $0002, $0004);
-  Fb2Susp2 := dfb2InitCircle(Fb2World, 10, FGLBody.Position + Ftp.Susp2Offset, Ftp.SuspD, Ftp.SuspF, Ftp.SuspR, $0002, $0004);
+  Fb2Susp1 := dfb2InitCircle(Fb2World, 15, FGLBody.Position + Ftp.Susp1Offset, Ftp.SuspD, Ftp.SuspF, Ftp.SuspR, $0002, $0004);
+  Fb2Susp2 := dfb2InitCircle(Fb2World, 15, FGLBody.Position + Ftp.Susp2Offset, Ftp.SuspD, Ftp.SuspF, Ftp.SuspR, $0002, $0004);
+//  Fb2Susp2.GetMassData(mass); mass.I := 2.0; Fb2Susp2.SetMassData(mass);
 
   //=====JOINTS=====
 
@@ -157,7 +155,7 @@ begin
   pri_def.Initialize(Fb2Body, Fb2Susp1, Fb2Susp1.GetPosition, susp_axis);
   pri_def.enableLimit := True;
   pri_def.enableMotor := True;
-  Fb2SuspJoint1 := Tb2PrismaticJoint(b2World.CreateJoint(pri_def));
+  Fb2SuspJoint1 := Tb2PrismaticJoint(Fb2World.CreateJoint(pri_def));
   Fb2SuspJoint1.SetLimits(Ftp.Susp1Limits.x * C_COEF, Ftp.Susp1Limits.y * C_COEF);
   Fb2SuspJoint1.SetMotorSpeed(Ftp.Susp1MotorSpeed);
   Fb2SuspJoint1.SetMaxMotorForce(Ftp.Susp1MaxMotorForce);
@@ -168,7 +166,7 @@ begin
   pri_def.Initialize(Fb2Body, Fb2Susp2, Fb2Susp2.GetPosition, susp_axis);
   pri_def.enableLimit := True;
   pri_def.enableMotor := True;
-  Fb2SuspJoint2 := Tb2PrismaticJoint(b2World.CreateJoint(pri_def));
+  Fb2SuspJoint2 := Tb2PrismaticJoint(Fb2World.CreateJoint(pri_def));
   Fb2SuspJoint2.SetLimits(Ftp.Susp2Limits.x * C_COEF, Ftp.Susp2Limits.y * C_COEF);
   Fb2SuspJoint2.SetMotorSpeed(Ftp.Susp2MotorSpeed);
   Fb2SuspJoint2.SetMaxMotorForce(Ftp.Susp2MaxMotorForce);
@@ -177,11 +175,11 @@ begin
 
   rev_def := Tb2RevoluteJointDef.Create;
   rev_def.Initialize(Fb2WheelBig, Fb2Susp1, Fb2WheelBig.GetPosition);
-  Fb2WheelJoint1 := Tb2RevoluteJoint(b2World.CreateJoint(rev_def));
+  Fb2WheelJoint1 := Tb2RevoluteJoint(Fb2World.CreateJoint(rev_def));
 
   rev_def := Tb2RevoluteJointDef.Create;
   rev_def.Initialize(Fb2WheelSmall, Fb2Susp2, Fb2WheelSmall.GetPosition);
-  Fb2WheelJoint2 := Tb2RevoluteJoint(b2World.CreateJoint(rev_def));
+  Fb2WheelJoint2 := Tb2RevoluteJoint(Fb2World.CreateJoint(rev_def));
 end;
 
 procedure TtzTractor.SetMotorToJoint(aJoint: Tb2RevoluteJoint; aMotorEnable: Boolean; aSpeed,
@@ -194,8 +192,8 @@ end;
 
 procedure TtzTractor.TractorHandling(const dt: Double);
 begin
-  Fb2WheelSmall.AngularDamping := 0.1;
-  Fb2WheelSmall.LinearDamping := 0.1;
+//  Fb2WheelSmall.AngularDamping := 0.1;
+//  Fb2WheelSmall.LinearDamping := 0.1;
   Fb2WheelBig.AngularDamping := 0.1;
   Fb2WheelBig.LinearDamping := 0.1;
   if dfInput.IsKeyDown(VK_UP) then
@@ -215,9 +213,9 @@ begin
   begin
     SetMotorToJoint(Fb2WheelJoint1, True, 0, 0.1);
     SetMotorToJoint(Fb2WheelJoint2, True, 0, 0.1);
-    Fb2WheelSmall.AngularDamping := 10;
+//    Fb2WheelSmall.AngularDamping := 10;
+//    Fb2WheelSmall.LinearDamping := 10;
     Fb2WheelBig.AngularDamping := 10;
-    Fb2WheelSmall.LinearDamping := 10;
     Fb2WheelBig.LinearDamping := 10;
   end;
   if dfInput.IsKeyPressed(VK_LEFT, @b_A) {or dfInput.IsKeyPressed('ф', @b_a)} then

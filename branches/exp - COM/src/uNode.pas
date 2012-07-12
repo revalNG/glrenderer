@@ -112,8 +112,8 @@ begin
 end;
 
 destructor TdfNode.Destroy;
-var
-  i: Integer;
+//var
+//  i: Integer;
 begin
 //  for i := 0 to FChilds.Count - 1 do
 //    IdfNode(FChilds[i]).Parent := nil;
