@@ -9,6 +9,8 @@ uses
 type
   TdfText = class(Tdf2DRenderable, IdfText)
   private
+    FFont: IdfFont;
+    FText: String;
   protected
     function GetFont(): IdfFont;
     procedure SetFont(aFont: IdfFont);
@@ -24,42 +26,85 @@ type
     property Font: IdfFont read GetFont write SetFont;
     property Text: String read GetText write SetText;
 
+    procedure DoRender(); override;
+
 //    property Width: Single read GetWidth write SetWidth;
 //    property Height: Single read GetHeight write SetHeight;
   end;
 
 implementation
 
+uses
+  dfHGL;
+
 { TdfText }
+
+procedure TdfText.DoRender;
+begin
+  inherited;
+  if not Assigned(FFont) then
+    Exit();
+
+  gl.MatrixMode(GL_PROJECTION);
+  gl.PushMatrix();
+  gl.LoadIdentity();
+  //Как получить размеры экрана??
+  gl.Ortho(0, 800, 600, 0, -1, 1);
+  gl.MatrixMode(GL_MODELVIEW);
+  gl.LoadIdentity();
+  gl.Translatef(FPos.x, FPos.y, 0);
+  gl.Rotatef(FRot, 0, 0, 1);
+//  gl.Disable(GL_DEPTH_TEST);
+//  gl.Disable(GL_LIGHTING);
+
+  FFont.PrintText(FText);
+  {Debug - выводим pivot point}
+{
+  gl.PointSize(5);
+  gl.Color3f(1, 1, 1);
+  gl.Translatef(-FPos.x, -FPos.y, 0);
+  gl.Beginp(GL_POINTS);
+    gl.Vertex2fv(FPos);
+  gl.Endp();
+
+}
+
+  gl.Enable(GL_LIGHTING);
+  gl.Enable(GL_DEPTH_TEST);
+  gl.MatrixMode(GL_PROJECTION);
+  gl.PopMatrix();
+  gl.MatrixMode(GL_MODELVIEW);
+
+end;
 
 function TdfText.GetFont: IdfFont;
 begin
-
+  Result := FFont;
 end;
 
 function TdfText.GetText: String;
 begin
-
+  Result := FText;
 end;
 
 procedure TdfText.SetFont(aFont: IdfFont);
 begin
-
+  FFont := aFont;
 end;
 
 procedure TdfText.SetHeight(const aHeight: Single);
 begin
-
+  inherited;
 end;
 
 procedure TdfText.SetText(aText: String);
 begin
-
+  FText := aText;
 end;
 
 procedure TdfText.SetWidth(const aWidth: Single);
 begin
-
+  inherited;
 end;
 
 end.

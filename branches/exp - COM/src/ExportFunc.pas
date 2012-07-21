@@ -10,11 +10,13 @@ uses
   function CreateHUDSprite(): IdfSprite; stdcall;
   function CreateMaterial: IdfMaterial; stdcall;
   function CreateTexture(): IdfTexture; stdcall;
+  function CreateFont(): IdfFont; stdcall;
+  function CreateText(): IdfText; stdcall;
 
 implementation
 
 uses
-  uRenderer, uNode, uSprite, uTexture, uMaterial;
+  uRenderer, uNode, uSprite, uTexture, uMaterial, uFont, uText;
 
 function CreateRenderer(): IdfRenderer;
 begin
@@ -49,6 +51,16 @@ end;
 function CreateTexture(): IdfTexture;
 begin
   Result := TdfTexture.Create();
+end;
+
+function CreateFont(): IdfFont;
+begin
+  Result := TdfFont.Create();
+end;
+
+function CreateText(): IdfText;
+begin
+  Result := TdfText.Create();
 end;
 
 end.

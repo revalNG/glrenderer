@@ -77,6 +77,7 @@ uses
   uText in 'uText.pas';
 
 exports
-  CreateRenderer, CreateNode, CreateHUDSprite, CreateMaterial, CreateTexture;
+  CreateRenderer, CreateNode, CreateHUDSprite, CreateMaterial, CreateTexture,
+  CreateFont, CreateText;
 begin
 end.

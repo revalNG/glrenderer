@@ -3,7 +3,7 @@ unit dfHRenderer;
 interface
 
 uses
-  Windows,
+  Windows, Graphics,
   dfMath;
 
 const
@@ -385,10 +385,30 @@ type
     {$REGION '[private]'}
     function GetTexture(): IdfTexture;
 //    procedure SetTexture(aTexture: IdfTexture);
+    function GetFontSize(): Integer;
+    procedure SetFontSize(aSize: Integer);
+    function GetFontStyle(): TFontStyles;
+    procedure SetFontStyle(aStyle: TFontStyles);
     {$ENDREGION}
+    {
+     Порядок действий:
+     1. Добавить диапазоны
+     2. Установить параметры (размер, начертание и пр.
+      3. Сгенерировать шрифт из файла ttf
+      3. Сгенерировать шрифт из системного шрифта
+    }
+    procedure AddRange(aStart, aStop: Word); overload;
+    procedure AddRange(aStart, aStop: WideChar); overload;
+    procedure AddSymbols(aText: String);
 
-    procedure LoadFromTTF(aFile: String);
+    property FontSize: Integer read GetFontSize write SetFontSize;
+    property FontStyle: TFontStyles read GetFontStyle write SetFontStyle;
+
+    procedure GenerateFromTTF(aFile: String);
+    procedure GenerateFromFont(aFontName: String);
     property Texture: IdfTexture read GetTexture;
+
+    procedure PrintText(aText: String);
   end;
 
   { IdfText - текст, отображающийся на экране без искажений и вне зависимости
@@ -420,11 +440,15 @@ type
   procedure UnLoadRendererLib();
 
 var
+  {Пока все в стадии дебага, впоследствии заменить на фабрики}
   dfCreateRenderer: function(): IdfRenderer; stdcall;
   dfCreateNode: function(aParent: IdfNode): IdfNode; stdcall;
   dfCreateHUDSprite: function(): IdfSprite; stdcall;
   dfCreateMaterial: function(): IdfMaterial; stdcall;
   dfCreateTexture: function(): IdfTexture; stdcall;
+  dfCreateFont: function(): IdfFont; stdcall;
+  dfCreateText: function(): IdfText; stdcall;
+
   dllHandle: THandle;
 
 implementation
@@ -438,6 +462,8 @@ begin
   dfCreateHUDSprite := GetProcAddress(dllHandle, 'CreateHUDSprite');
   dfCreateMaterial := GetProcAddress(dllHandle, 'CreateMaterial');
   dfCreateTexture := GetProcAddress(dllHandle, 'CreateTexture');
+  dfCreateFont := GetProcAddress(dllHandle, 'CreateFont');
+  dfCreateText := GetProcAddress(dllHandle, 'CreateText');
 end;
 
 procedure UnLoadRendererLib();

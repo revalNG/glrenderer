@@ -15,6 +15,9 @@
 			<Projects Include="TractorVsZombies\TractorVsZombies.dproj">
 				<Dependencies/>
 			</Projects>
+			<Projects Include="Checker3_Fonts.dproj">
+				<Dependencies/>
+			</Projects>
 		</ItemGroup>
 		<ProjectExtensions>
 			<Borland.Personality>Default.Personality.12</Borland.Personality>
@@ -59,14 +62,23 @@
 		<Target Name="TractorVsZombies:Make">
 			<MSBuild Targets="Make" Projects="TractorVsZombies\TractorVsZombies.dproj"/>
 		</Target>
+		<Target Name="Checker3_Fonts">
+			<MSBuild Projects="Checker3_Fonts.dproj"/>
+		</Target>
+		<Target Name="Checker3_Fonts:Clean">
+			<MSBuild Targets="Clean" Projects="Checker3_Fonts.dproj"/>
+		</Target>
+		<Target Name="Checker3_Fonts:Make">
+			<MSBuild Targets="Make" Projects="Checker3_Fonts.dproj"/>
+		</Target>
 		<Target Name="Build">
-			<CallTarget Targets="glRenderer;Checker1;Checker2;TractorVsZombies"/>
+			<CallTarget Targets="glRenderer;Checker1;Checker2;TractorVsZombies;Checker3_Fonts"/>
 		</Target>
 		<Target Name="Clean">
-			<CallTarget Targets="glRenderer:Clean;Checker1:Clean;Checker2:Clean;TractorVsZombies:Clean"/>
+			<CallTarget Targets="glRenderer:Clean;Checker1:Clean;Checker2:Clean;TractorVsZombies:Clean;Checker3_Fonts:Clean"/>
 		</Target>
 		<Target Name="Make">
-			<CallTarget Targets="glRenderer:Make;Checker1:Make;Checker2:Make;TractorVsZombies:Make"/>
+			<CallTarget Targets="glRenderer:Make;Checker1:Make;Checker2:Make;TractorVsZombies:Make;Checker3_Fonts:Make"/>
 		</Target>
 		<Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 	</Project>
