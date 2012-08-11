@@ -9,13 +9,12 @@ program Checker2;
 uses
   Windows,
   SysUtils,
-  dfHRenderer in 'headers\dfHRenderer.pas',
-  dfHEngine in 'common\dfHEngine.pas',
-  dfMath in 'common\dfMath.pas';
+  dfHRenderer in '..\..\headers\dfHRenderer.pas',
+  dfHEngine in '..\..\common\dfHEngine.pas',
+  dfMath in '..\..\common\dfMath.pas',
+  dfHInput in '..\..\common\dfHInput.pas';
 
 var
-  msg: TMsg;
-  h: Integer;
   R: IdfRenderer;
   NewNode: IdfNode;
 
@@ -69,6 +68,12 @@ var
     end;
   end;
 
+  procedure OnUpdate(const dt: Double);
+  begin
+    if dfInput.IsKeyDown(VK_ESCAPE) then
+      R.Stop();
+  end;
+
 begin
   WriteLn(' ========= Demonstration 2 ======== ');
   WriteLn(' ====== Press ESCAPE to EXIT ====== ');
@@ -79,7 +84,7 @@ begin
   R.Init('settings.txt');
 //  R.OnMouseMove := OnMouseMove;
   R.OnMouseDown := OnMouseDown;
-  h := R.WindowHandle;
+  R.OnUpdate := OnUpdate;
 
   NewNode := R.RootNode.AddNewChild();
 
@@ -97,20 +102,7 @@ begin
   NewNode.Renderable.Material.Texture.Load2D('data\tile.bmp');
   NewNode.Renderable.Material.MaterialOptions.Diffuse := dfVec4f(1, 1, 1, 1);
 
-  repeat
-    if PeekMessage(msg, 0, 0, 0, PM_NOREMOVE) then
-    begin
-      if GetMessage(msg, 0, 0, 0) then
-      begin
-        TranslateMessage(msg);
-        DispatchMessage(msg);
-      end;
-    end
-    else
-    begin
-      SendMessage(h, 15, 0, 0);  //WM_PAINT
-    end;
-  until GetAsyncKeyState(VK_ESCAPE) < 0;
+  R.Start();
 
   R.DeInit();
 //Зануления интерфейсов не нужны, они самозануляются при окончании программы
@@ -118,5 +110,4 @@ begin
 //  R := nil;
 
   UnLoadRendererLib();
-//  ReadLn(h);
 end.

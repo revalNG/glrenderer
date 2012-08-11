@@ -10,15 +10,26 @@ uses
   Windows,
   SysUtils,
   Graphics,
-  dfHRenderer in 'headers\dfHRenderer.pas',
-  dfHEngine in 'common\dfHEngine.pas',
-  dfMath in 'common\dfMath.pas';
+  dfHRenderer in '..\..\headers\dfHRenderer.pas',
+  dfHEngine in '..\..\common\dfHEngine.pas',
+  dfMath in '..\..\common\dfMath.pas',
+  dfHInput in '..\..\common\dfHInput.pas',
+  dfHUtility in '..\..\headers\dfHUtility.pas';
 
 var
   R: IdfRenderer;
   f: IdfFont;
   t: IdfText;
   node: IdfNode;
+
+  fpsCounter: TdfFPSCounter;
+
+  procedure OnUpdate(const dt: Double);
+  begin
+    if dfInput.IsKeyDown(VK_ESCAPE) then
+      R.Stop();
+    fpsCounter.Update(dt);
+  end;
 
 begin
   WriteLn(' ========= Demonstration 3 ======== ');
@@ -39,19 +50,25 @@ begin
 //  f.GenerateFromTTF('data\BankGothic RUSS Medium.ttf');
 //  f.GenerateFromTTF('data\Journal Regular.ttf');
   f.GenerateFromFont('Times New Roman');
-
+//
   t := dfCreateText();
   t.Font := f;
-//  t.Text := '!1234567890 a b c d e € а б в г';
-  t.Text := ' ак это там... —ъешь еще этих м€гких французских булок :) ';
+  t.Text := '!1234567890 a b c d e € а б в г';
+  t.Text := ' ак это там... —ъешь-ка еще этих м€гких французских булок :) ';
   t.Position := dfVec2f(50, 50);
   t.Material.MaterialOptions.Diffuse := dfVec4f(1, 1, 1, 1);
-
+//
   node := R.RootNode.AddNewChild();
   node.Renderable := t;
+
+  fpsCounter := TdfFPSCounter.Create(R.RootNode, 'FPS:', 1, nil);
+
+  R.OnUpdate := OnUpdate;
 
   R.Start();
   R.DeInit();
 
   UnLoadRendererLib();
+
+  fpsCounter.Free;
 end.

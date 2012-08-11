@@ -1,8 +1,8 @@
 ﻿	<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 		<PropertyGroup>
-			<ProjectGuid>{190AF3EB-FA0B-46F3-9D98-010B819765B2}</ProjectGuid>
+			<ProjectGuid>{C36B9F5A-6264-4AA2-B16E-415C9924B14B}</ProjectGuid>
 			<ProjectVersion>12.0</ProjectVersion>
-			<MainSource>Checker2.dpr</MainSource>
+			<MainSource>Checker4_VCL.dpr</MainSource>
 			<Config Condition="'$(Config)'==''">Debug</Config>
 			<DCC_DCCCompiler>DCC32</DCC_DCCCompiler>
 		</PropertyGroup>
@@ -20,17 +20,17 @@
 			<Base>true</Base>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Base)'!=''">
-			<DCC_ExeOutput>..\bin\</DCC_ExeOutput>
-			<DCC_DcuOutput>..\dcu\</DCC_DcuOutput>
-			<DCC_DependencyCheckOutputName>..\bin\Checker2.exe</DCC_DependencyCheckOutputName>
+			<DCC_DependencyCheckOutputName>..\..\..\bin\Checker4_VCL.exe</DCC_DependencyCheckOutputName>
 			<DCC_ImageBase>00400000</DCC_ImageBase>
+			<DCC_ExeOutput>..\..\..\bin\</DCC_ExeOutput>
 			<DCC_UnitAlias>WinTypes=Windows;WinProcs=Windows;DbiTypes=BDE;DbiProcs=BDE;DbiErrs=BDE;$(DCC_UnitAlias)</DCC_UnitAlias>
 			<DCC_Platform>x86</DCC_Platform>
-			<DCC_E>false</DCC_E>
+			<DCC_DcuOutput>..\..\..\dcu\</DCC_DcuOutput>
 			<DCC_N>false</DCC_N>
 			<DCC_S>false</DCC_S>
-			<DCC_F>false</DCC_F>
 			<DCC_K>false</DCC_K>
+			<DCC_E>false</DCC_E>
+			<DCC_F>false</DCC_F>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Cfg_1)'!=''">
 			<DCC_LocalDebugSymbols>false</DCC_LocalDebugSymbols>
@@ -39,15 +39,21 @@
 			<DCC_DebugInformation>false</DCC_DebugInformation>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Cfg_2)'!=''">
+			<DCC_Optimize>false</DCC_Optimize>
 			<DCC_Define>DEBUG;$(DCC_Define)</DCC_Define>
 		</PropertyGroup>
 		<ItemGroup>
-			<DelphiCompile Include="Checker2.dpr">
+			<DelphiCompile Include="Checker4_VCL.dpr">
 				<MainSource>MainSource</MainSource>
 			</DelphiCompile>
-			<DCCReference Include="headers\dfHRenderer.pas"/>
-			<DCCReference Include="common\dfHEngine.pas"/>
-			<DCCReference Include="common\dfMath.pas"/>
+			<DCCReference Include="uMain.pas">
+				<Form>Form1</Form>
+			</DCCReference>
+			<DCCReference Include="..\..\headers\dfHRenderer.pas"/>
+			<DCCReference Include="..\..\common\dfHEngine.pas"/>
+			<DCCReference Include="..\..\common\dfMath.pas"/>
+			<DCCReference Include="..\..\headers\dfHUtility.pas"/>
+			<DCCReference Include="..\..\common\dfHGL.pas"/>
 			<BuildConfiguration Include="Base">
 				<Key>Base</Key>
 			</BuildConfiguration>
@@ -66,9 +72,6 @@
 			<Borland.ProjectType/>
 			<BorlandProject>
 				<Delphi.Personality>
-					<Source>
-						<Source Name="MainSource">Checker2.dpr</Source>
-					</Source>
 					<Parameters>
 						<Parameters Name="UseLauncher">False</Parameters>
 						<Parameters Name="LoadAllSymbols">True</Parameters>
@@ -101,6 +104,9 @@
 						<VersionInfoKeys Name="ProductVersion">1.0.0.0</VersionInfoKeys>
 						<VersionInfoKeys Name="Comments"/>
 					</VersionInfoKeys>
+					<Source>
+						<Source Name="MainSource">Checker4_VCL.dpr</Source>
+					</Source>
 				</Delphi.Personality>
 			</BorlandProject>
 			<ProjectFileVersion>12</ProjectFileVersion>

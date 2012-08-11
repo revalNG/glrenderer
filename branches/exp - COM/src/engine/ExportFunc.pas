@@ -7,6 +7,7 @@ uses
 
   function CreateRenderer(): IdfRenderer; stdcall;
   function CreateNode(aParent: IdfNode): IdfNode; stdcall;
+  function CreateUserRender(): IdfUserRenderable; stdcall;
   function CreateHUDSprite(): IdfSprite; stdcall;
   function CreateMaterial: IdfMaterial; stdcall;
   function CreateTexture(): IdfTexture; stdcall;
@@ -16,18 +17,19 @@ uses
 implementation
 
 uses
-  uRenderer, uNode, uSprite, uTexture, uMaterial, uFont, uText;
+  uRenderer, uNode, uUserRenderable,
+  uSprite, uTexture, uMaterial, uFont, uText;
 
 function CreateRenderer(): IdfRenderer;
 begin
   //TheRenderer is declared in Main.pas module
-  if not Assigned(TheRenderer) then
+//  if not Assigned(TheRenderer) then
   begin
     TheRenderer := TdfRenderer.Create();
     Result := TheRenderer;
   end
-  else
-    Result := TheRenderer;
+//  else
+//    Result := TheRenderer;
 end;
 
 function CreateNode(aParent: IdfNode): IdfNode;
@@ -36,6 +38,11 @@ begin
     Result := TdfNode.Create
   else
     Result := aParent.AddNewChild();
+end;
+
+function CreateUserRender(): IdfUserRenderable;
+begin
+  Result := TdfUserRenderable.Create();
 end;
 
 function CreateHUDSprite(): IdfSprite;

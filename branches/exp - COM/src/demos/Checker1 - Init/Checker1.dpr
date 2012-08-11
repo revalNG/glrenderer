@@ -8,13 +8,12 @@ program Checker1;
 uses
   Windows,
   SysUtils,
-  dfHRenderer in 'headers\dfHRenderer.pas',
-  dfMath in 'common\dfMath.pas',
-  dfHEngine in 'common\dfHEngine.pas';
+  dfHRenderer in '..\..\headers\dfHRenderer.pas',
+  dfMath in '..\..\common\dfMath.pas',
+  dfHEngine in '..\..\common\dfHEngine.pas',
+  dfHInput in '..\..\common\dfHInput.pas';
 
 var
-  msg: TMsg;
-  h: Integer;
   R: IdfRenderer;
   dx, dy: Integer;
 
@@ -42,6 +41,12 @@ var
     end;
   end;
 
+  procedure OnUpdate(const dt: Double);
+  begin
+    if dfInput.IsKeyDown(VK_ESCAPE) then
+      R.Stop();
+  end;
+
 //  procedure OnMouseMove(X, Y: TdfInteger; Shift: TdfMouseShiftState);
 //  begin
 //    if ssLeft in Shift then
@@ -66,24 +71,11 @@ begin
 
   R := dfCreateRenderer();
   R.Init('settings.txt');
-  h := R.WindowHandle;
   R.OnMouseDown := OnMouseDown;
   R.OnMouseMove := OnMouseMove;
+  R.OnUpdate := OnUpdate;
 
-  repeat
-    if PeekMessage(msg, 0, 0, 0, PM_NOREMOVE) then
-    begin
-      if GetMessage(msg, 0, 0, 0) then
-      begin
-        TranslateMessage(msg);
-        DispatchMessage(msg);
-      end;
-    end
-    else
-    begin
-      SendMessage(h, 15, 0, 0);  //WM_PAINT
-    end;
-  until GetAsyncKeyState(VK_ESCAPE) < 0;
+  R.Start();
   R.DeInit();
   R := nil;
 

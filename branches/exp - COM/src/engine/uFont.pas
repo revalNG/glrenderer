@@ -8,10 +8,6 @@ uses
   dfHRenderer;
 
 type
-  TdfFontRange = record
-    Start, Stop: Word; //Номер символа
-  end;
-
   TdfCharData = record
     ID   : WideChar; //символ
     w, h : Word;  //Размеры в пикселях
@@ -25,12 +21,11 @@ type
     FFontSize: Integer;
     FFontStyle: TFontStyles;
 
-    FRanges: array of TdfFontRange;
-
     FTable: array[WideChar] of PdfCharData;
 
     FTexture: IdfTexture;
 
+    function AlreadyHaveSymbol(aSymbol: Word): Boolean;
     procedure CreateFontResource(aFile: String);
     procedure RenderRangesToTexture();
   protected
@@ -70,15 +65,17 @@ uses
 
 procedure TdfFont.AddRange(aStart, aStop: Word);
 var
-  ind: Integer;
+  i: Word;
+  cdata: PdfCharData;
 begin
-  ind := Length(FRanges);
-  SetLength(FRanges, ind + 1);
-  with FRanges[ind] do
-  begin
-    Start := aStart;
-    Stop := aStop;
-  end;
+  for i := aStart to aStop do
+    if not AlreadyHaveSymbol(i) then
+    begin
+      New(cdata);
+      with cdata^ do
+        ID := WideChar(i);
+      FTable[WideChar(i)] := cdata;
+    end;
 end;
 
 procedure TdfFont.AddRange(aStart, aStop: WideChar);
@@ -87,8 +84,23 @@ begin
 end;
 
 procedure TdfFont.AddSymbols(aText: String);
+var
+  i: Word;
+  cdata: PdfCharData;
 begin
-  Assert(0 <> 0, 'Функция недоступна в данной версии');
+  for i := 0 to Length(aText) - 1 do
+    if not AlreadyHaveSymbol(Word(aText[i])) then
+    begin
+      New(cdata);
+      with cdata^ do
+        ID := aText[i];
+      FTable[aText[i]] := cdata;
+    end;
+end;
+
+function TdfFont.AlreadyHaveSymbol(aSymbol: Word): Boolean;
+begin
+  Result := FTable[WideChar(aSymbol)] <> nil;
 end;
 
 constructor TdfFont.Create;
@@ -102,7 +114,7 @@ procedure TdfFont.CreateFontResource(aFile: String);
 begin
   if (FileExists(aFile)) then
     if AddFontResourceEx(PChar(aFile), FR_PRIVATE, nil) <> 1 then
-      logWriteError('uFont.pas: Ошибка добавления шрифта '+aFile+' в систему', true, true, true);
+      logWriteError('uFont.pas: Ошибка добавления шрифта ' + aFile + ' в систему', true, true, true);
 end;
 
 destructor TdfFont.Destroy;
@@ -112,7 +124,6 @@ begin
   for i := Low(FTable) to High(FTable) do
     if Assigned(FTable[i]) then
       Dispose(FTable[i]);
-
   FTexture := nil;
   inherited;
 end;
@@ -136,6 +147,7 @@ procedure TdfFont.GenerateFromFont(aFontName: String);
 begin
   FFontName := aFontName;
   RenderRangesToTexture();
+  logWriteMessage('uFont.pas: Шрифт «' + FFontName + '» отрендерен в текстуру');
 end;
 
 procedure TdfFont.GenerateFromTTF(aFile: String);
@@ -190,30 +202,8 @@ var
   bmp24, bmp32: TBitmap;
   rect: TRect; //используется для заливки тексуры
   row_height: Integer; //счетчики и высота строки
-  i: Word;
-  chars: array of Word;
+  i: WideChar;
   offsetX, offsetY: Integer; //смещение внутри битмапа для текущего выводимого символа
-  cdata: PdfCharData;
-
-  procedure JoinRanges();
-  var
-    i, len: Integer;
-    j, k: Word;
-  begin
-    len := 0;
-    //Подсчитываем количество символов
-    for i := Low(FRanges) to High(FRanges) do
-      len := len + Abs(Franges[i].Stop - FRanges[i].Start) + 1;
-    SetLength(chars, len);
-    //Записываем символы в массив Chars
-    k := 0;
-    for i := Low(FRanges) to High(FRanges) do
-      for j := FRanges[i].Start to FRanges[i].Stop do
-      begin
-        chars[k] := j;
-        Inc(k);
-      end;
-  end;
   {
 
   function GetTextSize(DC: HDC; Str: PWideChar; Count: Integer): TSize;
@@ -255,9 +245,6 @@ var
   end;
 
 begin
-  //Объединяем диапазоны, теперь все символы записаны в Chars
-  JoinRanges();
-
   bmp24 := TBitmap.Create();
   with bmp24 do
   begin
@@ -289,41 +276,42 @@ begin
   offsetX := 1;
   offsetY := 0;
   row_height := bmp24.Canvas.TextExtent('A').cy + 2;
-  i := 0;
-  while i <= High(chars) do
-  begin
-    while (offsetX + bmp24.Canvas.TextExtent(WideChar(chars[i]) + ' ').cx < bmp24.Width)
-          and (i <= High(chars)) do
+  i := Low(FTable);
+
+  repeat
+    if FTable[i] <> nil then
     begin
-      New(cdata);
-      with cdata^ do
-      begin
-        ID := WideChar(chars[i]);
-        w := bmp24.Canvas.TextExtent(ID).cx;//GetTextSize(bmp.Canvas.Handle, @ID, 1).cx;
-        h := row_height;
-        tx := offsetX / bmp24.Width;
-        ty := offsetY / bmp24.Height;
-        tw := w / bmp24.Width;
-        th := h / bmp24.Height;
-        bmp24.Canvas.TextOut(offsetX, offsetY, ID);
-        if w > 0 then
-        begin
-          FTable[ID] := cdata;
-          offsetX := offsetX + w + 2;
-        end;
-      end;
-      i := i + 1;
-    end;
-    offsetY := offsetY + row_height;
-    offsetX := 1;
-  end;
+      repeat
+        if FTable[i] <> nil then
+          with FTable[i]^ do
+          begin
+            w := bmp24.Canvas.TextExtent(ID).cx;//GetTextSize(bmp.Canvas.Handle, @ID, 1).cx;
+            h := row_height;
+            tx := offsetX / bmp24.Width;
+            ty := offsetY / bmp24.Height;
+            tw := w / bmp24.Width;
+            th := h / bmp24.Height;
+            bmp24.Canvas.TextOut(offsetX, offsetY, ID);
+            if w > 0 then
+              offsetX := offsetX + w + 2
+            else
+              Dispose(FTable[i]);
+          end;
+        Inc(i);
+      until (offsetX + bmp24.Canvas.TextExtent(i + ' ').cx > bmp24.Width) or (i >= High(FTable));
+      offsetY := offsetY + row_height;
+      offsetX := 1;
+    end
+    else
+      Inc(i);
+  until i >= High(FTable);
 
   bmp32 := CreateBitmap32FromBitmap24(bmp24);
   {DEBUG}
   bmp24.SaveToFile('data\2.bmp');
   bmp32.SaveToFile('data\2a.bmp');
   {/DEBUG}
-
+  logWriteMessage(IntToStr(Word(i)));
   FTexture := CreateTexture;
   FTexture.Load2D('data\2a.bmp'); //DEBUG
   FTexture.CombineMode := tcmReplace;

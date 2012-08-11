@@ -12,6 +12,8 @@ type
 
   TdfHUDSprite = class(Tdf2DRenderable, IdfSprite)
   private
+    vp: TdfViewportParams;
+//    FX, FY, FW, FH: Integer; //Размеры вьюпорта, получаем при создании спрайта
   protected
   public
     constructor Create; override;
@@ -23,7 +25,7 @@ type
 implementation
 
 uses
-  dfHGL;
+  uRenderer, dfHGL;
 
 
 { TdfHUDSprite }
@@ -38,6 +40,12 @@ begin
   FRot := 0.0;
   FPivot := ppTopLeft;
   RecalcCoords();
+
+//  vp := TheRenderer.Camera.GetViewport();
+//  FW := vp.W;
+//  FH := vp.H;
+//  FX := vp.X;
+//  FY := vp.Y;
 end;
 
 destructor TdfHUDSprite.Destroy;
@@ -53,7 +61,8 @@ begin
   gl.PushMatrix();
   gl.LoadIdentity();
   //Как получить размеры экрана??
-  gl.Ortho(0, 800, 600, 0, -1, 1);
+  vp := TheRenderer.Camera.GetViewport();
+  gl.Ortho(vp.X, vp.W, vp.H, vp.Y, -1, 1);
   gl.MatrixMode(GL_MODELVIEW);
   gl.LoadIdentity();
   gl.Translatef(FPos.x, FPos.y, 0);

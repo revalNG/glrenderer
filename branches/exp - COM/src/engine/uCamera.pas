@@ -24,6 +24,8 @@ type
     procedure Scale(aScale: Single);
     procedure Rotate(delta: Single; Axis: TdfVec3f);
 
+    function GetViewport(): TdfViewportParams;
+
     procedure Update;
 
     procedure SetCamera(aPos, aTargetPos, aUp: TdfVec3f);
@@ -47,7 +49,7 @@ begin
   FH := h;
   gl.Viewport(FX, FY, FW, FH);
   FProjMatrix.Identity;
-  FProjMatrix.Perspective(FOV, FW / FH, ZNear, ZFar);
+  FProjMatrix.Perspective(FFOV, FW / FH, FZNear, FZFar);
   gl.MatrixMode(GL_PROJECTION);
   gl.LoadMatrixf(FProjMatrix);
 end;
@@ -60,9 +62,23 @@ begin
   FH := h;
   gl.Viewport(FX, FY, FW, FH);
   FProjMatrix.Identity;
-  FProjMatrix.Perspective(FFOV, w / h, FZNear, FZFar);
+  FProjMatrix.Perspective(FFOV, FW / FH, FZNear, FZFar);
   gl.MatrixMode(GL_PROJECTION);
   gl.LoadMatrixf(FProjMatrix);
+end;
+
+function TdfCamera.GetViewport: TdfViewportParams;
+begin
+  with Result do
+  begin
+    X := FX;
+    Y := FY;
+    W := FW;
+    H := FH;
+    FOV := FFOV;
+    ZNear := FZNear;
+    ZFar := FZFar;
+  end;
 end;
 
 procedure TdfCamera.Pan(X, Y: Single);

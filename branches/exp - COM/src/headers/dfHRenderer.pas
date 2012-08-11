@@ -228,6 +228,11 @@ type
 
   {$ENDREGION}
 
+  TdfViewportParams = record
+    X,Y,W,H: Integer;
+    FOV, ZNear, ZFar: Single;
+  end;
+
   { IdfCamera - идентифицирует камеру с возможностями установки вьюпорта,
     панорамирования, масштабирования и прочим }
   IdfCamera = interface (IdfNode)
@@ -240,6 +245,8 @@ type
     procedure SetCamera(Pos, TargetPos, Up: TdfVec3f);
     procedure SetTarget(Point: TdfVec3f); overload;
     procedure SetTarget(Target: IdfNode); overload;
+
+    function GetViewport(): TdfViewportParams;
 
     procedure Update();
   end;
@@ -311,17 +318,41 @@ type
 
     function GetOnUpdate(): TdfOnUpdateProc;
     procedure SetOnUpdate(aProc: TdfOnUpdateProc);
+
+    function GetEnabled(): Boolean;
+    procedure SetEnabled(aEnabled: Boolean);
+
+    function GetSelfVersion(): String;
+
+    function GetDC(): hDC;
+    function GetRC(): hglRC;
+
+    function GetWidth(): Integer;
+    function GetHeight(): Integer;
     {$ENDREGION}
 
-    function Init(FileName: PAnsiChar): Integer;
-    function Step(deltaTime: Double): Integer;
-    function Start(): Integer;
-    function DeInit(): Integer;
+    //Инициализация с параметрами из файла
+    procedure Init(FileName: PAnsiChar); overload;
+    //Инициализация в определенный хэндл
+    procedure Init(Handle: THandle; FileName: PAnsiChar); overload;
+    procedure Step(deltaTime: Double);
+    procedure Start();
+    procedure Stop();
+    procedure DeInit();
 
+    property Enabled: Boolean read GetEnabled write SetEnabled;
     property WindowHandle: Integer read GetWindowHandle;
     property WindowCaption: PWideChar read GetWindowCaption write SetWindowCaption;
+    property WindowWidth: Integer read GetWidth;
+    property WindowHeight: Integer read GetHeight;
+
+    property DC: hDC read GetDC;
+    property RC: hglRC read GetRC;
+
     property RenderReady: Boolean read GetRenderReady;
     property FPS: Single read GetFPS;
+
+    property VersionText: String read GetSelfVersion;
 
     {Вероятно, вынести в класс TdfWindow?}
     property OnMouseDown: TdfOnMouseDownProc read GetOnMouseDown write SetOnMouseDown;
@@ -335,6 +366,7 @@ type
 
     {debug - надо юзать IdfScene}
     property RootNode: IdfNode read GetRoot write SetRoot;
+
   end;
 
   IdfMesh = interface (IdfRenderable)
@@ -436,6 +468,72 @@ type
 
   {$ENDREGION}
 
+  {$REGION ' GUI '}
+  {
+    ОБщий предок для всех элементов GUI
+  }
+  IdfGUIElement = interface(Idf2DRenderable)
+    //Пока ничего
+  end;
+
+  IdfGUIButton = interface;
+
+  TdfButtonEvent = procedure(Sender: IdfGUIButton);
+  //Виды проверок:
+  // - hmBox - проверка по всей площади кнопки
+  // - hmAlpha0 - за кнопку считается все, у чего альфа больше 0
+  // - hmAlpha50 - за кнопку считается все, у чего альфа больше 50%
+  TdfButtonHitMode = (hmBox, hmAlpha0, hmAlpha50);
+
+  IdfGUIButton = interface(IdfGUIElement)
+    {$REGION '[private]'}
+    function GetOnClick(): TdfButtonEvent;
+    function GetOnOver(): TdfButtonEvent;
+    function GetOnOut(): TdfButtonEvent;
+
+    procedure SetOnClick(aProc: TdfButtonEvent);
+    procedure SetOnOver(aProc: TdfButtonEvent);
+    procedure SetOnOut(aProc: TdfButtonEvent);
+
+    function GetTextureNormal(): IdfTexture;
+    function GetTextureOver(): IdfTexture;
+    function GetTextureClick(): IdfTexture;
+
+    procedure SetTextureNormal(aTexture: idfTexture);
+    procedure SetTextureOver(aTexture: idfTexture);
+    procedure SetTextureClick(aTexture: idfTexture);
+
+    function GetAutoChange: Boolean;
+    procedure SetAutoChange(aChange: Boolean);
+
+    function GetHitMode(): TdfButtonHitMode;
+    procedure SetHitMode(aMode: TdfButtonHitMode);
+    {$ENDREGION}
+    property OnMouseClick: TdfButtonEvent read GetOnClick write SetOnClick;
+    property OnMouseOver: TdfButtonEvent read GetOnOver write SetOnOver;
+    property OnMouseOut: TdfButtonEvent read GetOnOut write SetOnOut;
+
+    property TextureNormal: IdfTexture read GetTextureNormal write SetTextureNormal;
+    property TextureOver: IdfTexture read GetTextureOver write SetTextureOver;
+    property TextureClick: IdfTexture read GetTextureClick write SetTextureClick;
+
+    //Текстуры будут меняться автоматически при наведении, клие и уходе мыши
+    property TextureAutoChange: Boolean read GetAutoChange write SetAutoChange;
+    //Режим проверки попадания по кнопке. Проверка только по TextureNormal
+    property HitMode: TdfButtonHitMode read GetHitMode write SetHitMode;
+  end;
+
+  {$ENDREGION}
+  TdfUserRenderableCallback = procedure(); stdcall;
+
+  IdfUserRenderable = interface(IdfRenderable)
+    {$REGION '[private]'}
+    function GetUserCallback: TdfUserRenderableCallback;
+    procedure SetUserCallback(urc: TdfUserRenderableCallback);
+    {$ENDREGION}
+    property OnRender: TdfUserRenderableCallback read GetUserCallback write SetUserCallback;
+  end;
+
   procedure LoadRendererLib();
   procedure UnLoadRendererLib();
 
@@ -443,6 +541,7 @@ var
   {Пока все в стадии дебага, впоследствии заменить на фабрики}
   dfCreateRenderer: function(): IdfRenderer; stdcall;
   dfCreateNode: function(aParent: IdfNode): IdfNode; stdcall;
+  dfCreateUserRender: function(): IdfUserRenderable; stdcall;
   dfCreateHUDSprite: function(): IdfSprite; stdcall;
   dfCreateMaterial: function(): IdfMaterial; stdcall;
   dfCreateTexture: function(): IdfTexture; stdcall;
@@ -459,6 +558,7 @@ begin
   Assert(dllHandle <> 0, 'Ошибка загрузки библиотеки: вероятно библиотека не найдена');
   dfCreateRenderer := GetProcAddress(dllHandle, 'CreateRenderer');
   dfCreateNode := GetProcAddress(dllHandle, 'CreateNode');
+  dfCreateUserRender := GetProcAddress(dllHandle, 'CreateUserRender');
   dfCreateHUDSprite := GetProcAddress(dllHandle, 'CreateHUDSprite');
   dfCreateMaterial := GetProcAddress(dllHandle, 'CreateMaterial');
   dfCreateTexture := GetProcAddress(dllHandle, 'CreateTexture');

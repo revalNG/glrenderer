@@ -62,22 +62,28 @@ uses
   uTexture in 'uTexture.pas',
   uShader in 'uShader.pas',
   uLogger in 'uLogger.pas',
-  dfHEngine in 'common\dfHEngine.pas',
-  dfHGL in 'common\dfHGL.pas',
-  dfHInput in 'common\dfHInput.pas',
-  dfLogger in 'common\dfLogger.pas',
-  dfMath in 'common\dfMath.pas',
-  dfHRenderer in 'headers\dfHRenderer.pas',
+  dfHEngine in '..\common\dfHEngine.pas',
+  dfHGL in '..\common\dfHGL.pas',
+  dfHInput in '..\common\dfHInput.pas',
+  dfLogger in '..\common\dfLogger.pas',
+  dfMath in '..\common\dfMath.pas',
+  dfHRenderer in '..\headers\dfHRenderer.pas',
   uNode in 'uNode.pas',
   ExportFunc in 'ExportFunc.pas',
   TexLoad in 'TexLoad.pas',
   uRenderable in 'uRenderable.pas',
   uMaterial in 'uMaterial.pas',
   uFont in 'uFont.pas',
-  uText in 'uText.pas';
+  uText in 'uText.pas',
+  uWindow in 'uWindow.pas',
+  uPrimitives in 'uPrimitives.pas',
+  uUserRenderable in 'uUserRenderable.pas',
+  uGUIElement in 'GUI\uGUIElement.pas',
+  uGUIButton in 'GUI\uGUIButton.pas';
 
 exports
-  CreateRenderer, CreateNode, CreateHUDSprite, CreateMaterial, CreateTexture,
+  CreateRenderer, CreateNode, CreateUserRender, CreateHUDSprite,
+  CreateMaterial, CreateTexture,
   CreateFont, CreateText;
 begin
 end.

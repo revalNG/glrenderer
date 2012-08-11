@@ -20,12 +20,12 @@
 			<Base>true</Base>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Base)'!=''">
-			<DCC_DependencyCheckOutputName>..\bin\Checker3_Fonts.exe</DCC_DependencyCheckOutputName>
+			<DCC_DependencyCheckOutputName>..\..\..\bin\Checker3_Fonts.exe</DCC_DependencyCheckOutputName>
 			<DCC_ImageBase>00400000</DCC_ImageBase>
-			<DCC_ExeOutput>..\bin\</DCC_ExeOutput>
+			<DCC_ExeOutput>..\..\..\bin\</DCC_ExeOutput>
 			<DCC_UnitAlias>WinTypes=Windows;WinProcs=Windows;DbiTypes=BDE;DbiProcs=BDE;DbiErrs=BDE;$(DCC_UnitAlias)</DCC_UnitAlias>
 			<DCC_Platform>x86</DCC_Platform>
-			<DCC_DcuOutput>..\dcu\</DCC_DcuOutput>
+			<DCC_DcuOutput>..\..\..\dcu\</DCC_DcuOutput>
 			<DCC_N>false</DCC_N>
 			<DCC_S>false</DCC_S>
 			<DCC_K>false</DCC_K>
@@ -45,9 +45,11 @@
 			<DelphiCompile Include="Checker3_Fonts.dpr">
 				<MainSource>MainSource</MainSource>
 			</DelphiCompile>
-			<DCCReference Include="headers\dfHRenderer.pas"/>
-			<DCCReference Include="common\dfHEngine.pas"/>
-			<DCCReference Include="common\dfMath.pas"/>
+			<DCCReference Include="..\..\headers\dfHRenderer.pas"/>
+			<DCCReference Include="..\..\common\dfHEngine.pas"/>
+			<DCCReference Include="..\..\common\dfMath.pas"/>
+			<DCCReference Include="..\..\common\dfHInput.pas"/>
+			<DCCReference Include="..\..\headers\dfHUtility.pas"/>
 			<BuildConfiguration Include="Base">
 				<Key>Base</Key>
 			</BuildConfiguration>

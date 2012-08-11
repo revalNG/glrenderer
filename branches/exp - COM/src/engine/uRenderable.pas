@@ -60,6 +60,7 @@ implementation
 { TdfRenderable }
 
 uses
+  Windows, uRenderer,
   {debug}
   ExportFunc;
 
@@ -78,6 +79,7 @@ end;
 
 procedure TdfRenderable.DoRender;
 begin
+//  wglMakeCurrent(TheRenderer.DC, TheRenderer.RC);
   //*
 end;
 
