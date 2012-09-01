@@ -48,7 +48,6 @@
 			<DCCReference Include="..\..\headers\dfHRenderer.pas"/>
 			<DCCReference Include="..\..\common\dfHEngine.pas"/>
 			<DCCReference Include="..\..\common\dfMath.pas"/>
-			<DCCReference Include="..\..\common\dfHInput.pas"/>
 			<BuildConfiguration Include="Base">
 				<Key>Base</Key>
 			</BuildConfiguration>

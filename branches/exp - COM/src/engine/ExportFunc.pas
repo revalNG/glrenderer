@@ -14,22 +14,26 @@ uses
   function CreateFont(): IdfFont; stdcall;
   function CreateText(): IdfText; stdcall;
 
+  function CreateGUIButton(): IdfGUIButton; stdcall;
+
+  function DestroyRenderer(): Integer; stdcall;
+
 implementation
 
 uses
   uRenderer, uNode, uUserRenderable,
-  uSprite, uTexture, uMaterial, uFont, uText;
+  uSprite, uTexture, uMaterial, uFont, uText,
+  uGUIButton;
 
 function CreateRenderer(): IdfRenderer;
 begin
-  //TheRenderer is declared in Main.pas module
-//  if not Assigned(TheRenderer) then
+  if not Assigned(TheRenderer) then
   begin
     TheRenderer := TdfRenderer.Create();
     Result := TheRenderer;
   end
-//  else
-//    Result := TheRenderer;
+  else
+    Result := TheRenderer;
 end;
 
 function CreateNode(aParent: IdfNode): IdfNode;
@@ -68,6 +72,17 @@ end;
 function CreateText(): IdfText;
 begin
   Result := TdfText.Create();
+end;
+
+function CreateGUIButton(): IdfGUIButton;
+begin
+  Result := TdfGUIButton.Create();
+end;
+
+function DestroyRenderer(): Integer;
+begin
+//  TheRenderer.Free;
+  Exit(0);
 end;
 
 end.

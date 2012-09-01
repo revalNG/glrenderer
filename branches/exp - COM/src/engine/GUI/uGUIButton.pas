@@ -1,3 +1,7 @@
+{
+  TODO: рефакотринг - убрать закомментированные строки - функционал ушел в TdfGUIElement
+}
+
 unit uGUIButton;
 
 interface
@@ -10,22 +14,12 @@ type
   TdfGUIButton = class(TdfGUIElement, IdfGUIButton)
   private
   protected
-    FOnClick, FOnOver, FOnOut: TdfButtonEvent;
 
     FTexNormal, FTexOver, FTexClick: IdfTexture;
 
-    FHitMode: TdfButtonHitMode;
     FTextureAutoChange: Boolean;
 
-    procedure CalcHitZone();
-
-    function GetOnClick(): TdfButtonEvent;
-    function GetOnOver(): TdfButtonEvent;
-    function GetOnOut(): TdfButtonEvent;
-
-    procedure SetOnClick(aProc: TdfButtonEvent);
-    procedure SetOnOver(aProc: TdfButtonEvent);
-    procedure SetOnOut(aProc: TdfButtonEvent);
+    procedure CalcHitZone(); override;
 
     function GetTextureNormal(): IdfTexture;
     function GetTextureOver(): IdfTexture;
@@ -37,16 +31,15 @@ type
 
     function GetAutoChange: Boolean;
     procedure SetAutoChange(aChange: Boolean);
-
-    function GetHitMode(): TdfButtonHitMode;
-    procedure SetHitMode(aMode: TdfButtonHitMode);
   public
-    constructor Create(); virtual;
+    constructor Create(); override;
     destructor Destroy; override;
 
-    property OnMouseClick: TdfButtonEvent read GetOnClick write SetOnClick;
-    property OnMouseOver: TdfButtonEvent read GetOnOver write SetOnOver;
-    property OnMouseOut: TdfButtonEvent read GetOnOut write SetOnOut;
+    procedure _MouseMove (X, Y: Integer; Shift: TdfMouseShiftState); override;
+    procedure _MouseDown (X, Y: Integer; MouseButton: TdfMouseButton; Shift: TdfMouseShiftState); override;
+    procedure _MouseUp   (X, Y: Integer; MouseButton: TdfMouseButton; Shift: TdfMouseShiftState); override;
+    procedure _MouseOver (X, Y: Integer; Shift: TdfMouseShiftState); override;
+    procedure _MouseOut (X, Y: Integer; Shift: TdfMouseShiftState); override;
 
     property TextureNormal: IdfTexture read GetTextureNormal write SetTextureNormal;
     property TextureOver: IdfTexture read GetTextureOver write SetTextureOver;
@@ -54,8 +47,6 @@ type
 
     //Текстуры будут меняться автоматически при наведении, клие и уходе мыши
     property TextureAutoChange: Boolean read GetAutoChange write SetAutoChange;
-    //Режим проверки попадания по кнопке. Проверка только по TextureNormal
-    property HitMode: TdfButtonHitMode read GetHitMode write SetHitMode;
   end;
 
 implementation
@@ -98,26 +89,6 @@ begin
   Result := FTextureAutoChange;
 end;
 
-function TdfGUIButton.GetHitMode: TdfButtonHitMode;
-begin
-  Result := FHitMode;
-end;
-
-function TdfGUIButton.GetOnClick: TdfButtonEvent;
-begin
-  Result := FOnClick;
-end;
-
-function TdfGUIButton.GetOnOut: TdfButtonEvent;
-begin
-  Result := FOnOut;
-end;
-
-function TdfGUIButton.GetOnOver: TdfButtonEvent;
-begin
-  Result := FOnOver;
-end;
-
 function TdfGUIButton.GetTextureClick: IdfTexture;
 begin
   Result := FTexClick;
@@ -138,28 +109,6 @@ begin
   FTextureAutoChange := aChange;
 end;
 
-procedure TdfGUIButton.SetHitMode(aMode: TdfButtonHitMode);
-begin
-  FHitMode := aMode;
-  if FHitMode in [hmAlpha0, hmAlpha50] then
-    CalcHitZone();
-end;
-
-procedure TdfGUIButton.SetOnClick(aProc: TdfButtonEvent);
-begin
-  FOnClick := aProc;
-end;
-
-procedure TdfGUIButton.SetOnOut(aProc: TdfButtonEvent);
-begin
-  FOnOut := aProc;
-end;
-
-procedure TdfGUIButton.SetOnOver(aProc: TdfButtonEvent);
-begin
-  FOnOver := aProc;
-end;
-
 procedure TdfGUIButton.SetTextureClick(aTexture: idfTexture);
 begin
   FTexClick := aTexture;
@@ -171,11 +120,50 @@ begin
 
   if FHitMode in [hmAlpha0, hmAlpha50] then
     CalcHitZone();
+
+  Material.Texture := FTexNormal;
 end;
 
 procedure TdfGUIButton.SetTextureOver(aTexture: idfTexture);
 begin
   FTexOver := aTexture;
+end;
+
+procedure TdfGUIButton._MouseDown(X, Y: Integer; MouseButton: TdfMouseButton;
+  Shift: TdfMouseShiftState);
+begin
+  inherited;
+  if FTextureAutoChange and Assigned(FTexClick) then
+    Material.Texture := FTexClick;
+end;
+
+procedure TdfGUIButton._MouseMove(X, Y: Integer; Shift: TdfMouseShiftState);
+begin
+  inherited;
+  if FTextureAutoChange and Assigned(FTexOver) and not (ssLeft in Shift) then
+    FMaterial.Texture := FTexOver;
+end;
+
+procedure TdfGUIButton._MouseOut(X, Y: Integer; Shift: TdfMouseShiftState);
+begin
+  inherited;
+  if FTextureAutoChange and Assigned(FTexNormal) then
+    FMaterial.Texture := FTexNormal;
+end;
+
+procedure TdfGUIButton._MouseOver(X, Y: Integer; Shift: TdfMouseShiftState);
+begin
+  inherited;
+  if FTextureAutoChange and Assigned(FTexOver) then
+    FMaterial.Texture := FTexOver;
+end;
+
+procedure TdfGUIButton._MouseUp(X, Y: Integer; MouseButton: TdfMouseButton;
+  Shift: TdfMouseShiftState);
+begin
+  inherited;
+  if FTextureAutoChange and Assigned(FTexNormal) then
+    Material.Texture := FTexOver;
 end;
 
 end.

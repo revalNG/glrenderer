@@ -33,11 +33,11 @@ type
     FOptions: IdfMaterialOptions;
   protected
     function GetTexture: IdfTexture;
-    procedure SetTexture(aTexture: IdfTexture);
+    procedure SetTexture(const aTexture: IdfTexture);
     function GetShader(): IdfShaderProgram;
-    procedure SetShader(aShader: IdfShaderProgram);
+    procedure SetShader(const aShader: IdfShaderProgram);
     function GetOptions(): IdfMaterialOptions;
-    procedure SetOptions(aOptions: IdfMaterialOptions);
+    procedure SetOptions(const aOptions: IdfMaterialOptions);
   public
     constructor Create(); virtual;
     destructor Destroy(); override;
@@ -78,6 +78,7 @@ end;
 destructor TdfMaterial.Destroy;
 begin
   FOptions := nil;
+  FTexture := nil;
   inherited;
 end;
 
@@ -96,17 +97,17 @@ begin
   Result := FTexture;
 end;
 
-procedure TdfMaterial.SetOptions(aOptions: IdfMaterialOptions);
+procedure TdfMaterial.SetOptions(const aOptions: IdfMaterialOptions);
 begin
   FOptions :=  aOptions;
 end;
 
-procedure TdfMaterial.SetShader(aShader: IdfShaderProgram);
+procedure TdfMaterial.SetShader(const aShader: IdfShaderProgram);
 begin
   FShader := aShader;
 end;
 
-procedure TdfMaterial.SetTexture(aTexture: IdfTexture);
+procedure TdfMaterial.SetTexture(const aTexture: IdfTexture);
 begin
   FTexture := aTexture;
 end;
@@ -131,7 +132,7 @@ end;
 constructor TdfMaterialOptions.Create;
 begin
   inherited;
-  FDifColor := dfVec4f(0, 0, 0, 1);
+  FDifColor := dfVec4f(1, 1, 1, 1);
 end;
 
 destructor TdfMaterialOptions.Destroy;

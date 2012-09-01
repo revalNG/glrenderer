@@ -22,60 +22,8 @@ const
   //Допустимая погрешность сравнения с нулем
   cEPS = 0.0001;
 
-type
-
-  {$REGION 'Base Types'}
-
-  //unicode string
-  TdfString           =       WideString;
-  TdfWideCharArray    =       array of PWideChar;
-  TdfPString          =       PWideChar;
-  //ansi string
-  TdfStringA          =       AnsiString;
-  TdfAnsiCharArray    =       array of PAnsiChar;
-  TdfPAnsiString      =       PAnsiChar;
-  //digitals
-  TdfInteger          =       LongInt;
-  TdfInt              =       Integer;
-  //float
-  TdfSingle           =       Single;
-  TdfDouble           =       Double;
-  TdfHandle           =       Cardinal;
-
-  {$ENDREGION}
-
-  {$REGION 'Common function types'}
-
-  TdfGetCharProc = function: PChar;stdcall;
-  //пустая функция для возвращения
-  //целочисленной перменной
-  TdfGetIntProc = function (): Integer;stdcall;
-  //флаг
-  TdfGetBoolProc = function (): Boolean;stdcall;
-
-  //перекрываемые функции
-  TdfSingleFunc = function (First:Pointer):Pointer;stdcall;
-  TdfSecondFunc = function (First,Second:Pointer):Pointer;stdcall;
-  TdfThirdFunc = function (First,Second,Third:Pointer):Pointer;stdcall;
-
-  {$ENDREGION}
-
-{$REGION 'Common error names'}
-
-const
-  cdfNoErrorA: PAnsiChar = 'No error';
-  cdfNoErrorW: PWideChar = 'No error';
-  cdfUnknownErrorA: PAnsiChar = 'Unknown error code';
-  cdfUnknownErrorW: PWideChar = 'Unknown error code';
-
-{$ENDREGION}
-
-{$REGION 'Encode Functions'}
-
 function PCharToPWide(AChar: PAnsiChar): PWideChar;
 function PWideToPChar(pw: PWideChar): PAnsiChar;
-
-{$ENDREGION}
 
 //Размер памяти под указателем
 function SizeOfP(const P: Pointer): Integer;
@@ -84,8 +32,6 @@ implementation
 
 uses
   Windows;
-
-{$REGION 'Encode Functions'}
 
 function PCharToPWide(AChar: PAnsiChar): PWideChar;
 var
@@ -112,8 +58,6 @@ begin
   Result := p;
   FreeMem(p, iLen);
 end;
-
-{$ENDREGION}
 
 function SizeOfP(const P: Pointer): Integer;
 begin

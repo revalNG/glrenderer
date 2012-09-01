@@ -1,8 +1,8 @@
 ﻿	<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 		<PropertyGroup>
-			<ProjectGuid>{CB11F108-98F5-4C08-B841-9A0BE606A2B5}</ProjectGuid>
+			<ProjectGuid>{EA177D45-DCF8-4931-BD44-4FB783CE2F49}</ProjectGuid>
 			<ProjectVersion>12.0</ProjectVersion>
-			<MainSource>glRenderer.dpr</MainSource>
+			<MainSource>Checker5_GUI.dpr</MainSource>
 			<Config Condition="'$(Config)'==''">Debug</Config>
 			<DCC_DCCCompiler>DCC32</DCC_DCCCompiler>
 		</PropertyGroup>
@@ -20,16 +20,15 @@
 			<Base>true</Base>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Base)'!=''">
-			<DCC_DcuOutput>..\..\dcu\</DCC_DcuOutput>
-			<DCC_ExeOutput>..\..\bin\</DCC_ExeOutput>
+			<DCC_DcuOutput>..\..\..\dcu\</DCC_DcuOutput>
+			<DCC_ExeOutput>..\..\..\bin\</DCC_ExeOutput>
+			<DCC_DependencyCheckOutputName>..\..\..\bin\Checker5_GUI.exe</DCC_DependencyCheckOutputName>
 			<DCC_ImageBase>00400000</DCC_ImageBase>
-			<DCC_E>false</DCC_E>
-			<DCC_DependencyCheckOutputName>..\..\bin\glRenderer.dll</DCC_DependencyCheckOutputName>
 			<DCC_UnitAlias>WinTypes=Windows;WinProcs=Windows;DbiTypes=BDE;DbiProcs=BDE;DbiErrs=BDE;$(DCC_UnitAlias)</DCC_UnitAlias>
 			<DCC_Platform>x86</DCC_Platform>
-			<DCC_S>false</DCC_S>
-			<GenDll>true</GenDll>
+			<DCC_E>false</DCC_E>
 			<DCC_N>false</DCC_N>
+			<DCC_S>false</DCC_S>
 			<DCC_F>false</DCC_F>
 			<DCC_K>false</DCC_K>
 		</PropertyGroup>
@@ -40,39 +39,16 @@
 			<DCC_DebugInformation>false</DCC_DebugInformation>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Cfg_2)'!=''">
-			<DCC_Optimize>false</DCC_Optimize>
 			<DCC_Define>DEBUG;$(DCC_Define)</DCC_Define>
 		</PropertyGroup>
 		<ItemGroup>
-			<DelphiCompile Include="glRenderer.dpr">
+			<DelphiCompile Include="Checker5_GUI.dpr">
 				<MainSource>MainSource</MainSource>
 			</DelphiCompile>
-			<DCCReference Include="uRenderer.pas"/>
-			<DCCReference Include="uCamera.pas"/>
-			<DCCReference Include="uLight.pas"/>
-			<DCCReference Include="uSprite.pas"/>
-			<DCCReference Include="uTexture.pas"/>
-			<DCCReference Include="uShader.pas"/>
-			<DCCReference Include="uLogger.pas"/>
-			<DCCReference Include="..\common\dfHEngine.pas"/>
-			<DCCReference Include="..\common\dfHGL.pas"/>
-			<DCCReference Include="..\common\dfLogger.pas"/>
-			<DCCReference Include="..\common\dfMath.pas"/>
-			<DCCReference Include="..\headers\dfHRenderer.pas"/>
-			<DCCReference Include="uNode.pas"/>
-			<DCCReference Include="ExportFunc.pas"/>
-			<DCCReference Include="TexLoad.pas"/>
-			<DCCReference Include="uRenderable.pas"/>
-			<DCCReference Include="uMaterial.pas"/>
-			<DCCReference Include="uFont.pas"/>
-			<DCCReference Include="uText.pas"/>
-			<DCCReference Include="uWindow.pas"/>
-			<DCCReference Include="uPrimitives.pas"/>
-			<DCCReference Include="uUserRenderable.pas"/>
-			<DCCReference Include="GUI\uGUIElement.pas"/>
-			<DCCReference Include="GUI\uGUIButton.pas"/>
-			<DCCReference Include="uInput.pas"/>
-			<DCCReference Include="GUI\uGUIManager.pas"/>
+			<DCCReference Include="..\..\headers\dfHRenderer.pas"/>
+			<DCCReference Include="..\..\common\dfHEngine.pas"/>
+			<DCCReference Include="..\..\common\dfMath.pas"/>
+			<DCCReference Include="..\..\headers\dfHUtility.pas"/>
 			<BuildConfiguration Include="Base">
 				<Key>Base</Key>
 			</BuildConfiguration>
@@ -92,21 +68,20 @@
 			<BorlandProject>
 				<Delphi.Personality>
 					<Source>
-						<Source Name="MainSource">glRenderer.dpr</Source>
+						<Source Name="MainSource">Checker5_GUI.dpr</Source>
 					</Source>
 					<Parameters>
 						<Parameters Name="UseLauncher">False</Parameters>
 						<Parameters Name="LoadAllSymbols">True</Parameters>
 						<Parameters Name="LoadUnspecifiedSymbols">False</Parameters>
-						<Parameters Name="HostApplication">..\..\bin\Checker5_GUI.exe</Parameters>
 					</Parameters>
 					<VersionInfo>
-						<VersionInfo Name="IncludeVerInfo">True</VersionInfo>
-						<VersionInfo Name="AutoIncBuild">True</VersionInfo>
-						<VersionInfo Name="MajorVer">0</VersionInfo>
-						<VersionInfo Name="MinorVer">2</VersionInfo>
+						<VersionInfo Name="IncludeVerInfo">False</VersionInfo>
+						<VersionInfo Name="AutoIncBuild">False</VersionInfo>
+						<VersionInfo Name="MajorVer">1</VersionInfo>
+						<VersionInfo Name="MinorVer">0</VersionInfo>
 						<VersionInfo Name="Release">0</VersionInfo>
-						<VersionInfo Name="Build">32</VersionInfo>
+						<VersionInfo Name="Build">0</VersionInfo>
 						<VersionInfo Name="Debug">False</VersionInfo>
 						<VersionInfo Name="PreRelease">False</VersionInfo>
 						<VersionInfo Name="Special">False</VersionInfo>
@@ -118,7 +93,7 @@
 					<VersionInfoKeys>
 						<VersionInfoKeys Name="CompanyName"/>
 						<VersionInfoKeys Name="FileDescription"/>
-						<VersionInfoKeys Name="FileVersion">0.2.0.32</VersionInfoKeys>
+						<VersionInfoKeys Name="FileVersion">1.0.0.0</VersionInfoKeys>
 						<VersionInfoKeys Name="InternalName"/>
 						<VersionInfoKeys Name="LegalCopyright"/>
 						<VersionInfoKeys Name="LegalTrademarks"/>

@@ -21,78 +21,78 @@ uses
   dfHEngine;
 
 const
-  deg2rad: TdfSingle = 3.1415 / 180;
+  deg2rad: Single = 3.1415 / 180;
   rad2deg = 180 / 3.1415;
   pi = 3.14;
   twopi = 2 * pi;
 
 type
   TdfBox2f = record
-    x1, y1, x2, y2: TdfSingle;
+    x1, y1, x2, y2: Single;
   end;
 
   TdfBox2i = record
-    x1, y1, x2, y2: TdfInteger;
+    x1, y1, x2, y2: Integer;
   end;
 
   TdfBox3f = record
-    x1, y1, z1, x2, y2, z2: TdfSingle;
+    x1, y1, z1, x2, y2, z2: Single;
   end;
 
   TdfBox3i = record
-    x1, y1, z1, x2, y2, z2: TdfInteger;
+    x1, y1, z1, x2, y2, z2: Integer;
   end;
 
 {$REGION ' Single Vectors '}
   TdfVec2f = record
-    x, y: TdfSingle;
+    x, y: Single;
     class operator Equal(const v1, v2: TdfVec2f): Boolean;
     class operator Add(const v1, v2: TdfVec2f): TdfVec2f;
     class operator Subtract(const v1, v2: TdfVec2f): TdfVec2f;
     class operator Multiply(const v1, v2: TdfVec2f): TdfVec2f;
-    class operator Multiply(const v: TdfVec2f; a: TdfSingle): TdfVec2f;
-    function Dot(const v: TdfVec2f): TdfSingle;
+    class operator Multiply(const v: TdfVec2f; a: Single): TdfVec2f;
+    function Dot(const v: TdfVec2f): Single;
     function Reflect(const n: TdfVec2f): TdfVec2f;
-    function Refract(const n: TdfVec2f; Factor: TdfSingle): TdfVec2f;
-    function Length: TdfSingle;
-    function LengthQ: TdfSingle;
+    function Refract(const n: TdfVec2f; Factor: Single): TdfVec2f;
+    function Length: Single;
+    function LengthQ: Single;
     function Normal: TdfVec2f;
-    function Dist(const v: TdfVec2f): TdfSingle;
-    function Lerp(const v: TdfVec2f; t: TdfSingle): TdfVec2f;
+    function Dist(const v: TdfVec2f): Single;
+    function Lerp(const v: TdfVec2f; t: Single): TdfVec2f;
     function Clamp(const Min, Max: TdfVec2f): TdfVec2f;
-    function Rotate(Angle: TdfSingle): TdfVec2f;
-    function Angle(const v: TdfVec2f): TdfSingle;
+    function Rotate(Angle: Single): TdfVec2f;
+    function Angle(const v: TdfVec2f): Single;
     function NegateVector(): TdfVec2f;
     procedure Negate;
   end;
 
   TdfVec3f = record
-    x, y, z: TdfSingle;
+    x, y, z: Single;
     class operator Equal(const v1, v2: TdfVec3f): Boolean;
     class operator Add(const v1, v2: TdfVec3f): TdfVec3f;
     class operator Subtract(const v1, v2: TdfVec3f): TdfVec3f;
     class operator Multiply(const v1, v2: TdfVec3f): TdfVec3f;
-    class operator Multiply(const v: TdfVec3f; a: TdfSingle): TdfVec3f;
-    function Lerp(const v: TdfVec3f; t: TdfSingle): TdfVec3f;
-    function Dot(const v: TdfVec3f): TdfSingle;
+    class operator Multiply(const v: TdfVec3f; a: Single): TdfVec3f;
+    function Lerp(const v: TdfVec3f; t: Single): TdfVec3f;
+    function Dot(const v: TdfVec3f): Single;
     function Cross(const v: TdfVec3f): TdfVec3f;
     function Normal: TdfVec3f;
     procedure Normalize;
-    function Length: TdfSingle;
-    function LengthQ: TdfSingle;
-    function DistAbs(const v: TdfVec3f): TdfSingle;
+    function Length: Single;
+    function LengthQ: Single;
+    function DistAbs(const v: TdfVec3f): Single;
     function Reflect(const n: TdfVec3f): TdfVec3f;
-    function Refract(const n: TdfVec3f; Factor: TdfSingle): TdfVec3f;
+    function Refract(const n: TdfVec3f; Factor: Single): TdfVec3f;
     function Clamp(const Min, Max: TdfVec3f): TdfVec3f;
-    function Rotate(Angle: TdfSingle; const Axis: TdfVec3f): TdfVec3f;
+    function Rotate(Angle: Single; const Axis: TdfVec3f): TdfVec3f;
     function NegateVector(): TdfVec3f;
     procedure Negate;
   end;
 
   TdfVec4f = record
-    x, y, z, w: TdfSingle;
-    class operator Multiply(const A: TdfSingle; v: TdfVec4f): TdfVec4f;
-    function Dot(const v: TdfVec3f): TdfSingle;
+    x, y, z, w: Single;
+    class operator Multiply(const A: Single; v: TdfVec4f): TdfVec4f;
+    function Dot(const v: TdfVec3f): Single;
     function Normal: TdfVec4f;
     procedure Normalize;
   end;
@@ -100,18 +100,18 @@ type
 
 {$REGION ' Quaternions '}
   TdfQuat = record
-    x, y, z, w : TdfSingle;
+    x, y, z, w : Single;
     class operator Equal(const q1, q2: TdfQuat): Boolean;
     class operator Add(const q1, q2: TdfQuat): TdfQuat;
     class operator Subtract(const q1, q2: TdfQuat): TdfQuat;
-    class operator Multiply(const q: TdfQuat; x: TdfSingle): TdfQuat;
+    class operator Multiply(const q: TdfQuat; x: Single): TdfQuat;
     class operator Multiply(const q1, q2: TdfQuat): TdfQuat;
     class operator Multiply(const q: TdfQuat; const v: TdfVec3f): TdfVec3f;
     function Invert: TdfQuat;
-    function Lerp(const q: TdfQuat; t: TdfSingle): TdfQuat;
-    function Dot(const q: TdfQuat): TdfSingle;
+    function Lerp(const q: TdfQuat; t: Single): TdfQuat;
+    function Dot(const q: TdfQuat): Single;
     procedure Normalize;
-    function FromVectorAngle(const v: TdfVec3f; Angle: TdfSingle): TdfQuat;
+    function FromVectorAngle(const v: TdfVec3f; Angle: Single): TdfQuat;
     function Euler: TdfVec3f;
   end;
 
@@ -121,7 +121,7 @@ type
   public
     Real, Dual : TdfQuat;      
     class operator Multiply(const dq1, dq2: TdfDualQuat): TdfDualQuat;
-    function Lerp(const dq: TdfDualQuat; t: TdfSingle): TdfDualQuat;
+    function Lerp(const dq: TdfDualQuat; t: Single): TdfDualQuat;
     property Pos: TdfVec3f read GetPos;
     property Rot: TdfQuat read Real;
   end;
@@ -129,7 +129,7 @@ type
 
 {$REGION ' Matrices '}
   PdfMat4fArray = ^TdfMat4fArray;
-  TdfMat4fArray = array [0..3, 0..3] of TdfSingle;
+  TdfMat4fArray = array [0..3, 0..3] of Single;
 
   PdfMat4fRowArray = ^TdfMat4fRowArray;
   TdfMat4fRowArray = array [0..3] of TdfVec4f;
@@ -144,21 +144,21 @@ type
     e00, e10, e20, e30,
     e01, e11, e21, e31,
     e02, e12, e22, e32,
-    e03, e13, e23, e33: TdfSingle;
+    e03, e13, e23, e33: Single;
     class operator Add(const a, b: TdfMat4f): TdfMat4f;
     class operator Multiply(const m: TdfMat4f; v: TdfVec3f): TdfVec3f;
     class operator Multiply(const a, b: TdfMat4f): TdfMat4f;
-    class operator Multiply(const a: TdfMat4f; x: TdfSingle): TdfMat4f;
+    class operator Multiply(const a: TdfMat4f; x: Single): TdfMat4f;
     procedure Identity;
-    function  Det: TdfSingle;
+    function  Det: Single;
     function  Inverse: TdfMat4f;
     function  Transpose: TdfMat4f;
-    function  FromVectorAngle(const v: TdfVec3f; Angle: TdfSingle): TdfMat4f;
-    procedure Ortho(Left, Right, Bottom, Top, ZNear, ZFar: TdfSingle);
-    procedure Frustum(Left, Right, Bottom, Top, ZNear, ZFar: TdfSingle);
-    procedure Perspective(FOV, Aspect, ZNear, ZFar: TdfSingle);
+    function  FromVectorAngle(const v: TdfVec3f; Angle: Single): TdfMat4f;
+    procedure Ortho(Left, Right, Bottom, Top, ZNear, ZFar: Single);
+    procedure Frustum(Left, Right, Bottom, Top, ZNear, ZFar: Single);
+    procedure Perspective(FOV, Aspect, ZNear, ZFar: Single);
     procedure Translate(const v: TdfVec3f);
-    procedure Rotate(Angle: TdfSingle; const v: TdfVec3f);
+    procedure Rotate(Angle: Single; const v: TdfVec3f);
     procedure Scale(const v: TdfVec3f);
 
     property Pos: TdfVec3f read GetPos write SetPos;
@@ -175,11 +175,11 @@ const
     e03: 0; e13: 0; e23: 0; e33: 1;
   );
 
-function Max(x, y: TdfSingle): TdfSingle; overload; inline;
-function Min(x, y: TdfSingle): TdfSingle; overload; inline;
-function Max(x, y: TdfInteger): TdfInteger; overload; inline;
-function Min(x, y: TdfInteger): TdfInteger; overload; inline;
-function Sign(x: TdfSingle): TdfInteger; inline;
+function Max(x, y: Single): Single; overload; inline;
+function Min(x, y: Single): Single; overload; inline;
+function Max(x, y: Integer): Integer; overload; inline;
+function Min(x, y: Integer): Integer; overload; inline;
+function Sign(x: Single): Integer; inline;
 
 function Ceil(const X: Extended): Integer;
 function Floor(const X: Extended): Integer;
@@ -187,24 +187,24 @@ function Floor(const X: Extended): Integer;
 function Tan(const X: Extended): Extended;
 function ArcTan2(Y, X: Extended): Extended;
 procedure SinCos(const Theta: Extended; out Sin, Cos: Extended);
-function ArcCos(const X: TdfSingle): TdfSingle;
-function ArcSin(const X: TdfSingle): TdfSingle;
+function ArcCos(const X: Single): Single;
+function ArcSin(const X: Single): Single;
 
-function Clamp(x, Min, Max: TdfInteger): TdfInteger; overload; inline;
-function Clamp(x, Min, Max: TdfSingle): TdfSingle; overload; inline;
-function Pow(x, y: TdfSingle): TdfSingle;
+function Clamp(x, Min, Max: Integer): Integer; overload; inline;
+function Clamp(x, Min, Max: Single): Single; overload; inline;
+function Pow(x, y: Single): Single;
   
-function dfVec2f(x, y: TdfSingle): TdfVec2f; inline;
-function dfVec3f(x, y, z: TdfSingle): TdfVec3f; overload; inline;
-function dfVec3f(v: TdfVec2f; z: TdfSingle): TdfVec3f; overload; inline;
-function dfVec4f(x, y, z: TdfSingle; w: TdfSingle = 0): TdfVec4f; overload; inline;
-function dfVec4f(v: TdfVec3f; w: TdfSingle = 0): TdfVec4f; overload; inline;
+function dfVec2f(x, y: Single): TdfVec2f; inline;
+function dfVec3f(x, y, z: Single): TdfVec3f; overload; inline;
+function dfVec3f(v: TdfVec2f; z: Single): TdfVec3f; overload; inline;
+function dfVec4f(x, y, z: Single; w: Single = 0): TdfVec4f; overload; inline;
+function dfVec4f(v: TdfVec3f; w: Single = 0): TdfVec4f; overload; inline;
 function dfQuat(x, y, z, w: Single): TdfQuat; overload; inline;
 function dfQuat(const v: TdfVec3f; Angle: Single): TdfQuat; overload; inline;
 
 implementation
 
-function Max(x, y: TdfSingle): TdfSingle;
+function Max(x, y: Single): Single;
 begin
   if x > y then
     Result := x
@@ -212,7 +212,7 @@ begin
     Result := y;
 end;
 
-function Min(x, y: TdfSingle): TdfSingle;
+function Min(x, y: Single): Single;
 begin
   if x < y then
     Result := x
@@ -220,7 +220,7 @@ begin
     Result := y;
 end;
 
-function Max(x, y: TdfInteger): TdfInteger;
+function Max(x, y: Integer): Integer;
 begin
   if x > y then
     Result := x
@@ -228,7 +228,7 @@ begin
     Result := y;
 end;
 
-function Min(x, y: TdfInteger): Integer;
+function Min(x, y: Integer): Integer;
 begin
   if x < y then
     Result := x
@@ -236,7 +236,7 @@ begin
     Result := y;
 end;
 
-function Sign(x: TdfSingle): TdfInteger;
+function Sign(x: Single): Integer;
 begin
   if x > 0 then
     Result := 1
@@ -247,16 +247,16 @@ begin
       Result := 0;
 end;
 
-function Ceil(const X: Extended): TdfInteger;
+function Ceil(const X: Extended): Integer;
 begin
-  Result := TdfInteger(Trunc(X));
+  Result := Integer(Trunc(X));
   if Frac(X) > 0 then
     Inc(Result);
 end;
 
-function Floor(const X: Extended): TdfInteger;
+function Floor(const X: Extended): Integer;
 begin
-  Result := TdfInteger(Trunc(X));
+  Result := Integer(Trunc(X));
   if Frac(X) < 0 then
     Dec(Result);
 end;
@@ -286,7 +286,7 @@ asm
   FWAIT
 end;
 
-function ArcCos(const X: TdfSingle): TdfSingle;
+function ArcCos(const X: Single): Single;
 begin
   if abs(X) > 1 then
     Result := 0
@@ -294,12 +294,12 @@ begin
     Result := ArcTan2(Sqrt(1 - X * X), X);
 end;
 
-function ArcSin(const X: TdfSingle): TdfSingle;
+function ArcSin(const X: Single): Single;
 begin
   Result := ArcTan2(X, Sqrt((1 + X) * (1 - X)));
 end;
 
-function Clamp(x, Min, Max: TdfInteger): TdfInteger;
+function Clamp(x, Min, Max: Integer): Integer;
 begin
   if x < min then
     Result := min
@@ -310,7 +310,7 @@ begin
       Result := x;
 end;
 
-function Clamp(x, Min, Max: TdfSingle): TdfSingle;
+function Clamp(x, Min, Max: Single): Single;
 begin
   if x < min then
     Result := min
@@ -321,33 +321,33 @@ begin
       Result := x;
 end;
 
-function Pow(x, y: TdfSingle): TdfSingle;
+function Pow(x, y: Single): Single;
 begin
   Result := exp(ln(x) * y);
 end;
 
 
-function dfVec2f(x, y: TdfSingle): TdfVec2f;
+function dfVec2f(x, y: Single): TdfVec2f;
 begin
   Result.x := x;
   Result.y := y;
 end;
 
-function dfVec3f(x, y, z: TdfSingle): TdfVec3f; overload;
+function dfVec3f(x, y, z: Single): TdfVec3f; overload;
 begin
   Result.x := x;
   Result.y := y;
   Result.z := z;
 end;
 
-function dfVec3f(v: TdfVec2f; z: TdfSingle): TdfVec3f; overload;
+function dfVec3f(v: TdfVec2f; z: Single): TdfVec3f; overload;
 begin
   Result.x := v.x;
   Result.y := v.y;
   Result.z := z;
 end;
 
-function dfVec4f(x, y, z: TdfSingle; w: TdfSingle = 0): TdfVec4f; overload;
+function dfVec4f(x, y, z: Single; w: Single = 0): TdfVec4f; overload;
 begin
   Result.x := x;
   Result.y := y;
@@ -355,7 +355,7 @@ begin
   Result.w := w;
 end;
 
-function dfVec4f(v: TdfVec3f; w: TdfSingle = 0): TdfVec4f; overload;
+function dfVec4f(v: TdfVec3f; w: Single = 0): TdfVec4f; overload;
 begin
   Result.x := v.x;
   Result.y := v.y;
@@ -401,13 +401,13 @@ begin
   Result.y := v1.y * v2.y;
 end;
 
-class operator TdfVec2f.Multiply(const v: TdfVec2f; a: TdfSingle): TdfVec2f;
+class operator TdfVec2f.Multiply(const v: TdfVec2f; a: Single): TdfVec2f;
 begin
   Result.x := v.x * a;
   Result.y := v.y * a;
 end;
 
-function TdfVec2f.Dot(const v: TdfVec2f): TdfSingle;
+function TdfVec2f.Dot(const v: TdfVec2f): Single;
 begin
   Result := x * v.x + y * v.y;
 end;
@@ -417,9 +417,9 @@ begin
   Result := Self - (n * (2 * Dot(n)));
 end;
 
-function TdfVec2f.Refract(const n: TdfVec2f; Factor: TdfSingle): TdfVec2f;
+function TdfVec2f.Refract(const n: TdfVec2f; Factor: Single): TdfVec2f;
 var
-  d, s : TdfSingle;
+  d, s : Single;
 begin
   d := Dot(n);
   s := 1 - sqr(Factor) * (1 - sqr(d));
@@ -429,19 +429,19 @@ begin
     Result := Self * Factor - n * (sqrt(s) + d * Factor);
 end;
 
-function TdfVec2f.Length: TdfSingle;
+function TdfVec2f.Length: Single;
 begin
   Result := sqrt(LengthQ);
 end;
 
-function TdfVec2f.LengthQ: TdfSingle;
+function TdfVec2f.LengthQ: Single;
 begin
   Result := sqr(x) + sqr(y);
 end;
 
 function TdfVec2f.Normal: TdfVec2f;
 var
-  Len : TdfSingle;
+  Len : Single;
 begin
   Len := Length;
   if Len < cEPS then
@@ -450,12 +450,12 @@ begin
     Result := Self * (1 / Len);
 end;
 
-function TdfVec2f.Dist(const v: TdfVec2f): TdfSingle;
+function TdfVec2f.Dist(const v: TdfVec2f): Single;
 begin
   Result := (v - Self).Length;
 end;
 
-function TdfVec2f.Lerp(const v: TdfVec2f; t: TdfSingle): TdfVec2f;
+function TdfVec2f.Lerp(const v: TdfVec2f; t: Single): TdfVec2f;
 begin
   Result := Self + (v - Self) * t;
 end;
@@ -465,7 +465,7 @@ begin
   Result := dfVec2f(dfMath.Clamp(x, Min.x, Max.x), dfMath.Clamp(y, Min.y, Max.y));
 end;
 
-function TdfVec2f.Rotate(Angle: TdfSingle): TdfVec2f;
+function TdfVec2f.Rotate(Angle: Single): TdfVec2f;
 var
   s, c : Extended;
 begin
@@ -473,7 +473,7 @@ begin
   Result := dfVec2f(x * c - y * s, x * s + y * c);
 end;
 
-function TdfVec2f.Angle(const v: TdfVec2f): TdfSingle;
+function TdfVec2f.Angle(const v: TdfVec2f): Single;
 begin
   Result := ArcCos(Dot(v) / sqrt(LengthQ * v.LengthQ))
 end;
@@ -520,19 +520,19 @@ begin
   Result.z := v1.z * v2.z;
 end;
 
-class operator TdfVec3f.Multiply(const v: TdfVec3f; a: TdfSingle): TdfVec3f;
+class operator TdfVec3f.Multiply(const v: TdfVec3f; a: Single): TdfVec3f;
 begin
   Result.x := a * v.x;
   Result.y := a * v.y;
   Result.z := a * v.z;
 end;
 
-function TdfVec3f.Lerp(const v: TdfVec3f; t: TdfSingle): TdfVec3f;
+function TdfVec3f.Lerp(const v: TdfVec3f; t: Single): TdfVec3f;
 begin
   Result := Self + (v - Self) * t;
 end;
 
-function TdfVec3f.Dot(const v: TdfVec3f): TdfSingle;
+function TdfVec3f.Dot(const v: TdfVec3f): Single;
 begin
   Result := x * v.x + y * v.y + z * v.z;
 end;
@@ -546,7 +546,7 @@ end;
 
 function TdfVec3f.Normal: TdfVec3f;
 var
-  Len : TdfSingle;
+  Len : Single;
 begin
   Len := Length;
   if Len > cEPS then
@@ -560,17 +560,17 @@ begin
   Self := Normal;
 end;
 
-function TdfVec3f.Length: TdfSingle;
+function TdfVec3f.Length: Single;
 begin
   Result := sqrt(LengthQ);
 end;
 
-function TdfVec3f.LengthQ: TdfSingle;
+function TdfVec3f.LengthQ: Single;
 begin
   Result := sqr(x) + sqr(y) + sqr(z);
 end;
 
-function TdfVec3f.DistAbs(const v: TdfVec3f): TdfSingle;
+function TdfVec3f.DistAbs(const v: TdfVec3f): Single;
 begin
   Result := abs(x - v.x) + abs(y - v.y) + abs(z - v.z);
 end;
@@ -580,9 +580,9 @@ begin
   Result := Self - (n * (2 * Dot(n)));
 end;
 
-function TdfVec3f.Refract(const n: TdfVec3f; Factor: TdfSingle): TdfVec3f;
+function TdfVec3f.Refract(const n: TdfVec3f; Factor: Single): TdfVec3f;
 var
-  d, s : TdfSingle;
+  d, s : Single;
 begin
   d := Dot(n);
   s := 1 - sqr(Factor) * (1 - sqr(d));
@@ -597,7 +597,7 @@ begin
   Result := dfVec3f(dfMath.Clamp(x, Min.x, Max.x), dfMath.Clamp(y, Min.y, Max.y), dfMath.Clamp(z, Min.z, Max.z));
 end;
 
-function TdfVec3f.Rotate(Angle: TdfSingle; const Axis: TdfVec3f): TdfVec3f;
+function TdfVec3f.Rotate(Angle: Single; const Axis: TdfVec3f): TdfVec3f;
 var
   s, c : Extended;
   v0, v1, v2 : TdfVec3f;
@@ -628,7 +628,7 @@ end;
 //======================dfVec4f
 
 
-class operator TdfVec4f.Multiply(const A: TdfSingle; v: TdfVec4f): TdfVec4f;
+class operator TdfVec4f.Multiply(const A: Single; v: TdfVec4f): TdfVec4f;
 begin
   Result.x := A * v.x;
   Result.y := A * v.y;
@@ -636,14 +636,14 @@ begin
   Result.w := v.w;
 end;
 
-function TdfVec4f.Dot(const v: TdfVec3f): TdfSingle;
+function TdfVec4f.Dot(const v: TdfVec3f): Single;
 begin
   Result := x * v.x + y * v.y + z * v.z + w;
 end;
 
 function TdfVec4f.Normal: TdfVec4f;
 var
-  Len : TdfSingle;
+  Len : Single;
 begin
   Len := sqrt(sqr(x) + sqr(y) + sqr(z) + sqr(w));
   if Len > cEPS then
@@ -683,7 +683,7 @@ begin
   Result.w := q1.w - q2.w;
 end;
 
-class operator TdfQuat.Multiply(const q: TdfQuat; x: TdfSingle): TdfQuat;
+class operator TdfQuat.Multiply(const q: TdfQuat; x: Single): TdfQuat;
 begin
   Result.x := q.x * x;
   Result.y := q.y * x;
@@ -725,7 +725,7 @@ end;
 
 procedure TdfQuat.Normalize;
 var
-  Len : TdfSingle;
+  Len : Single;
 begin
   Len := sqrt(sqr(x) + sqr(y) + sqr(z) + sqr(w));
   if Len > 0 then
@@ -738,7 +738,7 @@ begin
   end;
 end;
 
-function TdfQuat.FromVectorAngle(const v: TdfVec3f; Angle: TdfSingle): TdfQuat;
+function TdfQuat.FromVectorAngle(const v: TdfVec3f; Angle: Single): TdfQuat;
 var
   s, c : Extended;
 begin
@@ -751,7 +751,7 @@ end;
 
 function TdfQuat.Euler: TdfVec3f;
 var
-  D : TdfSingle;
+  D : Single;
 begin
   D := 2 * x * z + y * w;
   if abs(D) > 1 - cEPS then
@@ -776,7 +776,7 @@ begin
   Result.Dual := dq1.Real * dq2.Dual + dq1.Dual * dq2.Real;
 end;
 
-function TdfDualQuat.Lerp(const dq: TdfDualQuat; t: TdfSingle): TdfDualQuat;
+function TdfDualQuat.Lerp(const dq: TdfDualQuat; t: Single): TdfDualQuat;
 begin
   if Real.Dot(dq.Real) < 0 then
   begin
@@ -807,7 +807,7 @@ var
   MA   : TdfMat4fArray absolute a;
   MB   : TdfMat4fArray absolute b;
   Res  : TdfMat4fArray absolute Result;
-  i, j : TdfInteger;
+  i, j : Integer;
 begin
   for i := 0 to 3 do
     for j := 0 to 3 do
@@ -845,9 +845,9 @@ begin
   end;
 end;
 
-class operator TdfMat4f.Multiply(const a: TdfMat4f; x: TdfSingle): TdfMat4f;
+class operator TdfMat4f.Multiply(const a: TdfMat4f; x: Single): TdfMat4f;
 var
-  i, j : TdfInteger;
+  i, j : Integer;
   Mat  : TdfMat4fArray absolute a;
   Res  : TdfMat4fArray absolute Result;
 begin
@@ -861,7 +861,7 @@ begin
   Self := IdentMat;
 end;
 
-function TdfMat4f.Det: TdfSingle; 
+function TdfMat4f.Det: Single;
 begin
   Result := e00 * (e11 * (e22 * e33 - e32 * e23) - e21 * (e12 * e33 - e32 * e13) + e31 * (e12 * e23 - e22 * e13)) -
             e10 * (e01 * (e22 * e33 - e32 * e23) - e21 * (e02 * e33 - e32 * e03) + e31 * (e02 * e23 - e22 * e03)) +
@@ -871,7 +871,7 @@ end;
 
 function TdfMat4f.Inverse: TdfMat4f;
 var
-  D : TdfSingle;
+  D : Single;
 begin
   D := 1 / Det;
   Result.e00 :=  (e11 * (e22 * e33 - e32 * e23) - e21 * (e12 * e33 - e32 * e13) + e31 * (e12 * e23 - e22 * e13)) * D;
@@ -894,19 +894,19 @@ end;
 
 function TdfMat4f.Transpose: TdfMat4f;
 var
-  i, j : TdfInteger;
-  Res  : array [0..3, 0..3] of TdfSingle absolute Result;
+  i, j : Integer;
+  Res  : array [0..3, 0..3] of Single absolute Result;
 begin
   for i := 0 to 3 do
     for j := 0 to 3 do
       Res[i, j] := PdfMat4fArray(@Self)^[j, i];
 end;
 
-function TdfMat4f.FromVectorAngle(const v: TdfVec3f; Angle: TdfSingle): TdfMat4f;
+function TdfMat4f.FromVectorAngle(const v: TdfVec3f; Angle: Single): TdfMat4f;
 var
   s, c  : Extended;
-  ic : TdfSingle;
-  xy, yz, zx, xs, ys, zs, icxy, icyz, iczx : TdfSingle;
+  ic : Single;
+  xy, yz, zx, xs, ys, zs, icxy, icyz, iczx : Single;
 begin
   SinCos(Angle, s, c);
   ic := 1 - c;
@@ -957,7 +957,7 @@ begin
   Self := m * Self;
 end;
 
-procedure TdfMat4f.Ortho(Left, Right, Bottom, Top, ZNear, ZFar: TdfSingle);
+procedure TdfMat4f.Ortho(Left, Right, Bottom, Top, ZNear, ZFar: Single);
 begin
   e00 := 2 / (Right - Left);
   e10 := 0;
@@ -980,7 +980,7 @@ begin
   e33 := 1;
 end;
 
-procedure TdfMat4f.Frustum(Left, Right, Bottom, Top, ZNear, ZFar: TdfSingle);
+procedure TdfMat4f.Frustum(Left, Right, Bottom, Top, ZNear, ZFar: Single);
 begin
   e00 := 2 * ZNear / (Right - Left);
   e10 := 0;
@@ -1003,7 +1003,7 @@ begin
   e33 := 0;
 end;
 
-procedure TdfMat4f.Perspective(FOV, Aspect, ZNear, ZFar: TdfSingle);
+procedure TdfMat4f.Perspective(FOV, Aspect, ZNear, ZFar: Single);
 var
   x, y : Single;
 begin
@@ -1027,7 +1027,7 @@ end;
 
 function TdfMat4f.GetRot: TdfQuat;
 var
-  t, s : TdfSingle;
+  t, s : Single;
 begin
   t := e00 + e11 + e22 + 1;
   with Result do
@@ -1069,8 +1069,8 @@ end;
 
 procedure TdfMat4f.SetRot(const q: TdfQuat);
 var
-  sqw, sqx, sqy, sqz, invs : TdfSingle;
-  tmp1, tmp2 : TdfSingle;
+  sqw, sqx, sqy, sqz, invs : Single;
+  tmp1, tmp2 : Single;
 begin
   with q do
   begin

@@ -49,8 +49,13 @@ type
     //Активная камера
     FCamera: IdfCamera;
 
+    //Корень сцены
     FRootNode: IdfNode;
 
+    //Объект для отслеживания ввода
+    FInput: IdfInput;
+
+    FGUIManager: IdfGUIManager;
 
     //коллбэки для мыши
     FOnMouseDown: TdfOnMouseDownProc;
@@ -69,9 +74,9 @@ type
     function GetRenderReady(): Boolean;
     function GetFPS(): Single;
     function GetCamera(): IdfCamera;
-    procedure SetCamera(aCamera: IdfCamera);
+    procedure SetCamera(const aCamera: IdfCamera);
     function GetRoot: IdfNode;
-    procedure SetRoot(aRoot: IdfNode);
+    procedure SetRoot(const aRoot: IdfNode);
 
     procedure SetOnMouseDown(aProc: TdfOnMouseDownProc);
     procedure SetOnMouseUp(aProc: TdfOnMouseUpProc);
@@ -97,6 +102,12 @@ type
     function GetWidth(): Integer;
     function GetHeight(): Integer;
 
+    function GetInput(): IdfInput;
+    procedure SetInput(const aInput: IdfInput);
+
+    function GetManager(): IdfGUIManager;
+    procedure SetManager(const aManager: IdfGUIManager);
+
     procedure WMLButtonDown    (var Msg: TMessage); message WM_LBUTTONDOWN;
     procedure WMLButtonUp      (var Msg: TMessage); message WM_LBUTTONUP;
     procedure WMLButtonDblClick(var Msg: TMessage); message WM_LBUTTONDBLCLK;
@@ -112,7 +123,9 @@ type
     procedure WMMouseMove      (var Msg: TMessage); message WM_MOUSEMOVE;
     procedure WMMouseWheel     (var Msg: TMessage); message WM_MOUSEWHEEL;
 
-    procedure WMSize           (var Msg: TMessage); message WM_SIZE;
+    procedure WMSize           (var Msg: TWMSize); message WM_SIZE;
+    procedure WMActivate       (var Msg: TWMActivate); message WM_ACTIVATE;
+    procedure WMClose          (var Msg: TWMClose); message WM_CLOSE;
   public
     constructor Create; virtual;
     destructor Destroy; override;
@@ -142,6 +155,10 @@ type
 
     property RootNode: IdfNode read GetRoot write SetRoot;
 
+    property Input: IdfInput read GetInput write SetInput;
+
+    property GUIManager: IdfGUIManager read GetManager write SetManager;
+
     property OnMouseDown: TdfOnMouseDownProc read GetOnMouseDown write SetOnMouseDown;
     property OnMouseUp: TdfOnMouseUpProc read GetOnMouseUp write SetOnMouseUp;
     property OnMouseMove: TdfOnMouseMoveProc read GetOnMouseMove write SetOnMouseMove;
@@ -159,8 +176,8 @@ var
 implementation
 
 uses
-  uLight, uSprite, uTexture, uShader, uNode,
-  dfHInput, dfHEngine, uLogger;
+  uLight, uSprite, uTexture, uNode, uInput, uGUIManager,
+  dfHEngine, uLogger;
 
 
 const
@@ -172,9 +189,6 @@ const
 
 function WindowProc(hWnd: HWND; Msg: UINT; wParam: WPARAM; lParam: LPARAM): LRESULT; stdcall;
 var
-//  x, y: Integer;
-//  d: SmallInt;
-
   MsgRec: TMessage;
 begin
   case Msg of
@@ -183,126 +197,14 @@ begin
       PostQuitMessage(0);
       Result := 0;
     end;
-//    WM_PAINT:
-//      with TheRenderer do
-//      begin
-//        QueryPerformanceCounter(FNewTicks);
-//        FDeltaTime := (FNewTicks - FOldTicks) / FFreq;
-//        FOldTicks := FNewTicks;
-//        Inc(FFrames);
-//        FFPS :=  1 / FDeltaTime;
-//        if RenderReady then
-//          Step(FDeltaTime);
-//        if FFrames >= 100 then
-//        begin
-//          //Вывод фпс
-//          //SetWindowText(FWHandle, cDefWindowCaption + ' :: ' + FloatToStr(FPS));
-//          FFrames := 0;
-//        end;
-//        Result := 0;
-//      end;
-    WM_WINDOWPOSCHANGED:
-      begin
-      with TheRenderer do
-        if RenderReady then
-        begin
-//          GetWindowRect(FWHandle, FdesRect);
-//          FWWidth := FdesRect.Right - FdesRect.Left;
-//          FWHeight := FdesRect.Bottom - FdesRect.Top;
-//          Camera.ViewportOnly(0, 0, FWWidth, FWHeight);
-          FWWidth := LOWORD(lParam);
-          FWHeight := HIWORD(lParam);
-          Camera.ViewportOnly(0, 0, FWWidth, FWHeight);
-        end;
-//          Camera.ViewportOnly(0, 0, FWWidth, FWHeight);
-      //camera.CameraInit(0, 0, LOWORD(lParam), HIWORD(lParam), cFOV, cZNear, cZFar);
-      Result := 0;
-    end;
-    WM_SIZE:
-    begin
-      with TheRenderer do
-        if RenderReady then
-        begin
-          GetClientRect(FWHandle, FdesRect);
-          FWWidth := FdesRect.Right - FdesRect.Left;
-          FWHeight := FdesRect.Bottom - FdesRect.Top;
-//          Camera.ViewportOnly(0, 0, FWWidth, FWHeight);
-//          UpdateWindow(FWHandle);
-//          FWWidth := LOWORD(lParam);
-//          FWHeight := HIWORD(lParam);
-//          Camera.ViewportOnly(0, 0, FWWidth, FWHeight);
-          Camera.Viewport(0, 0, FWWidth, FWHeight, 90, 0.1, 500);
-        end;
-//          Camera.ViewportOnly(0, 0, FWWidth, FWHeight);
-      //camera.CameraInit(0, 0, LOWORD(lParam), HIWORD(lParam), cFOV, cZNear, cZFar);
-      Result := 0;
-    end;
-//    WM_MOUSEMOVE:
-//    begin
-//      //Нажата левая кнопка мыши, и идет движение
-//      if wParam and MK_LBUTTON <> 0 then
-//      begin
-//        x := LOWORD(lParam);
-//        y := HIWORD(lParam);
-//        with TheRenderer.Camera do
-//        begin
-//          Rotate(deg2rad*(x - dx), Up);
-//          Rotate(deg2rad*(y - dy), Left);
-//        end;
-//        dx := x;
-//        dy := y;
-//      end;
-      //Нажата правая кнопка мыши, и идет движение
-//      if wParam and MK_RBUTTON <> 0 then
-//      begin
-//        SetCursor(TheRenderer.FhHandCursor);
-//        x := LOWORD(lParam);
-//        y := HIWORD(lParam);
-//        TheRenderer.Camera.Pan(y - dy, dx - x);
-//        dx := x;
-//        dy := y;
-//      end;
-//    end;
-//    WM_LBUTTONDOWN:
-//    begin
-//      dx := LOWORD(lParam);
-//      dy := HIWORD(lParam);
-//    end;
-//    WM_LBUTTONUP:
-//    begin
-//      dX := 0;
-//      dY := 0;
-//    end;
-
-//    WM_RBUTTONDOWN:
-//    begin
-//      dx := LOWORD(lParam);
-//      dy := HIWORD(lParam);
-//      SetCursor(TheRenderer.FhHandCursor);
-//    end;
-//    WM_RBUTTONUP:
-//    begin
-//      dX := 0;
-//      dY := 0;
-//    end;
-
-    WM_ERASEBKGND:
-      Result := 0
-
-//    WM_MOUSEWHEEL:
-//    begin
-//      d := HIWORD(wParam);
-//      dfInput.KeyboardNotifyWheelMoved(d);
-//    end
-  else
-    Result := DefWindowProc(hWnd, Msg, wParam, lParam);
   end;
   MsgRec.Msg := Msg;
   MsgRec.WParam := wParam;
   MsgRec.LParam := lParam;
   MsgRec.Result := Result;
-  if Assigned(TheRenderer) and TheRenderer.RenderReady and (TheRenderer.FWHandle <> 0) then
+  if Assigned(TheRenderer) and TheRenderer.RenderReady then
     TheRenderer.Dispatch(MsgRec);
+  Result := DefWindowProc(hWnd, Msg, wParam, lParam);
 end;
 
 {$REGION 'Класс TdfRenderer'}
@@ -391,7 +293,7 @@ end;
 
 procedure TdfRenderer.SetWindowCaption(aCaption: PWideChar);
 begin
-  //if FWCaption <> aCaption then
+  if FWCaption <> aCaption then
   begin
     SetWindowText(FWHandle, aCaption);
     FWCaption := aCaption;
@@ -450,6 +352,16 @@ begin
   Result := FWHeight;
 end;
 
+function TdfRenderer.GetInput: IdfInput;
+begin
+  Result := FInput;
+end;
+
+function TdfRenderer.GetManager: IdfGUIManager;
+begin
+  Result := FGUIManager;
+end;
+
 function TdfRenderer.GetOnMouseDown: TdfOnMouseDownProc;
 begin
   Result := FOnMouseDown;
@@ -490,7 +402,7 @@ begin
   Result := FEnabled;
 end;
 
-procedure TdfRenderer.SetCamera(aCamera: IdfCamera);
+procedure TdfRenderer.SetCamera(const aCamera: IdfCamera);
 begin
   FCamera := aCamera;
 end;
@@ -498,6 +410,16 @@ end;
 procedure TdfRenderer.SetEnabled(aEnabled: Boolean);
 begin
   FEnabled := aEnabled;
+end;
+
+procedure TdfRenderer.SetInput(const aInput: IdfInput);
+begin
+  FInput := aInput;
+end;
+
+procedure TdfRenderer.SetManager(const aManager: IdfGUIManager);
+begin
+  FGUIManager := aManager;
 end;
 
 procedure TdfRenderer.SetOnMouseDown(aProc: TdfOnMouseDownProc);
@@ -525,7 +447,7 @@ begin
   FOnUpdate := aProc;
 end;
 
-procedure TdfRenderer.SetRoot(aRoot: IdfNode);
+procedure TdfRenderer.SetRoot(const aRoot: IdfNode);
 begin
   FRootNode := aRoot;
 end;
@@ -534,151 +456,186 @@ end;
 
 procedure TdfRenderer.WMLButtonDown(var Msg: TMessage);
 var
-  X, Y: TdfInteger;
+  X, Y: Integer;
 begin
+  X := LOWORD(Msg.LParam);
+  Y := HIWORD(Msg.LParam);
   if Assigned(FOnMouseDown) then
   begin
-    X := LOWORD(Msg.LParam);
-    Y := HIWORD(Msg.LParam);
 //    Include(ShiftState, ssLeft);
     FOnMouseDown(X, Y, mbLeft, []);
   end;
+
+  FGUIManager.MouseDown(X, Y, mbLeft, []);
 end;
 
 procedure TdfRenderer.WMLButtonUp(var Msg: TMessage);
 var
-  X, Y: TdfInteger;
+  X, Y: Integer;
 begin
+  X := LOWORD(Msg.LParam);
+  Y := HIWORD(Msg.LParam);
   if Assigned(FOnMouseUp) then
   begin
-    X := LOWORD(Msg.LParam);
-    Y := HIWORD(Msg.LParam);
 //    Exclude(ShiftState, ssLeft);
     FOnMouseUp(X, Y, mbLeft, []);
   end;
+
+  FGUIManager.MouseUp(X, Y, mbLeft, []);
+end;
+
+procedure TdfRenderer.WMActivate(var Msg: TWMActivate);
+begin
+  FInput.AllowKeyCapture := (Msg.Active <> WA_INACTIVE);
+end;
+
+procedure TdfRenderer.WMClose(var Msg: TWMClose);
+begin
+  Stop();
 end;
 
 procedure TdfRenderer.WMLButtonDblClick(var Msg: TMessage);
 var
-  X, Y: TdfInteger;
+  X, Y: Integer;
 begin
+  X := LOWORD(Msg.LParam);
+  Y := HIWORD(Msg.LParam);
   if Assigned(FOnMouseDown) then
   begin
-    X := LOWORD(Msg.LParam);
-    Y := HIWORD(Msg.LParam);
     FOnMouseDown(X, Y, mbLeft, [ssDouble]);
   end;
+
+  FGUIManager.MouseDown(X, Y, mbLeft, [ssDouble]);
 end;
 
 procedure TdfRenderer.WMRButtonDown(var Msg: TMessage);
 var
-  X, Y: TdfInteger;
+  X, Y: Integer;
 begin
+  X := LOWORD(Msg.LParam);
+  Y := HIWORD(Msg.LParam);
   if Assigned(FOnMouseDown) then
   begin
-    X := LOWORD(Msg.LParam);
-    Y := HIWORD(Msg.LParam);
 //    Include(ShiftState, ssRight);
     FOnMouseDown(X, Y, mbRight, []);
   end;
+
+  FGUIManager.MouseDown(X, Y, mbRight, []);
 end;
 
 procedure TdfRenderer.WMRButtonUp(var Msg: TMessage);
 var
-  X, Y: TdfInteger;
+  X, Y: Integer;
 begin
+  X := LOWORD(Msg.LParam);
+  Y := HIWORD(Msg.LParam);
   if Assigned(FOnMouseUp) then
   begin
-    X := LOWORD(Msg.LParam);
-    Y := HIWORD(Msg.LParam);
 //    Exclude(ShiftState, ssRight);
     FOnMouseUp(X, Y, mbRight, []);
   end;
+
+  FGUIManager.MouseUp(X, Y, mbRight, []);
 end;
 
 procedure TdfRenderer.WMRButtonDblClick(var Msg: TMessage);
 var
-  X, Y: TdfInteger;
+  X, Y: Integer;
 begin
+  X := LOWORD(Msg.LParam);
+  Y := HIWORD(Msg.LParam);
   if Assigned(FOnMouseDown) then
   begin
-    X := LOWORD(Msg.LParam);
-    Y := HIWORD(Msg.LParam);
     FOnMouseDown(X, Y, mbRight, [ssDouble]);
   end;
+
+  FGUIManager.MouseDown(X, Y, mbRight, [ssDouble]);
 end;
 
 procedure TdfRenderer.WMMButtonDown(var Msg: TMessage);
 var
-  X, Y: TdfInteger;
+  X, Y: Integer;
 begin
+  X := LOWORD(Msg.LParam);
+  Y := HIWORD(Msg.LParam);
   if Assigned(FOnMouseDown) then
   begin
-    X := LOWORD(Msg.LParam);
-    Y := HIWORD(Msg.LParam);
 //    Include(ShiftState, ssMiddle);
     FOnMouseDown(X, Y, mbMiddle, []);
   end;
+
+  FGUIManager.MouseDown(X, Y, mbMiddle, []);
 end;
 
 procedure TdfRenderer.WMMButtonUp(var Msg: TMessage);
 var
-  X, Y: TdfInteger;
+  X, Y: Integer;
 begin
+  X := LOWORD(Msg.LParam);
+  Y := HIWORD(Msg.LParam);
   if Assigned(FOnMouseUp) then
   begin
-    X := LOWORD(Msg.LParam);
-    Y := HIWORD(Msg.LParam);
 //    Exclude(ShiftState, ssMiddle);
     FOnMouseUp(X, Y, mbMiddle, []);
   end;
+
+  FGUIManager.MouseUp(X, Y, mbMiddle, []);
 end;
 
 procedure TdfRenderer.WMMButtonDblClick(var Msg: TMessage);
 var
-  X, Y: TdfInteger;
+  X, Y: Integer;
 begin
+  X := LOWORD(Msg.LParam);
+  Y := HIWORD(Msg.LParam);
   if Assigned(FOnMouseDown) then
   begin
-    X := LOWORD(Msg.LParam);
-    Y := HIWORD(Msg.LParam);
     FOnMouseDown(X, Y, mbMiddle, [ssDouble]);
   end;
+
+  FGUIManager.MouseDown(X, Y, mbMiddle, [ssDouble]);
 end;
 
 procedure TdfRenderer.WMMouseMove(var Msg: TMessage);
 var
-  X, Y: TdfInteger;
+  X, Y: Integer;
   Shift: TdfMouseShiftState;
 begin
+  X := LOWORD(Msg.LParam);
+  Y := HIWORD(Msg.LParam);
+  if Msg.wParam and MK_LBUTTON <> 0 then
+    Include(Shift, ssLeft);
+  if Msg.wParam and MK_RBUTTON <> 0 then
+    Include(Shift, ssRight);
+  if Msg.wParam and MK_MBUTTON <> 0 then
+    Include(Shift, ssMiddle);
   if Assigned(FOnMouseMove) then
   begin
-    X := LOWORD(Msg.LParam);
-    Y := HIWORD(Msg.LParam);
-    if Msg.wParam and MK_LBUTTON <> 0 then
-      Include(Shift, ssLeft);
-    if Msg.wParam and MK_RBUTTON <> 0 then
-      Include(Shift, ssRight);
-    if Msg.wParam and MK_MBUTTON <> 0 then
-      Include(Shift, ssMiddle);
-
     FOnMouseMove(X, Y, Shift);
   end;
+
+  FGUIManager.MouseMove(X, Y, Shift);
 end;
 
 procedure TdfRenderer.WMMouseWheel(var Msg: TMessage);
 var
+  X, Y: Integer;
   delta: SmallInt;
 begin
+  X := LOWORD(Msg.LParam);
+  Y := HIWORD(Msg.LParam);
   delta := HIWORD(Msg.WParam);
-  dfInput.KeyboardNotifyWheelMoved(delta);
+  FInput.KeyboardNotifyWheelMoved(delta);
+
+  FGUIManager.MouseWheel(X, Y, [], delta);
 end;
 
-procedure TdfRenderer.WMSize(var Msg: TMessage);
+procedure TdfRenderer.WMSize(var Msg: TWMSize);
 begin
-//  if (Camera <> nil) then
-    Camera.ViewportOnly(0, 0, LOWORD(Msg.lParam), HIWORD(Msg.lParam));
-  //Camera.SetViewport(0, 0, LOWORD(Msg.lParam), HIWORD(Msg.lParam));
+  if (Camera <> nil) then
+  begin
+    Camera.ViewportOnly(0, 0, Msg.Width, Msg.Height);
+  end;
 end;
 
 {$ENDREGION}
@@ -692,13 +649,21 @@ begin
 
   FRootNode := TdfNode.Create();
 
+  FInput := TdfInput.Create();
+
+  FGUIManager := TdfGUIManager.Create();
+
   uLogger.LogInit();
 end;
 
 destructor TdfRenderer.Destroy;
 begin
-  FRootNode := nil;
   FRenderReady := False;
+  FRootNode := nil;
+  FCamera := nil;
+  FInput := nil;
+  FGUIManager := nil;
+
   uLogger.LogDeinit();
   inherited;
 end;
@@ -1037,7 +1002,7 @@ begin
   if Assigned(FOnUpdate) then
     FOnUpdate(deltaTime);
 
-  wglMakeCurrent(FWDC, FGLRC);
+//  wglMakeCurrent(FWDC, FGLRC);
   gl.Clear(GL_COLOR_BUFFER_BIT);
   gl.Clear(GL_DEPTH_BUFFER_BIT);
   gl.MatrixMode(GL_MODELVIEW);
@@ -1050,7 +1015,7 @@ begin
 
   gl.PopMatrix();
   Windows.SwapBuffers(FWDC);
-  wglMakeCurrent(0, 0);
+//  wglMakeCurrent(0, 0);
 end;
 
 procedure TdfRenderer.Stop;
@@ -1062,34 +1027,22 @@ procedure TdfRenderer.Start();
 var
   msg: TMsg;
 begin
+  SendMessage(FWHandle, WM_ACTIVATE, WA_ACTIVE, FWHandle);
   repeat
     while PeekMessage(msg, 0, 0, 0, 1) do
     begin
-//      if GetMessage(msg, 0, 0, 0) then
-//      begin
-        TranslateMessage(msg);
-        DispatchMessageW(msg);
-//      end;
+      TranslateMessage(msg);
+      DispatchMessageW(msg);
     end;
-//    else
-//    begin
-      QueryPerformanceCounter(FNewTicks);
-      FDeltaTime := (FNewTicks - FOldTicks) / FFreq;
-      FOldTicks := FNewTicks;
-//      Inc(FFrames);
-      if FDeltaTime > 1 then
-        FDeltaTime := 0.5;
-      FFPS :=  1 / FDeltaTime;
-      if RenderReady then
-        Step(FDeltaTime);
-//      if FFrames >= 1000 then
-//      begin
-//        //Вывод фпс
-//        SetWindowText(WHandle, FloatToStr(FPS));
-//        FFrames := 0;
-//      end;
-//    end;
-  until not FEnabled{GetAsyncKeyState(VK_ESCAPE) < 0};
+    QueryPerformanceCounter(FNewTicks);
+    FDeltaTime := (FNewTicks - FOldTicks) / FFreq;
+    FOldTicks := FNewTicks;
+    if FDeltaTime > 1 then
+      FDeltaTime := 1;
+    FFPS :=  1 / FDeltaTime;
+    if RenderReady then
+      Step(FDeltaTime);
+  until not FEnabled;
 end;
 
 procedure TdfRenderer.DeInit();

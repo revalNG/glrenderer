@@ -11,8 +11,7 @@ uses
   SysUtils,
   dfHRenderer in '..\..\headers\dfHRenderer.pas',
   dfHEngine in '..\..\common\dfHEngine.pas',
-  dfMath in '..\..\common\dfMath.pas',
-  dfHInput in '..\..\common\dfHInput.pas';
+  dfMath in '..\..\common\dfMath.pas';
 
 var
   R: IdfRenderer;
@@ -70,7 +69,7 @@ var
 
   procedure OnUpdate(const dt: Double);
   begin
-    if dfInput.IsKeyDown(VK_ESCAPE) then
+    if R.Input.IsKeyDown(VK_ESCAPE) then
       R.Stop();
   end;
 

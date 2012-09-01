@@ -9,6 +9,7 @@ uses
 type
   TdfText = class(Tdf2DRenderable, IdfText)
   private
+    vp: TdfViewportParams;
     FFont: IdfFont;
     FText: String;
   protected
@@ -21,7 +22,11 @@ type
     procedure SetWidth(const aWidth: Single); override;
 //    function GetHeight(): Single; override;
     procedure SetHeight(const aHeight: Single); override;
+
+    procedure RecalcCoords(); override;
   public
+
+    destructor Destroy; override;
 
     property Font: IdfFont read GetFont write SetFont;
     property Text: String read GetText write SetText;
@@ -35,9 +40,15 @@ type
 implementation
 
 uses
-  dfHGL;
+  dfHGL, uRenderer;
 
 { TdfText }
+
+destructor TdfText.Destroy;
+begin
+  FFont := nil;
+  inherited;
+end;
 
 procedure TdfText.DoRender;
 begin
@@ -48,14 +59,14 @@ begin
   gl.MatrixMode(GL_PROJECTION);
   gl.PushMatrix();
   gl.LoadIdentity();
-  //Как получить размеры экрана??
-  gl.Ortho(0, 800, 600, 0, -1, 1);
+  vp := TheRenderer.Camera.GetViewport();
+  gl.Ortho(vp.X, vp.W, vp.H, vp.Y, -1, 1);
   gl.MatrixMode(GL_MODELVIEW);
   gl.LoadIdentity();
   gl.Translatef(FPos.x, FPos.y, 0);
   gl.Rotatef(FRot, 0, 0, 1);
-//  gl.Disable(GL_DEPTH_TEST);
-//  gl.Disable(GL_LIGHTING);
+  gl.Disable(GL_DEPTH_TEST);
+  gl.Disable(GL_LIGHTING);
 
   FFont.PrintText(FText);
   {Debug - выводим pivot point}
@@ -85,6 +96,12 @@ end;
 function TdfText.GetText: String;
 begin
   Result := FText;
+end;
+
+procedure TdfText.RecalcCoords;
+begin
+  //inherited;
+
 end;
 
 procedure TdfText.SetFont(aFont: IdfFont);

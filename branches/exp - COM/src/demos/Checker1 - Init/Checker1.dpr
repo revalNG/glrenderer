@@ -10,14 +10,13 @@ uses
   SysUtils,
   dfHRenderer in '..\..\headers\dfHRenderer.pas',
   dfMath in '..\..\common\dfMath.pas',
-  dfHEngine in '..\..\common\dfHEngine.pas',
-  dfHInput in '..\..\common\dfHInput.pas';
+  dfHEngine in '..\..\common\dfHEngine.pas';
 
 var
   R: IdfRenderer;
   dx, dy: Integer;
 
-  procedure OnMouseDown(X, Y: TdfInteger; MouseButton: TdfMouseButton; Shift: TdfMouseShiftState);
+  procedure OnMouseDown(X, Y: Integer; MouseButton: TdfMouseButton; Shift: TdfMouseShiftState);
   begin
     dx := x;
     dy := y;
@@ -43,7 +42,7 @@ var
 
   procedure OnUpdate(const dt: Double);
   begin
-    if dfInput.IsKeyDown(VK_ESCAPE) then
+    if R.Input.IsKeyDown(VK_ESCAPE) then
       R.Stop();
   end;
 

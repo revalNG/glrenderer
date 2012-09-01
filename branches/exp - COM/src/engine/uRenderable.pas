@@ -9,8 +9,8 @@ uses
 type
   TdfRenderable = class(TInterfacedObject, IdfRenderable)
   private
-    FMaterial: IdfMaterial;
   protected
+    FMaterial: IdfMaterial;
     function GetMaterial(): IdfMaterial;
     procedure SetMaterial(const aMat: IdfMaterial);
   public

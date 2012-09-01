@@ -54,6 +54,7 @@
 			<DCCReference Include="..\..\common\dfMath.pas"/>
 			<DCCReference Include="..\..\headers\dfHUtility.pas"/>
 			<DCCReference Include="..\..\common\dfHGL.pas"/>
+			<DCCReference Include="uEarthTools.pas"/>
 			<BuildConfiguration Include="Base">
 				<Key>Base</Key>
 			</BuildConfiguration>

@@ -62,7 +62,7 @@ type
 implementation
 
 uses
-  dfHGL, dfHInput;
+  dfHGL;
 
 
 { TdfLight }

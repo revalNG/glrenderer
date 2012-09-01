@@ -88,7 +88,7 @@ var
   i: Word;
   cdata: PdfCharData;
 begin
-  for i := 0 to Length(aText) - 1 do
+  for i := 1 to Length(aText) do
     if not AlreadyHaveSymbol(Word(aText[i])) then
     begin
       New(cdata);

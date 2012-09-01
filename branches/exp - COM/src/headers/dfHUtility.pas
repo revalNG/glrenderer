@@ -20,7 +20,7 @@ type
     TextObject: IdfText;
     FontObject: IdfFont;
     constructor Create(aRootNode: IdfNode; aText: String; aFreq: Double; aFont: IdfFont); virtual;
-    destructor Destroy;
+    destructor Destroy; override;
 
     procedure Update(const dt: Double);
   end;
@@ -60,9 +60,6 @@ begin
   if not Assigned(aFont) then
   begin
     FontObject := dfCreateFont();
-//    FontObject.AddRange('!', '~');
-//    FontObject.AddRange('À', 'ÿ');
-//    FontObject.AddRange(' ', ' ');
     FontObject.AddSymbols(FText + ' :.,0123456789');
     FontObject.FontSize := 14;
     FontObject.GenerateFromFont('Courier New');

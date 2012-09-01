@@ -398,7 +398,7 @@ begin
         Proc^[i] := GetProcAddress(Lib, ProcName[i]);
     end;
   end;
-  Set8087CW($133F);
+//  Set8087CW($133F);
 end;
 
 procedure TdfGL.Free;

@@ -36,13 +36,13 @@ const
   //табулятор
   ConstTab      : Char =         #9;
   //константные символы
-  ConstChars    : TdfString =  '[]():. <>';
+  ConstChars    : String =  '[]():. <>';
 
 type
   //базовая процедура
   //для вывода сообщений
   //(кодировка чистая анся)
-  TdfUniProc = function (Msg:TdfStringA):TdfStringA;
+  TdfUniProc = function (Msg: AnsiString): AnsiString;
 
   {$REGION 'dfLogger'}
 
@@ -52,31 +52,31 @@ type
     //основной поток
     FStream:TMemoryStream;
     //имя файла
-    FFileName:TdfStringA;
+    FFileName: AnsiString;
     //пишем в поток
-    procedure WriteToStream(Buffer:TdfStringA);
+    procedure WriteToStream(Buffer:AnsiString);
   public
     //ссылка на поток
     property Stream:TMemoryStream read FStream;
     //имя файла
-    property FileName:TdfStringA read FFileName;
+    property FileName:AnsiString read FFileName;
     //конструктор
-    constructor Create(const FName:TdfStringA='');
+    constructor Create(const FName:AnsiString='');
     //деструктор
     destructor Destroy;override;
     //Стандартные обработчики
     //сообщение
-    procedure WriteMessage(Msg:TdfStringA);overload;
+    procedure WriteMessage(Msg:AnsiString);overload;
     //сообщение и перевод строки
-    procedure WriteLnMessage(const Msg:TdfStringA = '');
+    procedure WriteLnMessage(const Msg:AnsiString = '');
     //сообщение с уникальной обработкой
-    procedure WriteMessage(Msg:TdfStringA;UniProc:TdfUniProc);overload;
+    procedure WriteMessage(Msg:AnsiString;UniProc:TdfUniProc);overload;
     //выводим конец строки
     procedure WriteEndl;
     //выводим табулятор
     procedure WriteTabChar;
     //выводим тэг
-    procedure WriteTag(Msg:TdfStringA);
+    procedure WriteTag(Msg:AnsiString);
   end;
 
   {$ENDREGION}
@@ -86,21 +86,21 @@ type
   TdfFormatlogger = class(TdfLogger)
   public
     //заголовок
-    procedure WriteHeader(Msg:TdfStringA);virtual;
+    procedure WriteHeader(Msg:AnsiString);virtual;
     //низ
-    procedure WriteBottom(Msg:TdfStringA);virtual;
+    procedure WriteBottom(Msg:AnsiString);virtual;
     //без формата
-    procedure WriteUnFormated(Msg:TdfStringA);virtual;
+    procedure WriteUnFormated(Msg:AnsiString);virtual;
     //das ahtung
-    procedure WriteWarning(Msg:TdfStringA);virtual;
+    procedure WriteWarning(Msg:AnsiString);virtual;
     //ошибка
-    procedure WriteError(Msg:TdfStringA);virtual;
+    procedure WriteError(Msg:AnsiString);virtual;
     //форматированный текст
-    procedure WriteText(Msg:TdfStringA;UniProc:TdfUniProc);virtual;
+    procedure WriteText(Msg:AnsiString;UniProc:TdfUniProc);virtual;
     //выводим с табулятором
-    procedure WriteTab(Msg:TdfStringA;const Count:byte = 1);virtual;
+    procedure WriteTab(Msg:AnsiString;const Count:byte = 1);virtual;
     //выводим с датой и временем
-    procedure WriteDateTime(Msg:TdfStringA);virtual;
+    procedure WriteDateTime(Msg:AnsiString);virtual;
   end;
 
   {$ENDREGION}
@@ -110,21 +110,21 @@ type
   TdfHtmlLogger = class(TdfFormatlogger)
   public
     //заголовок
-    procedure WriteHeader(Msg:TdfStringA);override;
+    procedure WriteHeader(Msg:AnsiString);override;
     //низ
-    procedure WriteBottom(Msg:TdfStringA);override;
+    procedure WriteBottom(Msg:AnsiString);override;
     //без формата (остался неизменным)
-    //procedure WriteUnFormated(Msg:TdfStringA);virtual;
+    //procedure WriteUnFormated(Msg:AnsiString);virtual;
     //das ahtung
-    procedure WriteWarning(Msg:TdfStringA);override;
+    procedure WriteWarning(Msg:AnsiString);override;
     //ошибка
-    procedure WriteError(Msg:TdfStringA);override;
+    procedure WriteError(Msg:AnsiString);override;
     //форматированный текст (остался неизменным)
-    //procedure WriteText(Msg:TdfStringA;UniProc:TdfUniProc);virtual;
+    //procedure WriteText(Msg:AnsiString;UniProc:TdfUniProc);virtual;
     //выводим с табулятором
-    procedure WriteTab(Msg:TdfStringA;const Count:byte = 1);override;
+    procedure WriteTab(Msg:AnsiString;const Count:byte = 1);override;
     //выводим с датой и временем
-    procedure WriteDateTime(Msg:TdfStringA);override;
+    procedure WriteDateTime(Msg:AnsiString);override;
   end;
 
   {$ENDREGION}
@@ -170,13 +170,13 @@ uses
 {$REGION 'dfLogger'}
 
 //пишем в поток
-procedure TdfLogger.WriteToStream(Buffer:TdfStringA);
+procedure TdfLogger.WriteToStream(Buffer:AnsiString);
 begin
   FStream.Write(PAnsiChar(Buffer)^,length(Buffer));
 end;
 
 //конструктор
-constructor TdfLogger.Create(const FName:TdfStringA='');
+constructor TdfLogger.Create(const FName:AnsiString='');
 begin
   FFileName:=FName;
   FStream:=TMemoryStream.Create;
@@ -195,21 +195,21 @@ end;
 
 //Стандартные обработчики
 //сообщение
-procedure TdfLogger.WriteMessage(Msg:TdfStringA);
+procedure TdfLogger.WriteMessage(Msg:AnsiString);
 begin
   Self.WriteToStream(Msg);
 end;
 
 //сообщение и перевод строки
-procedure TdfLogger.WriteLnMessage(const Msg:TdfStringA = '');
+procedure TdfLogger.WriteLnMessage(const Msg:AnsiString = '');
 begin
   Self.WriteToStream(Msg + ConstEndl);
 end;
 
 //сообщение с уникальной обработкой
-procedure TdfLogger.WriteMessage(Msg:TdfStringA;UniProc:TdfUniProc);
+procedure TdfLogger.WriteMessage(Msg:AnsiString;UniProc:TdfUniProc);
 var
-  MarkedMsg:TdfStringA;
+  MarkedMsg:AnsiString;
 begin
   //выполняем обработку
   MarkedMsg:=UniProc(Msg);
@@ -230,7 +230,7 @@ begin
 end;
 
 //выводим тэг
-procedure TdfLogger.WriteTag(Msg:TdfStringA);
+procedure TdfLogger.WriteTag(Msg:AnsiString);
 begin
   Self.WriteMessage(ConstChars[7]+Msg+ConstChars[8]);
 end;
@@ -240,48 +240,48 @@ end;
 {$REGION 'dfFormatLogger'}
 
 //заголовок
-procedure TdfFormatlogger.WriteHeader(Msg:TdfStringA);
+procedure TdfFormatlogger.WriteHeader(Msg:AnsiString);
 begin
   Self.WriteLnMessage(ConstFormatHeader);
   Self.WriteLnMessage(Msg);
 end;
 
 //низ
-procedure TdfFormatlogger.WriteBottom(Msg:TdfStringA);
+procedure TdfFormatlogger.WriteBottom(Msg:AnsiString);
 begin
   Self.WriteLnMessage(Msg);
   Self.WriteLnMessage(ConstFormatBottom);
 end;
 
 //без формата
-procedure TdfFormatlogger.WriteUnFormated(Msg:TdfStringA);
+procedure TdfFormatlogger.WriteUnFormated(Msg:AnsiString);
 begin
   //униформатный вывод
   Self.WriteMessage(Msg); 
 end;
 
 //das ahtung
-procedure TdfFormatlogger.WriteWarning(Msg:TdfStringA);
+procedure TdfFormatlogger.WriteWarning(Msg:AnsiString);
 begin
   Self.WriteMessage(ConstFormatWarning);
   Self.WriteLnMessage(Msg);  
 end;
 
 //ошибка
-procedure TdfFormatlogger.WriteError(Msg:TdfStringA);
+procedure TdfFormatlogger.WriteError(Msg:AnsiString);
 begin
   Self.WriteMessage(ConstFormatError);
   Self.WriteLnMessage(Msg);  
 end;
 
 //форматированный текст
-procedure TdfFormatlogger.WriteText(Msg:TdfStringA;UniProc:TdfUniProc);
+procedure TdfFormatlogger.WriteText(Msg:AnsiString;UniProc:TdfUniProc);
 begin
   Self.WriteMessage(Msg,UniProc);
 end;
 
 //выводим с табулятором
-procedure TdfFormatlogger.WriteTab(Msg:TdfStringA;const Count:byte = 1);
+procedure TdfFormatlogger.WriteTab(Msg:AnsiString;const Count:byte = 1);
 var
   Pos:byte;
 begin
@@ -291,10 +291,10 @@ begin
 end;
 
 //выводим с датой и временем
-procedure TdfFormatlogger.WriteDateTime(Msg:TdfStringA);
+procedure TdfFormatlogger.WriteDateTime(Msg:AnsiString);
 var
   StrTime:String;
-  ResStr:TdfStringA;
+  ResStr:AnsiString;
 begin
   DateTimeToString(StrTime,'hh:nn:ss.zzz',Time);
   ResStr:=ConstChars[1] + DateToStr(Date);
@@ -309,7 +309,7 @@ end;
 {$REGION 'dfHtmlLogger'}
 
 //заголовок
-procedure TdfHtmlLogger.WriteHeader(Msg:TdfStringA);
+procedure TdfHtmlLogger.WriteHeader(Msg:AnsiString);
 begin
   WriteLnMessage('<html>'#13#10'<header>' +
                   '<title>DiF Engine Log Html Output</title>'+
@@ -320,28 +320,28 @@ begin
 end;
 
 //низ
-procedure TdfHtmlLogger.WriteBottom(Msg:TdfStringA);
+procedure TdfHtmlLogger.WriteBottom(Msg:AnsiString);
 begin
   WriteLnMessage('<center>' + Msg + '</center>');
   WriteLnMessage('</body></html>');
 end;
 
 //das ahtung
-procedure TdfHtmlLogger.WriteWarning(Msg:TdfStringA);
+procedure TdfHtmlLogger.WriteWarning(Msg:AnsiString);
 begin
   WriteLnMessage('<b style="color:blue;">'+
                  ConstFormatWarning + Msg + '</b>');
 end;
 
 //ошибка
-procedure TdfHtmlLogger.WriteError(Msg:TdfStringA);
+procedure TdfHtmlLogger.WriteError(Msg:AnsiString);
 begin
   WriteLnMessage('<b style="color:red;">'+
                  ConstFormatError + Msg + '</b>');
 end;
 
 //выводим с табулятором
-procedure TdfHtmlLogger.WriteTab(Msg:TdfStringA;const Count:byte = 1);
+procedure TdfHtmlLogger.WriteTab(Msg:AnsiString;const Count:byte = 1);
 var
   NewCount,
   GetPos:Integer;
@@ -352,7 +352,7 @@ begin
 end;
 
 //выводим с датой и временем
-procedure TdfHtmlLogger.WriteDateTime(Msg:TdfStringA);
+procedure TdfHtmlLogger.WriteDateTime(Msg:AnsiString);
 begin
   inherited WriteDateTime(Msg);
   WriteLnMessage('<br>');
@@ -375,7 +375,7 @@ function LoggerAddLog(FileName:PWideChar):Boolean;
 var
   Logger:TdfFormatlogger;
   LoggerHtml:TdfHtmlLogger;
-  AString:TdfStringA;
+  AString:AnsiString;
 begin
   Result:=false;
   //проверить использует

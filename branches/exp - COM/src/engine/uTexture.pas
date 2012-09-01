@@ -127,6 +127,7 @@ begin
   if FLoaded then
     gl.BindTexture(GL_TEXTURE_2D, FTex.Id);
   _SetBlendingMode();
+  gl.TexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, aTextureMode[FCombineMode]);
 end;
 
 constructor TdfTexture.Create;
@@ -218,13 +219,9 @@ begin
   MagFilter := tmgNearest;
   BlendingMode := tbmOpaque;
   CombineMode := tcmModulate;
-//  gl.TexParameteri( GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER, GL_NEAREST );
-//	gl.TexParameteri( GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER, GL_NEAREST );
-
-//  gl.TexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
   gl.BindTexture(GL_TEXTURE_2D, 0);
   logWriteMessage('Загрузка текстуры завершена. ID = ' + IntToStr(FTex.Id) +
-    ' Размер текстуры: ' + IntToStr(FTex.Width) + 'x' + IntToStr(FTex.Height) + '; ' + IntToStr(SizeOfP(Data)) + ' байт');
+    ' Размер текстуры: ' + IntToStr(FTex.Width) + 'x' + IntToStr(FTex.Height) + '; ' + IntToStr(FTex.FullSize) + ' байт');
   Dispose(Data);
 
   FLoaded := True;
@@ -238,7 +235,6 @@ end;
 procedure TdfTexture.SetTexCombineMode(aMode: TdfTextureCombineMode);
 begin
   FCombineMode := aMode;
-  gl.TexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, aTextureMode[FCombineMode]);
 end;
 
 procedure TdfTexture.SetTexMagFilter(aFilter: TdfTextureMagFilter);

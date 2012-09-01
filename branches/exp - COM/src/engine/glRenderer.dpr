@@ -1,7 +1,14 @@
 {
+  TODO: Доступ к логгеру для приложений
+
   LD - Last Developed - Над чем работал в последний раз в этот день
 
 
+  2012-08-25 - LD - Idf2DScene. Надо что0то думать
+  2012-08-23 - LD - GUIManager.MouseDown, Up, Over, Out
+                    GUIElement - CheckHit
+  2012-08-23 - LD - GUIElement, GUIManager. Начал думать над Idf2DSceneManager
+                    TdfGUIButton._MouseDown
   2012-07-02 - LD - Спрайт выводится нормально, использует свои параметры.
                     Работает pivot point
   2012-07-01 - LD - Вывод спрайта с использованием матрицы Node. Херня какая-то
@@ -13,10 +20,10 @@
 
   BUGS:
 +  1. TdfNode пустой - не обрабатывает left, up и dir
--  2. TdfNode - Добавить CreateAsChild и сопутствующий функционал
++  2. TdfNode - Добавить CreateAsChild и сопутствующий функционал
 +     Вероятно, проще заглянуть в соответсствующий юнит DiF Engine
 +  3. TdfNode - поправить функционал в целом. Слишком много багов
-?  4. TInterfaceList странно зануляет ссылки в конце. Переделал под TList, но
++  4. TInterfaceList странно зануляет ссылки в конце. Переделал под TList, но
       надо разобраться
    5. TdfLight - наследник TdfNode, неверно. Лучше сделать его как TdfRenderable
       Но как тогда быть с перехватом SetPos?
@@ -29,14 +36,14 @@
 +     1. Camera - Базово сделано
 +     2. Light - Базово сделано, но заточено под один источник света
       3. Shaders
-      4. Textures
++     4. Textures
     2. Создание новых классов и интерфейсов графического движка:
 +     1. Node - Базово сделано
       2. Scene
       3. VBOBuffer
       4. Mesh
-      5. Sprite
-      6. Material
++     5. Sprite
++     6. Material
       7. Actor
     3. Создание вспомогательных классов и интерфейсов:
       1. Resource
@@ -64,7 +71,6 @@ uses
   uLogger in 'uLogger.pas',
   dfHEngine in '..\common\dfHEngine.pas',
   dfHGL in '..\common\dfHGL.pas',
-  dfHInput in '..\common\dfHInput.pas',
   dfLogger in '..\common\dfLogger.pas',
   dfMath in '..\common\dfMath.pas',
   dfHRenderer in '..\headers\dfHRenderer.pas',
@@ -79,11 +85,17 @@ uses
   uPrimitives in 'uPrimitives.pas',
   uUserRenderable in 'uUserRenderable.pas',
   uGUIElement in 'GUI\uGUIElement.pas',
-  uGUIButton in 'GUI\uGUIButton.pas';
+  uGUIButton in 'GUI\uGUIButton.pas',
+  uInput in 'uInput.pas',
+  uGUIManager in 'GUI\uGUIManager.pas';
 
 exports
-  CreateRenderer, CreateNode, CreateUserRender, CreateHUDSprite,
+  CreateRenderer, DestroyRenderer,
+
+  CreateNode, CreateUserRender, CreateHUDSprite,
   CreateMaterial, CreateTexture,
-  CreateFont, CreateText;
+  CreateFont, CreateText,
+
+  CreateGUIButton;
 begin
 end.

@@ -6,140 +6,85 @@ uses
   dfHRenderer, dfMath, dfHUtility,
 
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, ExtCtrls, StdCtrls;
+  Dialogs, ExtCtrls, StdCtrls, Menus, Spin;
 
 type
-  TtzEarthNode = record
-    position: TdfVec2f;
-    pointSprite: IdfSprite;
-  end;
-
-  TtzEarthMode = (emNewPoints, emSelectPoints);
+  TtzEditorMode = (emSelect, emEarth, emStaticObjects, emDynamicObjects, emPlayer);
 
   TForm1 = class(TForm)
     Panel1: TPanel;
     Button1: TButton;
     Button2: TButton;
-    GroupBox1: TGroupBox;
+    gbEarthTools: TGroupBox;
     btnEarthPathCreate: TButton;
     btnEarthPathSelect: TButton;
+    btnSelect: TButton;
+    btnEarth: TButton;
+    btnObjects: TButton;
+    gbEarthProperties: TGroupBox;
+    MainMenu1: TMainMenu;
+    N1: TMenuItem;
+    menuNewLevel: TMenuItem;
+    menuLoadLevel: TMenuItem;
+    menuSaveLevel: TMenuItem;
+    menuSaveLevelAs: TMenuItem;
+    N2: TMenuItem;
+    N3: TMenuItem;
+    N4: TMenuItem;
+    menuExit: TMenuItem;
+    editEarthPosX: TLabeledEdit;
+    editEarthPosY: TLabeledEdit;
+    editEarthIndex: TSpinEdit;
     Label1: TLabel;
-    Label2: TLabel;
-    Label3: TLabel;
-    Timer1: TTimer;
+    gbObjectProperties: TGroupBox;
+    editObjectPosY: TLabeledEdit;
+    editObjectPosX: TLabeledEdit;
+    editObjectSizeY: TLabeledEdit;
+    editObjectSizeX: TLabeledEdit;
+    editObjectRot: TLabeledEdit;
+    gbObjectTools: TGroupBox;
     procedure Button1Click(Sender: TObject);
     procedure Button2Click(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCreate(Sender: TObject);
     procedure btnEarthPathSelectClick(Sender: TObject);
     procedure btnEarthPathCreateClick(Sender: TObject);
-    procedure Timer1Timer(Sender: TObject);
-
+    procedure menuExitClick(Sender: TObject);
+    procedure btnSelectClick(Sender: TObject);
+    procedure btnEarthClick(Sender: TObject);
+    procedure btnObjectsClick(Sender: TObject);
   private
+    FEditorMode: TtzEditorMode;
+    function GetGroupBox1Pos(): TSize;
+    function GetGroupBox2Pos(): TSize;
+    procedure SetEditorMode(aMode: TtzEditorMode);
   public
+    procedure EnableAllButtons(aEnable: Boolean);
+
+    property EditorMode: TtzEditorMode read FEditorMode write SetEditorMode;
+    property GroupBox1Pos: TSize read GetGroupBox1Pos;
+    property GroupBox2Pos: TSize read GetGroupBox2Pos;
   end;
 
-  TtzMyThread = class(TThread)
-    procedure Execute(); override;
-  end;
-
-  procedure AddNewPointToEarthPath(X, Y: Integer; AtIndex: Integer);
-
-  procedure glrOnEarthRender(); stdcall;
   procedure glrOnUpdate(const dt: Double);
   procedure glrOnMouseDown(X, Y: Integer; MouseButton: TdfMouseButton; Shift: TdfMouseShiftState);
+
+const
+  C_POINTSPRTE_SIZE = 10;
+  C_SELECT_RADIUS = C_POINTSPRTE_SIZE + 5;
+  C_NORMAL_COLOR: TdfVec4f = (X: 0.5; Y: 0.5; z: 0.5; w: 1.0);
+  C_SELECT_COLOR: TdfVec4f = (X: 1.0; Y: 0.5; z: 0.5; w: 1.0);
 
 var
   Form1: TForm1;
 
   FRenderer: IdfRenderer;
-  FRenThread: TtzMyThread;
-
-  EarthMode: TtzEarthMode;
-  vp: TdfViewportParams;
-
-  {}
-  EarthPath: array of TtzEarthNode;
-  EarthRenderer: IdfUserRenderable;
 
 implementation
 
 uses
+  uEarthTools,
   dfHGL;
-
-procedure AddNewPointToEarthPath(X, Y: Integer; AtIndex: Integer);
-
-  procedure SlideArray(StartIndex: Integer);
-  var
-    i: Integer;
-  begin
-    for i := High(EarthPath) - 1 downto StartIndex do
-      EarthPath[i + 1] := EarthPath[i];
-  end;
-
-var
-  ind: Integer;
-begin
-  //Добавляем новую точку
-  ind := Length(EarthPath);
-  SetLength(EarthPath, ind + 1);
-  //Если необходимо вставить на существующую позицию, то сдвигаем массив
-  if AtIndex < ind then
-    SlideArray(atIndex);
-
-  with EarthPath[atIndex] do
-  begin
-    position := dfVec2f(X, Y);
-    pointSprite := dfNewSpriteWithNode(FRenderer.RootNode);
-    pointSprite.Position := position;
-    pointSprite.Width := 5;
-    pointSprite.Height := 5;
-    pointSprite.PivotPoint := ppCenter;
-  end;
-
-  Form1.Caption := 'X: ' + IntToStr(X) + '; Y: ' + IntToStr(Y);
-end;
-
-procedure glrOnEarthRender();
-var
-  i: Integer;
-begin
-//  wglMakeCurrent(FRenderer.DC, FRenderer.RC);
-  gl.MatrixMode(GL_PROJECTION);
-  gl.PushMatrix();
-  gl.LoadIdentity();
-  vp := FRenderer.Camera.GetViewport();
-  gl.Ortho(vp.X, vp.W, vp.H, vp.Y, -1, 1);
-//  gl.Ortho(0, 600, 450, 0, -1, 1);
-  gl.MatrixMode(GL_MODELVIEW);
-  gl.LoadIdentity();
-//  gl.Translatef(FPos.x, FPos.y, 0);
-//  gl.Rotatef(FRot, 0, 0, 1);
-  gl.Disable(GL_DEPTH_TEST);
-  gl.Disable(GL_LIGHTING);
-  gl.Beginp(GL_LINE_STRIP);
-    for i := Low(EarthPath) to High(EarthPath) do
-      gl.Vertex2fv(EarthPath[i].position);
-  gl.Endp;
-
-  {Debug - выводим pivot point}
-{
-  gl.PointSize(5);
-  gl.Color3f(1, 1, 1);
-  gl.Translatef(-FPos.x, -FPos.y, 0);
-  gl.Beginp(GL_POINTS);
-    gl.Vertex2fv(FPos);
-  gl.Endp();
-
-}
-
-  gl.Enable(GL_LIGHTING);
-  gl.Enable(GL_DEPTH_TEST);
-  gl.MatrixMode(GL_PROJECTION);
-  gl.PopMatrix();
-  gl.MatrixMode(GL_MODELVIEW);
-//  wglMakeCurrent(0, 0)
-end;
 
 procedure glrOnUpdate(const dt: Double);
 begin
@@ -147,28 +92,59 @@ begin
 end;
 
 procedure glrOnMouseDown(X, Y: Integer; MouseButton: TdfMouseButton; Shift: TdfMouseShiftState);
+
+  procedure EarthMouseDown(X, Y: Integer);
+  begin
+    with EarthTools do
+      case Mode of
+        emNewPoints: AddNewPointToEarthPath(X, Y, -1);
+        emSelectPoints: TrySelectPoint(X, Y);
+      end;
+  end;
+
+
 begin
   if MouseButton = TdfMouseButton(mbLeft) then
-    case EarthMode of
-      emNewPoints: AddNewPointToEarthPath(X, Y, High(EarthPath) + 1);
-      emSelectPoints: ;
+    case Form1.EditorMode of
+      emSelect: ;
+      emEarth: EarthMouseDown(X, Y);
+      emStaticObjects: ;
+      emDynamicObjects: ;
+      emPlayer: ;
     end;
+
+//    end;
 end;
 
 {$R *.dfm}
 
+procedure TForm1.btnEarthClick(Sender: TObject);
+begin
+  SetEditorMode(emEarth);
+end;
+
 procedure TForm1.btnEarthPathCreateClick(Sender: TObject);
 begin
-  EarthMode := emNewPoints;
+  EarthTools.Mode := emNewPoints;
   btnEarthPathCreate.Enabled := False;
   btnEarthPathSelect.Enabled := True;
 end;
 
 procedure TForm1.btnEarthPathSelectClick(Sender: TObject);
 begin
-  EarthMode := emSelectPoints;
+  EarthTools.Mode := emSelectPoints;
   btnEarthPathSelect.Enabled := False;
   btnEarthPathCreate.Enabled := True;
+end;
+
+procedure TForm1.btnObjectsClick(Sender: TObject);
+begin
+  SetEditorMode(emStaticObjects);
+end;
+
+procedure TForm1.btnSelectClick(Sender: TObject);
+begin
+  SetEditorMode(emSelect);
 end;
 
 procedure TForm1.Button1Click(Sender: TObject);
@@ -178,22 +154,18 @@ begin
   Button1.Enabled := False;
   FRenderer := dfCreateRenderer();
   Caption := 'glRenderer in VCL :: ' + FRenderer.VersionText;
-  FRenderer.Init(Panel1.Handle, 'settings.txt');
+  FRenderer.Init(Panel1.Handle, 'settings_TvsZ.txt');
   FRenderer.OnUpdate := glrOnUpdate;
   FRenderer.OnMouseDown := glrOnMouseDown;
   Button2.Enabled := True;
-  btnEarthPathSelectClick(Self);
+//  btnEarthPathSelectClick(Self);
+
+//  EnableAllButtons(True);
+  SetEditorMode(emSelect);
+
+  EarthTools := TtzEarthTools.Create(FRenderer.RootNode);
 
   //Создаем рендерер земли
-  EarthRenderer := dfCreateUserRender();
-
-  with dfCreateNode(FRenderer.RootNode) do
-    Renderable := EarthRenderer;
-
-  EarthRenderer.OnRender := glrOnEarthRender;
-//  FRenThread := TtzMyThread.Create(True);
-//  FRenThread.FreeOnTerminate := True;
-//  FRenThread.Resume;
   FRenderer.Start();
 end;
 
@@ -201,16 +173,22 @@ procedure TForm1.Button2Click(Sender: TObject);
 begin
   //Деинициализация
   Button2.Enabled := False;
+  EnableAllButtons(False);
   if Assigned(FRenderer) then
   begin
     FRenderer.Stop();
-//    FRenThread.Suspend;
-//    FRenThread.Terminate;
-//    FRenThread.Free;
     FRenderer.DeInit();
     FRenderer := nil;
   end;
   Button1.Enabled := True;
+  EarthTools.Free;
+end;
+
+procedure TForm1.EnableAllButtons(aEnable: Boolean);
+begin
+  btnSelect.Enabled := aEnable;
+  btnEarth.Enabled := aEnable;
+  btnObjects.Enabled := aEnable;
 end;
 
 procedure TForm1.FormClose(Sender: TObject; var Action: TCloseAction);
@@ -223,24 +201,96 @@ procedure TForm1.FormCreate(Sender: TObject);
 begin
   LoadRendererLib();
   gl.Init();
+  SetEditorMode(emSelect);
+  EnableAllButtons(False);
 end;
 
-procedure TForm1.Timer1Timer(Sender: TObject);
+function TForm1.GetGroupBox1Pos: TSize;
 begin
-  Panel1.Update;
-  Label1.Caption := 'Панель: ' + IntToStr(Panel1.Width) + ' ' + IntToStr(Panel1.Height);
-  if Assigned(FRenderer) then
+  Result.cx := Panel1.Width + 14;
+  Result.cy := 104;
+end;
+
+function TForm1.GetGroupBox2Pos: TSize;
+begin
+  Result.cx := Panel1.Width + 14;
+  Result.cy := 304;
+end;
+
+procedure TForm1.menuExitClick(Sender: TObject);
+begin
+  Close();
+end;
+
+procedure TForm1.SetEditorMode(aMode: TtzEditorMode);
+
+  procedure SetModeSelect();
   begin
-    Label2.Caption := 'У Renderer-а: ' + IntToStr(FRenderer.WindowWidth) + ' ' + IntToStr(FRenderer.WindowHeight);
+    gbEarthTools.Visible := False;
+    gbEarthProperties.Visible := False;
+    gbObjectTools.Visible := False;
+    gbObjectProperties.Visible := False;
+
+    btnSelect.Enabled := False;
+    btnEarth.Enabled := True;
+    btnObjects.Enabled := True;
   end;
-end;
 
-{ TtzMyThread }
+  procedure SetModeEarth();
+  var
+    pos1, pos2: TSize;
+  begin
+    pos1 := GroupBox1Pos;
+    pos2 := GroupBox2Pos;
 
-procedure TtzMyThread.Execute;
+    gbEarthTools.Visible := True;
+    gbEarthTools.Left := pos1.cx;
+    gbEarthTools.Top := pos1.cy;
+
+    gbEarthProperties.Visible := True;
+    gbEarthProperties.Left := pos2.cx;
+    gbEarthProperties.Top := pos2.cy;
+
+    gbObjectTools.Visible := False;
+    gbObjectProperties.Visible := False;
+
+    btnSelect.Enabled := True;
+    btnEarth.Enabled := False;
+    btnObjects.Enabled := True;
+  end;
+
+  procedure SetModeStaticObjects();
+  var
+    pos1, pos2: TSize;
+  begin
+    pos1 := GroupBox1Pos;
+    pos2 := GroupBox2Pos;
+
+    gbObjectTools.Visible := True;
+    gbObjectTools.Left := pos1.cx;
+    gbObjectTools.Top := pos1.cy;
+
+    gbObjectProperties.Visible := True;
+    gbObjectProperties.Left := pos2.cx;
+    gbObjectProperties.Top := pos2.cy;
+
+    gbEarthTools.Visible := False;
+    gbEarthProperties.Visible := False;
+
+    btnSelect.Enabled := True;
+    btnEarth.Enabled := True;
+    btnObjects.Enabled := False;
+  end;
+
 begin
-  inherited;
-  FRenderer.Start();
+  FEditorMode := aMode;
+  case aMode of
+    emSelect: SetModeSelect();
+    emEarth: SetModeEarth();
+    emStaticObjects: SetModeStaticObjects();
+    emDynamicObjects: ;
+    emPlayer: ;
+  end;
 end;
 
 end.

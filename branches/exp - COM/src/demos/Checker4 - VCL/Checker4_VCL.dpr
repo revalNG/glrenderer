@@ -7,7 +7,8 @@ uses
   dfHEngine in '..\..\common\dfHEngine.pas',
   dfMath in '..\..\common\dfMath.pas',
   dfHUtility in '..\..\headers\dfHUtility.pas',
-  dfHGL in '..\..\common\dfHGL.pas';
+  dfHGL in '..\..\common\dfHGL.pas',
+  uEarthTools in 'uEarthTools.pas';
 
 {$R *.res}
 
