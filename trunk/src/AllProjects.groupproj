@@ -1,0 +1,120 @@
+﻿	<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+		<PropertyGroup>
+			<ProjectGuid>{7E90EA50-C8ED-4A24-9346-BAAEA187BE57}</ProjectGuid>
+		</PropertyGroup>
+		<ItemGroup>
+			<Projects Include="engine\glRenderer.dproj">
+				<Dependencies/>
+			</Projects>
+			<Projects Include="demos\Checker1 - Init\Checker1.dproj">
+				<Dependencies/>
+			</Projects>
+			<Projects Include="demos\Checker2 - Sprites\Checker2.dproj">
+				<Dependencies/>
+			</Projects>
+			<Projects Include="demos\Checker5 - Simple GUI Demo\Checker5_GUI.dproj">
+				<Dependencies/>
+			</Projects>
+			<Projects Include="demos\Checker6 - Box2D Car Demo\Checker6.dproj">
+				<Dependencies/>
+			</Projects>
+			<Projects Include="demos\Project Survive any cost\survive.dproj">
+				<Dependencies/>
+			</Projects>
+			<Projects Include="demos\Project Ragdoll Sport\RagdollSport.dproj">
+				<Dependencies/>
+			</Projects>
+			<Projects Include="demos\Project Ragdoll Fighting\RagdollFighting.dproj">
+				<Dependencies/>
+			</Projects>
+		</ItemGroup>
+		<ProjectExtensions>
+			<Borland.Personality>Default.Personality.12</Borland.Personality>
+			<Borland.ProjectType/>
+			<BorlandProject>
+				<Default.Personality/>
+			</BorlandProject>
+		</ProjectExtensions>
+		<Target Name="glRenderer">
+			<MSBuild Projects="engine\glRenderer.dproj"/>
+		</Target>
+		<Target Name="glRenderer:Clean">
+			<MSBuild Targets="Clean" Projects="engine\glRenderer.dproj"/>
+		</Target>
+		<Target Name="glRenderer:Make">
+			<MSBuild Targets="Make" Projects="engine\glRenderer.dproj"/>
+		</Target>
+		<Target Name="Checker1">
+			<MSBuild Projects="demos\Checker1 - Init\Checker1.dproj"/>
+		</Target>
+		<Target Name="Checker1:Clean">
+			<MSBuild Targets="Clean" Projects="demos\Checker1 - Init\Checker1.dproj"/>
+		</Target>
+		<Target Name="Checker1:Make">
+			<MSBuild Targets="Make" Projects="demos\Checker1 - Init\Checker1.dproj"/>
+		</Target>
+		<Target Name="Checker2">
+			<MSBuild Projects="demos\Checker2 - Sprites\Checker2.dproj"/>
+		</Target>
+		<Target Name="Checker2:Clean">
+			<MSBuild Targets="Clean" Projects="demos\Checker2 - Sprites\Checker2.dproj"/>
+		</Target>
+		<Target Name="Checker2:Make">
+			<MSBuild Targets="Make" Projects="demos\Checker2 - Sprites\Checker2.dproj"/>
+		</Target>
+		<Target Name="Checker5_GUI">
+			<MSBuild Projects="demos\Checker5 - Simple GUI Demo\Checker5_GUI.dproj"/>
+		</Target>
+		<Target Name="Checker5_GUI:Clean">
+			<MSBuild Targets="Clean" Projects="demos\Checker5 - Simple GUI Demo\Checker5_GUI.dproj"/>
+		</Target>
+		<Target Name="Checker5_GUI:Make">
+			<MSBuild Targets="Make" Projects="demos\Checker5 - Simple GUI Demo\Checker5_GUI.dproj"/>
+		</Target>
+		<Target Name="Checker6">
+			<MSBuild Projects="demos\Checker6 - Box2D Car Demo\Checker6.dproj"/>
+		</Target>
+		<Target Name="Checker6:Clean">
+			<MSBuild Targets="Clean" Projects="demos\Checker6 - Box2D Car Demo\Checker6.dproj"/>
+		</Target>
+		<Target Name="Checker6:Make">
+			<MSBuild Targets="Make" Projects="demos\Checker6 - Box2D Car Demo\Checker6.dproj"/>
+		</Target>
+		<Target Name="survive">
+			<MSBuild Projects="demos\Project Survive any cost\survive.dproj"/>
+		</Target>
+		<Target Name="survive:Clean">
+			<MSBuild Targets="Clean" Projects="demos\Project Survive any cost\survive.dproj"/>
+		</Target>
+		<Target Name="survive:Make">
+			<MSBuild Targets="Make" Projects="demos\Project Survive any cost\survive.dproj"/>
+		</Target>
+		<Target Name="RagdollSport">
+			<MSBuild Projects="demos\Project Ragdoll Sport\RagdollSport.dproj"/>
+		</Target>
+		<Target Name="RagdollSport:Clean">
+			<MSBuild Targets="Clean" Projects="demos\Project Ragdoll Sport\RagdollSport.dproj"/>
+		</Target>
+		<Target Name="RagdollSport:Make">
+			<MSBuild Targets="Make" Projects="demos\Project Ragdoll Sport\RagdollSport.dproj"/>
+		</Target>
+		<Target Name="RagdollFighting">
+			<MSBuild Projects="demos\Project Ragdoll Fighting\RagdollFighting.dproj"/>
+		</Target>
+		<Target Name="RagdollFighting:Clean">
+			<MSBuild Targets="Clean" Projects="demos\Project Ragdoll Fighting\RagdollFighting.dproj"/>
+		</Target>
+		<Target Name="RagdollFighting:Make">
+			<MSBuild Targets="Make" Projects="demos\Project Ragdoll Fighting\RagdollFighting.dproj"/>
+		</Target>
+		<Target Name="Build">
+			<CallTarget Targets="glRenderer;Checker1;Checker2;Checker5_GUI;Checker6;survive;RagdollSport;RagdollFighting;multitetris"/>
+		</Target>
+		<Target Name="Clean">
+			<CallTarget Targets="glRenderer:Clean;Checker1:Clean;Checker2:Clean;Checker5_GUI:Clean;Checker6:Clean;survive:Clean;RagdollSport:Clean;RagdollFighting:Clean"/>
+		</Target>
+		<Target Name="Make">
+			<CallTarget Targets="glRenderer:Make;Checker1:Make;Checker2:Make;Checker5_GUI:Make;Checker6:Make;survive:Make;RagdollSport:Make;RagdollFighting:Make"/>
+		</Target>
+		<Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+	</Project>
